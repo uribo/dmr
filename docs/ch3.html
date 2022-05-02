@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.282">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rによるデータ解析のための前処理 - 3&nbsp; 表形式のデータソースからのデータ取得</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./ch4.html" rel="next">
+<link href="./ch2.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Rによるデータ解析のための前処理</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#readr" id="toc-readr" class="nav-link active" data-scroll-target="#readr"> <span class="header-section-number">3.1</span> テキストファイル</a>
+  <ul class="collapse">
+  <li><a href="#readrパッケージで扱えるデータ形式" id="toc-readrパッケージで扱えるデータ形式" class="nav-link" data-scroll-target="#readrパッケージで扱えるデータ形式"> <span class="header-section-number">3.1.1</span> readrパッケージで扱えるデータ形式</a></li>
+  <li><a href="#データ型の判定と列指定読み込み" id="toc-データ型の判定と列指定読み込み" class="nav-link" data-scroll-target="#データ型の判定と列指定読み込み"> <span class="header-section-number">3.1.2</span> データ型の判定と列指定読み込み</a></li>
+  <li><a href="#ロケール" id="toc-ロケール" class="nav-link" data-scroll-target="#ロケール"> <span class="header-section-number">3.1.3</span> ロケール</a></li>
+  </ul></li>
+  <li><a href="#readxl" id="toc-readxl" class="nav-link" data-scroll-target="#readxl"> <span class="header-section-number">3.2</span> エクセルファイル</a>
+  <ul class="collapse">
+  <li><a href="#シート指定の読み込み" id="toc-シート指定の読み込み" class="nav-link" data-scroll-target="#シート指定の読み込み"> <span class="header-section-number">3.2.1</span> シート指定の読み込み</a></li>
+  <li><a href="#列指定の読み込み" id="toc-列指定の読み込み" class="nav-link" data-scroll-target="#列指定の読み込み"> <span class="header-section-number">3.2.2</span> 列指定の読み込み</a></li>
+  <li><a href="#範囲を指定して読み込む" id="toc-範囲を指定して読み込む" class="nav-link" data-scroll-target="#範囲を指定して読み込む"> <span class="header-section-number">3.2.3</span> 範囲を指定して読み込む</a></li>
+  <li><a href="#特定の値を欠損とする" id="toc-特定の値を欠損とする" class="nav-link" data-scroll-target="#特定の値を欠損とする"> <span class="header-section-number">3.2.4</span> 特定の値を欠損とする</a></li>
+  </ul></li>
+  <li><a href="#まとめ" id="toc-まとめ" class="nav-link" data-scroll-target="#まとめ"> <span class="header-section-number">3.3</span> まとめ</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/ch3.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="data-loading" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></span></h1>
+</div>
+
+
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<!-- データベース、保存に関してはappendix扱い -->
+<!-- 表記の問題... 表計算、excel... エクセルでOK -->
+<p>Rにはデータソースとして一般的な<code>.csv</code>や<code>.txt</code>などのテキストファイルの入出力を行う関数が標準的に備わっている。また、パッケージを利用することでより多様なデータソース、例えばデータベース、地理空間データや画像、音声ファイルに対応することができる。標準の読み込み関数の機能改善を施したパッケージもある。ここではそうしたデータ読み込みパッケージの中から、データ分析の現場で汎用的なテキストファイルおよび表計算ソフトのエクセルファイルをR上で扱うものについて解説する。</p>
+<p>これらのパッケージはいずれもtidyverseに含まれ、読み込みの挙動を制御するオプションが豊富に備わっている。また読み込まれたオブジェクトはデータフレームであるが、追加のクラスとして<code>tbl\_df</code>が与えられる。</p>
+<section id="readr" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="readr"><span class="header-section-number">3.1</span> テキストファイル</h2>
+<p>テキストファイルは、特別なソフトを使わずに幅広い環境で利用可能な形式のファイルである。テキストファイルの一種であるカンマ(,)区切りのテキストファイル(<code>.csv</code>)は次のようにデータを格納する。この形式で記録されるデータの特徴は、行ごとにレコードを保持し、各項目をカンマによって区切っていくことだ。</p>
+<pre><code>date, value, type
+"2017-04-29", 14, b
+"2017-04-29", 8, a
+"2017-04-30", 21, b
+"2017-04-30", 4, c
+"2017-04-30", 9, c
+...</code></pre>
+<p>テキストファイルに記録されたデータをRに読み込むために<strong>readr</strong>パッケージを用いよう。<strong>readr</strong>パッケージはその名から想像される通り、R上でさまざまな種類のデータを読み込むためのパッケージである。多様な形式のファイルに対応できるよう、豊富な関数が用意されているが、読み込み関数は<code>read_*</code>という接頭辞をもつ。<code>*</code>で示した部分には対象のデータ形式が入る。つまりcsvファイルに対しては<code>read_csv()</code>を使うことになる。関数に指定するのは、接尾辞となっている形式のファイルまたは、ファイルの形式に従った文字列である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 本書のサンプルデータcsvファイルを読み込む</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_sns <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="at">file =</span> <span class="st">"data/sns.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1000 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (5): post_id, address, place_name, user_id, nationality
+dttm (1): post_time
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>このパッケージのファイル読み込み・書き込みの関数は、Rの標準的な関数よりも読み込みが高速である。また、読み込まれたデータは<code>tbl\_df</code>クラスが与えられ、出力時に各変数のデータ型の表示が行われる。加えて、ファイルに含まれる各変数のデータ型の指定がより的確、柔軟に行える点が特徴である。この特徴について詳しく見ていこう。</p>
+<section id="readrパッケージで扱えるデータ形式" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="readrパッケージで扱えるデータ形式"><span class="header-section-number">3.1.1</span> readrパッケージで扱えるデータ形式</h3>
+<p><strong>readr</strong>のファイル読み込みでは、コンピュータに保存されているファイルだけでなく、インターネット上のファイルや圧縮ファイルも扱える。この場合、他のファイルの読み込み方法と変わらず、第一引数に対象のファイルがあるパスを指定する。<strong>readr</strong>で扱うファイルの種類と対応する読み込み関数について表XXに整理した。インターネット上にあるファイルの場合にはコンピュータ内のパスではなくURLを指定することとなる。</p>
+<p>ファイルではなく、文字列を直接データとして扱うこともできる。この場合、利用する関数と区切り文字の関係に注意する必要がある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># カンマ区切りのデータを読み込む場合</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># read_csv()を利用する</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">'date, value, type</span><span class="sc">\n</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">"2017-04-29", 14, b</span><span class="sc">\n</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">"2017-04-29", 8, a</span><span class="sc">\n</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">"2017-04-30", 21, b</span><span class="sc">\n</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">"2017-04-30", 4, c</span><span class="sc">\n</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">"2017-04-30", 9, c'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 5 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (1): type
+dbl  (1): value
+date (1): date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># タブ区切りは\tで表現される。</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_tsv</span>(<span class="st">"x</span><span class="sc">\t</span><span class="st">y</span><span class="sc">\n</span><span class="st">1</span><span class="sc">\t</span><span class="st">2</span><span class="sc">\n</span><span class="st">3</span><span class="sc">\t</span><span class="st">4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 2 Columns: 2
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+dbl (2): x, y
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 任意の区切り文字を使用している場合には、read_delim()のdelim引数で区切り文字を指定する。</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_delim</span>(<span class="st">"x y</span><span class="sc">\n</span><span class="st">1 2</span><span class="sc">\n</span><span class="st">3 4"</span>, <span class="at">delim =</span> <span class="st">" "</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 2 Columns: 2
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: " "
+dbl (2): x, y
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_delim</span>(<span class="st">"x.y</span><span class="sc">\n</span><span class="st">1.2</span><span class="sc">\n</span><span class="st">3.4"</span>, <span class="at">delim =</span> <span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 2 Columns: 2
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "."
+dbl (2): x, y
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th>読み込み関数</th>
+<th>ファイル形式</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>read_lines()</code>, <code>read_lines_chunked()</code></td>
+<td>txt, csvなど</td>
+</tr>
+<tr class="even">
+<td><code>read_tsv()</code></td>
+<td>txt</td>
+</tr>
+<tr class="odd">
+<td><code>read_delim()</code>, <code>read_delim_chunked()</code></td>
+<td>txt</td>
+</tr>
+<tr class="even">
+<td><code>read_table()</code>, <code>read_table2()</code></td>
+<td>txt</td>
+</tr>
+<tr class="odd">
+<td><code>read_csv()</code>, <code>read_csv2()</code>, <code>read_csv_chunked()</code></td>
+<td>csv</td>
+</tr>
+<tr class="even">
+<td><code>read_fwf()</code></td>
+<td>txt (固定長)</td>
+</tr>
+<tr class="odd">
+<td><code>read_log()</code></td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td><code>read_rds()</code></td>
+<td>rds</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="データ型の判定と列指定読み込み" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="データ型の判定と列指定読み込み"><span class="header-section-number">3.1.2</span> データ型の判定と列指定読み込み</h3>
+<p><strong>readr</strong>の関数を使ったデータ読み込みが実行されると、コンソール上で対象のデータがもつ変数と、各変数をどのように処理して読み込んだかが出力される。これは<strong>readr</strong>がデータに含まれる各列の先頭100行分を読み、推測されたデータ型を自動的に判別し、適したデータ型への変換を行っている結果を示している。</p>
+<p>先の例の出力結果を改めて確認しよう。</p>
+<pre><code>Parsed with column specification:
+cols(
+  post_id = col_character(),
+  post_time = col_datetime(format = ""),
+  address = col_character(),
+  place_name = col_character(),
+  user_id = col_character(),
+  nationality = col_character()
+)
+</code></pre>
+<p><code>cols(...)</code>の中身がデータに対する処理の内容を記述しており、各行が対象データの列に対応する。<code>cols(...)</code>の中で6行分の出力がなされていることは対象データが6列からなることを示している。各行の内容は、<code>変数名 = col_*()</code>という形式になっており、左辺が変数名、右辺が読み込み時に適用されたデータ型の名を冠した関数である。この場合、文字列 (<code>col_character()</code>)および日付型 (<code>col_datetime()</code>)の2種類のデータ型が適用されている。</p>
+<p>Rの標準関数を利用した場合、読み込み後の変数がどのデータ型として扱われているかは利用者が出力を行いながら確認する必要があるが、<strong>readr</strong>では読み込み時にデータ型の出力を行う。そのため、例えば日付を示す変数が文字列型として処理されている場合などの非意図的なデータ型の変換トラブルを未然に防ぐことができるだろう。また文字列のデータを因子型として扱わない点も大きな違いとなる。これは標準的に備わっている関数<code>read.csv</code>の実行結果と比較するとよくわかる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># readrで読み込んだデータは、時間データに対して自動的な変換が行われている</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df_sns<span class="sc">$</span>post_time[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2016-04-01 09:37:43 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(df_sns<span class="sc">$</span>post_time[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "POSIXct" "POSIXt" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 標準の関数では同じpost_id列の値が因子型として扱われてしまっている</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>df_sns2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/sns.csv"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_sns2<span class="sc">$</span>post_time[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2016-04-01T09:37:43Z"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(df_sns2<span class="sc">$</span>post_time[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+</div>
+<p>パッケージ<strong>readr</strong>を使ったデータ読み込みではデータ型が自動的に適切に処理される例を示したが、<em>col_types</em>引数に渡す値を変更することで変数のデータ型をユーザが指定した形式で処理させることができる。</p>
+<p><em>col_types</em>引数には<code>cols()</code>を使って列の処理方法を指定することになる。これは先に見た<strong>readr</strong>の読み込み時にコンソールへ出力されるメッセージと同様のものである。すなわち、自動的に読み込みを行う場合と次のデータ型を指定した読み込みでは同じデータの読み込み結果となる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>         <span class="co"># col_types引数にデータ型を指定して読み込む変数名と</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>         <span class="co"># その処理に用いる関数を指定する</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">post_id     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">post_time   =</span> <span class="fu">col_datetime</span>(<span class="at">format =</span> <span class="st">""</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">address     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">place_name  =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">user_id     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">nationality =</span> <span class="fu">col_character</span>()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>cols()</code>内でどのようなデータ型で処理するかを定義しなかった列は、<strong>readr</strong>によって自動的にデータ型が判定される。そのため利用時には特定の列だけを<code>cols()</code>で定義しておくと良いだろう。対して、特定の列を読み込みの対象外にすることもできる。<code>col_skip()</code>はそのための関数である。</p>
+<p><em>col_types</em>引数で指定する<code>cols()</code>内部で定義可能なデータ型として、論理値、数値（整数、実数）、文字列、日時および時間型などがあり、これらは表XXに示すような対応関係にある。また、各データ型の省略表記も用意されており、これを関数の代わりに文字列として指定することもできる。</p>
+<!-- 表番号 -->
+<table class="table">
+<thead>
+<tr class="header">
+<th>データ型</th>
+<th>関数</th>
+<th>省略時の表記</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>論理値型</td>
+<td><code>col_logical()</code></td>
+<td>l</td>
+</tr>
+<tr class="even">
+<td>数値型(数字と.以外は無視する)</td>
+<td><code>col_number()</code></td>
+<td>n</td>
+</tr>
+<tr class="odd">
+<td>整数型</td>
+<td><code>col_integer()</code></td>
+<td>i</td>
+</tr>
+<tr class="even">
+<td>実数型</td>
+<td><code>col_double()</code></td>
+<td>d</td>
+</tr>
+<tr class="odd">
+<td>文字列型</td>
+<td><code>col_character()</code></td>
+<td>c</td>
+</tr>
+<tr class="even">
+<td>日付型 (Y-m-d表記)</td>
+<td><code>col_date(format)</code></td>
+<td>D</td>
+</tr>
+<tr class="odd">
+<td>日時型 (ISO8601形式)</td>
+<td><code>col_datetime(format, tz)</code></td>
+<td>T</td>
+</tr>
+<tr class="even">
+<td>時間型</td>
+<td><code>col_time(format)</code></td>
+<td>なし</td>
+</tr>
+<tr class="odd">
+<td>因子型</td>
+<td><code>col_factor(levels, ordered)</code></td>
+<td>なし</td>
+</tr>
+<tr class="even">
+<td>読み込み対象としない</td>
+<td><code>col_skip()</code></td>
+<td>_, -</td>
+</tr>
+</tbody>
+</table>
+<p><code>cols()</code>は関数であるので、読み込みを実行する<code>read_*()</code>とは独立してオブジェクト化しておくと、同様の構造を持ったデータに対して使いまわせる。次の例は、あらかじめ各列をどのようなデータ型として扱うかを定義しておくもので、一部の変数については<code>_</code>によって読み込みから除外している。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>data_vars <span class="ot">&lt;-</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols</span>(<span class="at">post_id     =</span> <span class="st">"_"</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">post_time   =</span> <span class="st">"c"</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">user_id     =</span> <span class="st">"c"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">address     =</span> <span class="st">"_"</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">place_name  =</span> <span class="st">"_"</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>         <span class="co"># 指定を省略した変数は自動的に判定されたデータ型が適用される</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> data_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 3
+   post_time            user_id    nationality
+   &lt;chr&gt;                &lt;chr&gt;      &lt;chr&gt;      
+ 1 2016-04-01T09:37:43Z A-8vImElYu US         
+ 2 2016-04-01T20:54:12Z A-zpNoCiF2 TH         
+ 3 2016-04-01T22:01:57Z C-hbtHidIz HK         
+ 4 2016-04-01T22:13:21Z B-QUU841zl ID         
+ 5 2016-04-02T08:18:09Z B-JzaPVHpY US         
+ 6 2016-04-02T11:16:27Z A-G6sGnoFV AU         
+ 7 2016-04-02T20:06:11Z C-NxooWvcI SG         
+ 8 2016-04-02T22:47:24Z C-xeQ41RtH CN         
+ 9 2016-04-03T00:26:41Z B-FkHjECs0 HK         
+10 2016-04-03T01:36:18Z C-Bd0DCcdp TH         
+# … with 990 more rows</code></pre>
+</div>
+</div>
+<p>また、特定の列だけを読み込む<code>cols_only()</code>も提供されている。扱う列が多いデータの場合には<code>cols()</code>ではなくこちらの関数を利用すると良い。</p>
+<div class="cell">
+
+</div>
+<!-- 
+変数名を定義する *col_names*、同じく変数のデータ型を指定 `col_types` 、さらには欠損値の扱いを決定する *na* 、読み込み時にスキップする行数を指定する *skip* がある。 -->
+</section>
+<section id="ロケール" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="ロケール"><span class="header-section-number">3.1.3</span> ロケール</h3>
+<p>ロケールとは<strong>多種多様な言語や単位、時間といった表記などの総称</strong>であり、国や地域、利用環境によって異なるロケールが設けられている。例えば、日付の要素である曜日や月は国家によって表現が異なることが多い。また日本では時間を表現するために「12時30分」のような表記が行われるが、国際的に一般的なのは「12:30」といった形式だろう。しかし「12時30分」も「12:30」も同じものを表現している。</p>
+<p>日本語文字列を保存したファイルで生じる<strong>文字化け</strong>もロケールに関する問題である。これは実行環境のオペレーションシステム (OS)によってデフォルトの文字エンコードが異なっているために生じる。Windows環境では、多くの場合、Microsoft社によって定義された”CP932”と呼ばれる日本語用のエンコードが与えられる。その他、日本語を取り扱うためにR内で利用可能で整備されているエンコード形式として、“EUC-JP”、“SJIS”、“SHIFT_JIS”、“UTF8”などがある。</p>
+<p>次の例は、Windows環境で作成されたcsvファイルをMacやUbuntuといったUNIX環境で開いた場合に表示されるエラーメッセージである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/housekeeping_cp932.csv"</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Error in make.names(x) : invalid multibyte string at '&lt;93&gt;&lt;fa&gt;&lt;95&gt;t'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Rでは、ファイル読み込み関数の実行時にファイルに対するエンコードを指定して文字化けを回避できる。<strong>readr</strong>においては <em>locale</em>引数で<code>locale()</code>という関数を実行する。<code>locale()</code>は、ロケールに関する設定を定義する関数であり、その中にエンコードを指定する<em>encoding</em>引数が用意されている。すなわち、先のファイルを適切に読み込むには次のコードを実行する必要がある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># readrパッケージではlocale引数でエンコードを指定したlocale()実行する</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/housekeeping_cp932.csv"</span>, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">encoding =</span> <span class="st">"cp932"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>ロケールの指定は文字列のエンコードだけでなく、日付・時間に関しても指定が可能である。次の例は、同一のファイルに対して時間のロケールを変更した処理である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>, </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">tz =</span> <span class="st">"UTC"</span>),</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">post_time =</span> <span class="st">"T"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 1
+   post_time          
+   &lt;dttm&gt;             
+ 1 2016-04-01 09:37:43
+ 2 2016-04-01 20:54:12
+ 3 2016-04-01 22:01:57
+ 4 2016-04-01 22:13:21
+ 5 2016-04-02 08:18:09
+ 6 2016-04-02 11:16:27
+ 7 2016-04-02 20:06:11
+ 8 2016-04-02 22:47:24
+ 9 2016-04-03 00:26:41
+10 2016-04-03 01:36:18
+# … with 990 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">tz =</span> <span class="st">"Asia/Tokyo"</span>),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">post_time =</span> <span class="st">"T"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 1
+   post_time          
+   &lt;dttm&gt;             
+ 1 2016-04-01 18:37:43
+ 2 2016-04-02 05:54:12
+ 3 2016-04-02 07:01:57
+ 4 2016-04-02 07:13:21
+ 5 2016-04-02 17:18:09
+ 6 2016-04-02 20:16:27
+ 7 2016-04-03 05:06:11
+ 8 2016-04-03 07:47:24
+ 9 2016-04-03 09:26:41
+10 2016-04-03 10:36:18
+# … with 990 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>, </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">tz =</span> <span class="st">"US/Arizona"</span>),</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">post_time =</span> <span class="st">"T"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 1
+   post_time          
+   &lt;dttm&gt;             
+ 1 2016-04-01 02:37:43
+ 2 2016-04-01 13:54:12
+ 3 2016-04-01 15:01:57
+ 4 2016-04-01 15:13:21
+ 5 2016-04-02 01:18:09
+ 6 2016-04-02 04:16:27
+ 7 2016-04-02 13:06:11
+ 8 2016-04-02 15:47:24
+ 9 2016-04-02 17:26:41
+10 2016-04-02 18:36:18
+# … with 990 more rows</code></pre>
+</div>
+</div>
+<p><code>locale()</code>で設定可能なロケールについて、表XXにまとめた。また<code>locale()</code>を引数なしで実行すると現在の実行環境でのロケール設定が出力される。これらのロケール設定は、ファイル読み込み時のエンコード以外に、日付・時間データや文字列データを扱う場合に有効となる。これらの話題については本書の該当する章で議論する。</p>
+<dl>
+<dt>date_names</dt>
+<dd>
+日付に関するロケールを言語レベルで指定
+</dd>
+<dt>date_format</dt>
+<dd>
+日付に関するロケールのフォーマット
+</dd>
+<dt>decimal_mark</dt>
+<dd>
+小数点を区切るための記号を指定
+</dd>
+<dt>tz</dt>
+<dd>
+タイムゾーンの指定。Rで利用可能な時間帯の名称は<code>OlsonNames()</code>で確認できる
+</dd>
+<dt>encoding</dt>
+<dd>
+文字列のエンコード形式
+</dd>
+</dl>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 現在のロケール設定を出力</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">locale</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;locale&gt;
+Numbers:  123,456.78
+Formats:  %AD / %AT
+Timezone: UTC
+Encoding: UTF-8
+&lt;date_names&gt;
+Days:   Sunday (Sun), Monday (Mon), Tuesday (Tue), Wednesday (Wed), Thursday
+        (Thu), Friday (Fri), Saturday (Sat)
+Months: January (Jan), February (Feb), March (Mar), April (Apr), May (May),
+        June (Jun), July (Jul), August (Aug), September (Sep), October
+        (Oct), November (Nov), December (Dec)
+AM/PM:  AM/PM</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 日本で利用される曜日、月、時間に関する設定を表示</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">locale</span>(<span class="at">date_names =</span> <span class="st">"ja"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;locale&gt;
+Numbers:  123,456.78
+Formats:  %AD / %AT
+Timezone: UTC
+Encoding: UTF-8
+&lt;date_names&gt;
+Days:   日曜日 (日), 月曜日 (月), 火曜日 (火), 水曜日 (水), 木曜日 (木), 金曜日
+        (金), 土曜日 (土)
+Months: 1月, 2月, 3月, 4月, 5月, 6月, 7月, 8月, 9月, 10月, 11月, 12月
+AM/PM:  午前/午後</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 日本で一般的な「年月日」の形式を日付として扱う</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parse_guess</span>(<span class="st">"2017年6月23日"</span>, </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">date_format =</span> <span class="st">"%Y年%m月%d日"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="readxl" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="readxl"><span class="header-section-number">3.2</span> エクセルファイル</h2>
+<p>表計算アプリケーションで用いられるバイナリファイルもまた、頻繁に利用されるデータ形式である。Rでもファイル形式が<code>.xls</code>および<code>.xlsx</code>からなるエクセルファイルを読み書きするパッケージが多く開発されている。これらのパッケージは表XXに示すように特徴が異なる。</p>
+<!-- readxlのみについて触れていれば良いか? -->
+<table class="table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 29%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>パッケージ</th>
+<th>読み込み</th>
+<th>書き込み</th>
+<th>シート名の取得</th>
+<th style="text-align: left;">特徴</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>readx</strong></td>
+<td><code>reax_excel()</code></td>
+<td>-</td>
+<td><code>excel_sheets()</code></td>
+<td style="text-align: left;">読み込みのみ。列のデータ型を細かく指定できる</td>
+</tr>
+<tr class="even">
+<td><strong>XLConnect</strong></td>
+<td><code>loadWorkbook()</code>, <code>readWorksheetFromFile()</code></td>
+<td><code>writeWorksheet()</code></td>
+<td><code>getTables()</code></td>
+<td style="text-align: left;">ファイルをデータベースのように読み書きすることができ、さらにはセルのスタイルなどの調整も可能。ただし、別途Javaがインストールされている必要がある</td>
+</tr>
+<tr class="odd">
+<td><strong>gdata</strong></td>
+<td><code>read.xls()</code></td>
+<td>(<code>write.fwf()</code>)</td>
+<td><code>sheetNames()</code></td>
+<td style="text-align: left;">読み込みだけが可能。Rでのデータ操作に関わる豊富な機能を備えた関数がある</td>
+</tr>
+<tr class="even">
+<td><strong>openxlsx</strong></td>
+<td><code>read.xlsx()</code></td>
+<td><code>write.xlsx()</code></td>
+<td><code>sheets()</code></td>
+<td style="text-align: left;">Javaがインストールされていない環境でも利用可能</td>
+</tr>
+<tr class="odd">
+<td><strong>xlsx</strong></td>
+<td><code>read.xlsx()</code>, <code>read.xlsx2()</code></td>
+<td><code>write.xlsx()</code></td>
+<td>-</td>
+<td style="text-align: left;">セルの編集や加工ができる</td>
+</tr>
+<tr class="even">
+<td><strong>repmis</strong></td>
+<td><code>source_XlsxData()</code></td>
+<td>-</td>
+<td>-</td>
+<td style="text-align: left;">URLを指定してファイルを読み込みことが可能</td>
+</tr>
+<tr class="odd">
+<td><strong>rio</strong></td>
+<td><code>readxl::read_excel()</code>, <code>openxlsx::read.xlsx()</code></td>
+<td><code>openxlsx::write.xlsx()</code></td>
+<td>-</td>
+<td style="text-align: left;">上記パッケージに実装された各関数へのラッパーとなっている</td>
+</tr>
+</tbody>
+</table>
+<p>本書では、このうち<strong>readxl</strong>パッケージを紹介する。このパッケージは C++で実装されたエクセルファイルの読み込み ライブラリを導入しており、Javaがインストールされていない環境でも動作する。ただしエクセル形式での保存には対応していないため、エクセルファイルとして書き込みを実行するには、別途<strong><code>writexl</code></strong>パッケージを利用することになる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>readxl</strong>でメインとなる関数は2つある。<code>.xls</code>、<code>.xlsx</code>ファイルをデータフレームとして読み込む<code>read_excel()</code>と、シート名を取得する<code>excel_sheets()</code>である。<code>read_excel()</code>はファイル形式を自動的に判別した読み込みを行う。一方でエクセルファイルの個々の形式に対応した関数、<code>read_xls()</code>(こちらはxls)、<code>read_xlsx()</code>(xlsx形式のファイルに対応)も用意されている。また、後述のように<code>read_excel()</code>では読み込み対象のエクセルファイル内のシートを指定する必要があるため、適宜<code>excel_sheets()</code>を実行してファイル中に含まれるシートの一覧を確認することで、ファイルを開いて確認するという手間を省くことができる。<code>read_excel()</code>には読み込み時のオプションが豊富に用意されている。これらはエクセルファイルで特徴的なシートやセルに適用できるものが多い。以下に<code>read_excel()</code>の主要な引数をまとめるが、<em>col_types</em>引数は<code>readr::read_*</code>のものとは挙動が異なるので注意が必要である。</p>
+<dl>
+<dt>path</dt>
+<dd>
+xls、xlsx形式ファイル(およびそのパス)を与える。
+</dd>
+<dt>sheet</dt>
+<dd>
+読み込み対象のシート名または番号を指定する。初期値として最初のシートが読み込まれる。
+</dd>
+<dt>range</dt>
+<dd>
+読み込み時の範囲指定を行うオプション。<code>B3:D66</code>のようにエクセルでのセルの選択形式が可能。
+</dd>
+<dt>col_names</dt>
+<dd>
+初期値ではシートの第一行を変数名として扱うが、同じ長さのベクトルから変数名を定義することができる。
+</dd>
+<dt>col_types</dt>
+<dd>
+R上での各変数のデータ型を指定する。初期値では自動的に推定されたデータ型が適用される (全ての変数に対してguessが適用される)。論理型 logical、数値 numeric、日付 date、文字列 textと、読み込みから除外する skip。一つの変数に複数のデータ型が含まれる場合、listとして読み込むのが適切である。
+</dd>
+<dt>na</dt>
+<dd>
+読み込み時に欠損値として処理する値。エクセルファイル上では欠損に空白を用いることが多いため、初期値で空白が指定されている。
+</dd>
+<dt>skip, n_max</dt>
+<dd>
+読み込みの行数を制御するオプション。<em>skip</em>引数で指定した行数が除外され、<em>n_max</em>で読み込み対象にする行数を指定する。
+</dd>
+</dl>
+<section id="シート指定の読み込み" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="シート指定の読み込み"><span class="header-section-number">3.2.1</span> シート指定の読み込み</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 対象のエクセルファイルのシート一覧を取得</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">excel_sheets</span>(<span class="st">"data/housekeeping.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Sheet1" "7月"   </code></pre>
+</div>
+</div>
+<p>エクセルファイルの読み込みを実行する<code>read_excel()</code>の基本的な使い方は、他のファイル読み込み関数と変わらず、読み込みの対象とするファイル名を第一引数に指定する。しかしエクセルファイルにはシートと呼ばれる機能があり、いわば一つのファイル中で複数のデータを格納することができるため、読み込み対象のシートについても<code>sheet</code>引数で指定する必要がある。これを指定しない場合、<code>read_excel()</code>は一番目のシートを読み込む。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">sheet =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 35 × 4
+   日付                項目        金額 備考    
+   &lt;dttm&gt;              &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   
+ 1 2009-05-10 00:00:00 帽子、洋服  9000 なし    
+ 2 2009-05-18 00:00:00 靴、カバン 20000 なし    
+ 3 2009-05-24 00:00:00 カメラ     40000 一眼レフ
+ 4 2009-05-29 00:00:00 飲み代      4000 &lt;NA&gt;    
+ 5 2009-06-05 00:00:00 散髪代      5000 なし    
+ 6 2009-06-13 00:00:00 本          4000 なし    
+ 7 2009-06-17 00:00:00 おもちゃ    5000 なし    
+ 8 2009-06-24 00:00:00 洋服       10000 &lt;NA&gt;    
+ 9 2009-06-25 00:00:00 靴          5000 &lt;NA&gt;    
+10 2009-06-28 00:00:00 電車代etc.  5000 &lt;NA&gt;    
+# … with 25 more rows</code></pre>
+</div>
+</div>
+<p><code>sheet</code>引数では、添字でシート番号を与えても良いし文字列でシート名を指定しても良い。この時、あらかじめ<code>excel_sheets()</code>でシート名をRオブジェクトとして取得し、それを利用することもできる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>sheets <span class="ot">&lt;-</span> <span class="fu">excel_sheets</span>(<span class="st">"data/housekeeping.xlsx"</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>           <span class="co"># 2番目のシートを読み込む</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">sheet =</span> sheets[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="列指定の読み込み" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="列指定の読み込み"><span class="header-section-number">3.2.2</span> 列指定の読み込み</h3>
+<p>データ型や列の除外により各列の読み込みの挙動を制御する<em>col_types</em>は、既定値では<em>NULL</em>が与えられる。各列には<strong>readxl</strong>が自動的に判断したデータ型が与えられるが、ユーザが個別にデータ型を指定することもできる。<em>col_types</em>引数に指定可能な値は、論理型 logical、数値 numeric、日付 date、文字列 text、リスト listおよび、自動推定を実行する guessと読み込みから除外する skipがある。各列のデータ型を自動処理した時と個別に指定した時の挙動をそれぞれ見てみよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>) <span class="sc">%&gt;%</span> <span class="fu">str</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [35 × 4] (S3: tbl_df/tbl/data.frame)
+ $ 日付: POSIXct[1:35], format: "2009-05-10" "2009-05-18" ...
+ $ 項目: chr [1:35] "帽子、洋服" "靴、カバン" "カメラ" "飲み代" ...
+ $ 金額: num [1:35] 9000 20000 40000 4000 5000 4000 5000 10000 5000 5000 ...
+ $ 備考: chr [1:35] "なし" "なし" "一眼レフ" NA ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>           <span class="co"># 各列のデータ型はベクトルで定義する</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 無視する、文字列、文字列、文字列の順で列に含まれるデータ型を指定する</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"skip"</span>, <span class="st">"text"</span>,<span class="st">"text"</span>, <span class="st">"text"</span>)) <span class="sc">%&gt;%</span> <span class="fu">str</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [35 × 3] (S3: tbl_df/tbl/data.frame)
+ $ 項目: chr [1:35] "帽子、洋服" "靴、カバン" "カメラ" "飲み代" ...
+ $ 金額: chr [1:35] "9000" "20000" "40000" "4000" ...
+ $ 備考: chr [1:35] "なし" "なし" "一眼レフ" NA ...</code></pre>
+</div>
+</div>
+<p>初めの例では”日付”列の値が日付を表すPOSIXctクラスとなっていることがわかる。他の列の値も R における適切なデータ型に変換されている。列のデータ型を指定した二番目の例では、<em>col_types</em>引数に与えた1番目の要素が skip となっており、読み込みから除外されている。また、他の列は全て text が与えられており、読み込み結果を見ると”日付”列は除外されており、他の列は文字列として処理されている。</p>
+</section>
+<section id="範囲を指定して読み込む" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="範囲を指定して読み込む"><span class="header-section-number">3.2.3</span> 範囲を指定して読み込む</h3>
+<p>次はデータの範囲指定を行った読み込みを行ってみよう。これには<em>range</em>引数を利用する。エクセルでのデータ入力の最小単位はセルであるが、セルには”A2”のような座標が与えられている。エクセルではA列からB列までの1から4行までのセルを読み込むには”A1:B4”とするが、<em>range</em>ではエクセルでのセル指定と同じ方法が利用できる。</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch3-1-excel-file.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">表計算アプリケーションに保存されたデータ</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">range =</span> <span class="st">"A1:B4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  日付                項目      
+  &lt;dttm&gt;              &lt;chr&gt;     
+1 2009-05-10 00:00:00 帽子、洋服
+2 2009-05-18 00:00:00 靴、カバン
+3 2009-05-24 00:00:00 カメラ    </code></pre>
+</div>
+</div>
+<p><em>range</em>引数の中では、セルの指定を補助する<code>cell_cols()</code>、<code>cell_rows()</code>といった関数が利用できる。また、より複雑な指定をするにはアンカー機能を実装した<code>anchored()</code>や<code>cell_limits()</code>を利用すると良い。こうした補助関数は<strong>cellranger</strong>パッケージにより実装されている。</p>
+<p>例えば特定の列を選択するには<code>cell_cols()</code>を利用して次のようにする。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2列目 (セルB) を読み込む</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 2つの例は同じ結果となる</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">range =</span> <span class="fu">cell_cols</span>(<span class="dv">2</span>))</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">range =</span> <span class="fu">cell_cols</span>(<span class="st">"B"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>アンカー機能を利用し、B4セルを起点として2行3列分のデータを読み込む処理では、<em>dim</em>引数により範囲となる行と列の数を調整する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>, </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">range =</span> <span class="fu">anchored</span>(<span class="st">"B4"</span>, <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>)), </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">col_names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  ...1    ...2 ...3    
+  &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;   
+1 カメラ 40000 一眼レフ
+2 飲み代  4000 &lt;NA&gt;    </code></pre>
+</div>
+</div>
+<p>読み込みの範囲を制御するオプションとして他に、<em>skip</em>、<em>n_max</em>引数が用意されている。これらはそれぞれ読み飛ばす先頭行の行数と読み込む行数を調整するものである。<em>skip</em>を用いる場合は次に示すように、読み飛ばした次の行が列名として与えられることになるので、<em>col_names</em>で<em>FALSE</em>を指定するか<em>col_names</em>で列名を与えると良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 先頭に列名を指定した行がある場合、skipで読み飛ばされてしまう</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">skip =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "39951"      "靴、カバン" "20000"      "なし"      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># col_names = FALSEとした時には列名はreadxlにより自動的に与えられる</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">skip =</span> <span class="dv">2</span>,</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">col_names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+• `` -&gt; `...1`
+• `` -&gt; `...2`
+• `` -&gt; `...3`
+• `` -&gt; `...4`</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "...1" "...2" "...3" "...4"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># col_namesで列名を与える</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"日付"</span>, <span class="st">"項目"</span>, <span class="st">"金額"</span>, <span class="st">"備考"</span>),</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">skip =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "日付" "項目" "金額" "備考"</code></pre>
+</div>
+</div>
+</section>
+<section id="特定の値を欠損とする" class="level3" data-number="3.2.4">
+<h3 data-number="3.2.4" class="anchored" data-anchor-id="特定の値を欠損とする"><span class="header-section-number">3.2.4</span> 特定の値を欠損とする</h3>
+<p>エクセル上で欠損は、空白セルによって表現されることが多いため、<strong>readxl</strong>では空白セルを欠損値として処理する。一方で、セルに対して明示的に欠損を示す文字列や値が与えられていることもあるだろう。例えば、これまで例として用いている「家計簿」データでは<em>備考</em>列で空白と「なし」と記述されたセルが混在している。読み込み後に「なし」を欠損として処理することも可能であるが、ここでは<em>na</em>引数を用いて「なし」を欠損値として処理してみよう。<em>na</em>は任意の文字列を欠損値扱いにするためのオプションである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 備考列の1, 2行目が「なし」となっている</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  日付                項目        金額 備考    
+  &lt;dttm&gt;              &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   
+1 2009-05-10 00:00:00 帽子、洋服  9000 なし    
+2 2009-05-18 00:00:00 靴、カバン 20000 なし    
+3 2009-05-24 00:00:00 カメラ     40000 一眼レフ</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># na引数で欠損値として処理する文字列を指定</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_excel</span>(<span class="st">"data/housekeeping.xlsx"</span>,</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">na =</span> <span class="st">"なし"</span>) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  日付                項目        金額 備考    
+  &lt;dttm&gt;              &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   
+1 2009-05-10 00:00:00 帽子、洋服  9000 &lt;NA&gt;    
+2 2009-05-18 00:00:00 靴、カバン 20000 &lt;NA&gt;    
+3 2009-05-24 00:00:00 カメラ     40000 一眼レフ</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="まとめ"><span class="header-section-number">3.3</span> まとめ</h2>
+<ul>
+<li>Rで取り扱うことができるファイルの形式は多様であるが、本章では中でも利用頻度の高いテキストファイル、エクセルファイルを取り扱う2つのパッケージ、<strong>readr</strong>、<strong>readxl</strong>を紹介した。</li>
+<li><strong>readr</strong>はR標準のテキストファイル入出力を実行する関数よりも高速である。また<strong>readr</strong>を使ったデータ読み込みは、各変数のデータ型が自動的に判定され、文字列の因子型への自動変換を行わないなどの特徴を備えている。また読み込まれたデータには、データフレームクラスの拡張である<code>tbl\_df</code>クラスが与えられる。</li>
+<li>エクセルファイルの読み込みとして<strong>readxl</strong>を導入することで、エクセルのシートや柔軟なセル範囲の指定を行った読み込みが可能となる。<strong>readxl</strong>には保存用の関数が用意されていないため、エクセルファイルへの出力は<strong>writexl</strong>などのパッケージを使うことになる。</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch2.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch4.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

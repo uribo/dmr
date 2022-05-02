@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.282">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rによるデータ解析のための前処理 - 6&nbsp; tidyverseの組み合わせ</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./ch7.html" rel="next">
+<link href="./ch5.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Rによるデータ解析のための前処理</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#snsデータの処理" id="toc-snsデータの処理" class="nav-link active" data-scroll-target="#snsデータの処理"> <span class="header-section-number">6.1</span> SNSデータの処理</a>
+  <ul class="collapse">
+  <li><a href="#期間を指定したデータの抽出" id="toc-期間を指定したデータの抽出" class="nav-link" data-scroll-target="#期間を指定したデータの抽出"> <span class="header-section-number">6.1.1</span> 期間を指定したデータの抽出</a></li>
+  <li><a href="#日付による集計" id="toc-日付による集計" class="nav-link" data-scroll-target="#日付による集計"> <span class="header-section-number">6.1.2</span> 日付による集計</a></li>
+  <li><a href="#地名の分割" id="toc-地名の分割" class="nav-link" data-scroll-target="#地名の分割"> <span class="header-section-number">6.1.3</span> 地名の分割</a></li>
+  <li><a href="#grouping-data" id="toc-grouping-data" class="nav-link" data-scroll-target="#grouping-data"> <span class="header-section-number">6.1.4</span> 入れ子データへのグループ処理</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/ch6.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="tidyverse" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></span></h1>
+</div>
+
+
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>前章までに扱ってきたtidyverseに含まれる個々のパッケージは、組み合わせて使うことでより多様な場面で活用することが期待される。例えばデータの読み込みを<strong>readr</strong>で行い、パイプ処理で<strong>dplyr</strong>による処理を適用できる。また、データフレームに含まれる文字列変数の操作に<strong>stringr</strong>を導入することも可能である。また、tidyrverseに含まれないパッケージであっても<strong>dplyr</strong>のデータ操作関数に適用しても良い。この章では、そのようなtidyverseのパッケージの組み合わせた活用方法を見ていくことにする。新たに用いる関数については都度解説を加えていくが、個別の関数の説明は該当するパッケージを扱っている章を参照してほしい。</p>
+<section id="snsデータの処理" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="snsデータの処理"><span class="header-section-number">6.1</span> SNSデータの処理</h2>
+<p>それでは<strong>tidyverse</strong>パッケージを読み込もう。<code>library(tidyverse)</code>を実行すると1章で述べたように、tidyverseに含まれる複数のパッケージが一度に利用可能な状態となる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ ggplot2 3.3.5     ✔ purrr   0.3.4
+✔ tibble  3.1.6     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.0
+✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+</div>
+<p>また、追加で次のパッケージを読み込んでおく。これらは4章で扱った、文字列および日付・時間の処理を効率的に行うための関数を提供する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tidyverseパッケージに含まれないパッケージを追加で利用可能にしておく</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringi)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+</div>
+<p>対象データとして、架空SNSのデータを利用する。こちらも<strong>readr</strong>の関数を用いて作業スペースに保存しておこう。<strong>readr</strong>パッケージはtidyverseに含まれるパッケージであるため、すでにデータ読み込み関数<code>read_csv()</code>を呼び出せるようになっている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># library(readr) を実行する必要はない</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_sns <span class="ot">&lt;-</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"data/sns.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1000 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (5): post_id, address, place_name, user_id, nationality
+dttm (1): post_time
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># データの先頭行および各変数のデータ型を確認</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 6
+   post_id      post_time           address       place_name user_id nationality
+   &lt;chr&gt;        &lt;dttm&gt;              &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;      
+ 1 EM7O3RINyaLS 2016-04-01 09:37:43 石川県鳳珠郡… &lt;NA&gt;       A-8vIm… US         
+ 2 vrpVbF83Kqhi 2016-04-01 20:54:12 大阪府大阪市… Gudetama … A-zpNo… TH         
+ 3 vwPvcEXCOa67 2016-04-01 22:01:57 大阪府泉南郡… 南海電鐵 … C-hbtH… HK         
+ 4 KPkonKKzmTep 2016-04-01 22:13:21 福島県福島市… &lt;NA&gt;       B-QUU8… ID         
+ 5 rwaUYGGTYoqz 2016-04-02 08:18:09 千葉県成田市… Tokyo,…    B-JzaP… US         
+ 6 ymuZbb5Mds54 2016-04-02 11:16:27 東京都江東区… Totem-Cir… A-G6sG… AU         
+ 7 yeQWTgSsvPYJ 2016-04-02 20:06:11 長崎県佐世保… Huis Ten … C-Nxoo… SG         
+ 8 beG3YjOzN4ac 2016-04-02 22:47:24 熊本県上益城… &lt;NA&gt;       C-xeQ4… CN         
+ 9 ZZzCIGx6H5j7 2016-04-03 00:26:41 福岡県福岡市… &lt;NA&gt;       B-FkHj… HK         
+10 GNam2fNqbeiE 2016-04-03 01:36:18 東京都江戸川… &lt;NA&gt;       C-Bd0D… TH         
+# … with 990 more rows</code></pre>
+</div>
+</div>
+<section id="期間を指定したデータの抽出" class="level3" data-number="6.1.1">
+<h3 data-number="6.1.1" class="anchored" data-anchor-id="期間を指定したデータの抽出"><span class="header-section-number">6.1.1</span> 期間を指定したデータの抽出</h3>
+<p><strong>df_sns</strong>の変数post_timeは日付・時間を示すPOSIXctクラスである。例えばこのような変数をもつデータに対して、特定の期間だけを抽出するというような処理を実行してみよう。これを行うには2つの方法が考えられ、一つは<strong>lubridate</strong>パッケージの演算子<code>%within%</code>と<code>interval()</code>を用いる方法、もう一つは<code>dplyr::between()</code>の上限と下限を設定する方法である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># POSIXctの変数から2つの時期を指定して抽出する</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># %within% 演算子は lubridateパッケージに含まれる</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df_filter_date1 <span class="ot">&lt;-</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    post_time <span class="sc">%within%</span> <span class="fu">interval</span>(<span class="fu">ymd_hms</span>(<span class="st">"2016-06-01 00:00:00"</span>), <span class="fu">ymd_hms</span>(<span class="st">"2016-06-05 23:59:59"</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>df_filter_date2 <span class="ot">&lt;-</span> </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    post_time,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ymd_hms</span>(<span class="st">"2016-06-01 00:00:00"</span>),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ymd_hms</span>(<span class="st">"2016-06-05 23:59:59"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 2つの処理の結果は等しい</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(df_filter_date1, df_filter_date2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>なおこの例では対象の期間を指定するために<code>lubridate::ymd_hms()</code>を用いたが、Rの標準関数である<code>Sys.time()</code>や<code>as.POSIXct()</code>を使って作成したPOSIXctクラスのオブジェクトであっても問題はない。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ymd_hms()の代わりにas.POSIXct()を用いる方法</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    post_time,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.POSIXct</span>(<span class="dv">1464739200</span>, <span class="at">origin =</span> <span class="st">"1970-01-01"</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.POSIXct</span>(<span class="dv">1465171199</span>, <span class="at">origin =</span> <span class="st">"1970-01-01"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="日付による集計" class="level3" data-number="6.1.2">
+<h3 data-number="6.1.2" class="anchored" data-anchor-id="日付による集計"><span class="header-section-number">6.1.2</span> 日付による集計</h3>
+<p>SNSデータには、投稿時間とともにユーザを識別するuser_id列がある。これを利用することで、興味のある月ごとにどれだけの投稿があったのか、どれだけのユーザが活動していたのかということや、ユーザの利用状況について集計することができる。こうした処理について、<strong>dplyr</strong>による実行例を見てみよう。</p>
+<section id="利用期間の算出" class="level4" data-number="6.1.2.1">
+<h4 data-number="6.1.2.1" class="anchored" data-anchor-id="利用期間の算出"><span class="header-section-number">6.1.2.1</span> 利用期間の算出</h4>
+<p>最初の例は、データ中でのユーザの利用期間について、ユーザ毎の最初と最後の投稿時間を得て、そこから算出するものである。この処理はいくつかの段階に分かれて行われる。順を追って説明しておこう。</p>
+<p>まず<code>lubridate::as_date()</code>で日付・時間の変数を日付へと変換する。次にユーザごとの処理を適用するために<code>group_by()</code>を実行し、ユーザごとのデータの集計値として<code>summarise()</code>で投稿の回数を<code>n()</code>で、最初と最後の投稿時間を<code>first()</code>および<code>last()</code>を使って求めている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_sns_user_session <span class="ot">&lt;-</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 日付・時間の変数を日付データに変換した列を追加</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(post_time)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(user_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 投稿の回数, 投稿日時から最初と最後のデータを取得する</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n          =</span> <span class="fu">n</span>(),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">first_post =</span> <span class="fu">first</span>(date),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">last_post  =</span> <span class="fu">last</span>(date))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>df_sns_user_session</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 775 × 4
+   user_id        n first_post last_post 
+   &lt;chr&gt;      &lt;int&gt; &lt;date&gt;     &lt;date&gt;    
+ 1 A-0baeebfD     2 2016-05-12 2016-07-13
+ 2 A-0BKhYkbN     1 2016-06-18 2016-06-18
+ 3 A-0c8xSlst     2 2016-05-07 2016-05-14
+ 4 A-0fASEKnR     1 2016-05-15 2016-05-15
+ 5 A-0G36mkoc     1 2016-06-06 2016-06-06
+ 6 A-0YECSFRb     1 2016-04-08 2016-04-08
+ 7 A-1dtiP8Yq     2 2016-06-03 2016-06-18
+ 8 A-1kIsN3FU     1 2016-05-27 2016-05-27
+ 9 A-1MbeVyol     1 2016-06-15 2016-06-15
+10 A-1Po7EMHT     1 2016-06-25 2016-06-25
+# … with 765 more rows</code></pre>
+</div>
+</div>
+<p>この出力は、ユーザID user_id、投稿回数 n、投稿を行った最初と最後の日付 first_postおよびlast_postである。続いて、各ユーザの最初の投稿日と最後の投稿日から<code>lubridate::interval()</code>を使ってデータ中の利用期間を求める。ここで投稿が一度しかないユーザは、利用期間が0となる。また、<code>interval()</code>によって算出されるIntervalオブジェクトの結果を理解しやすくするため、期間を日数に変換した列を作成する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_sns_user_session_period <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  df_sns_user_session <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(user_id,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>            n,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">usage_period      =</span> <span class="fu">interval</span>(first_post, last_post),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">usage_period_days =</span> <span class="fu">as.numeric</span>(usage_period, <span class="st">"days"</span>))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>df_sns_user_session_period</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 775 × 4
+   user_id        n usage_period                   usage_period_days
+   &lt;chr&gt;      &lt;int&gt; &lt;Interval&gt;                                 &lt;dbl&gt;
+ 1 A-0baeebfD     2 2016-05-12 UTC--2016-07-13 UTC                62
+ 2 A-0BKhYkbN     1 2016-06-18 UTC--2016-06-18 UTC                 0
+ 3 A-0c8xSlst     2 2016-05-07 UTC--2016-05-14 UTC                 7
+ 4 A-0fASEKnR     1 2016-05-15 UTC--2016-05-15 UTC                 0
+ 5 A-0G36mkoc     1 2016-06-06 UTC--2016-06-06 UTC                 0
+ 6 A-0YECSFRb     1 2016-04-08 UTC--2016-04-08 UTC                 0
+ 7 A-1dtiP8Yq     2 2016-06-03 UTC--2016-06-18 UTC                15
+ 8 A-1kIsN3FU     1 2016-05-27 UTC--2016-05-27 UTC                 0
+ 9 A-1MbeVyol     1 2016-06-15 UTC--2016-06-15 UTC                 0
+10 A-1Po7EMHT     1 2016-06-25 UTC--2016-06-25 UTC                 0
+# … with 765 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="期間中のカウント" class="level4" data-number="6.1.2.2">
+<h4 data-number="6.1.2.2" class="anchored" data-anchor-id="期間中のカウント"><span class="header-section-number">6.1.2.2</span> 期間中のカウント</h4>
+<p>次は、任意の期間を設定し、期間中の投稿件数と活動のあったユーザの数を調べてみよう。ここでは月単位でのデータを扱うことにする。<strong>df_sns</strong>には月を示す変数がないため、まずは既存の変数を元に、投稿の年月を示すpost_ym列を用意する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df_sns_yr <span class="ot">&lt;-</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    user_id,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 日付・時間の変数 post_timeの値から年、月を抽出</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">post_ym =</span> <span class="fu">str_c</span>(<span class="fu">year</span>(post_time), </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># 月の桁数を2桁に揃えるためにstringr::str_pad()を利用</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">str_pad</span>(<span class="fu">month</span>(post_time), <span class="at">width =</span> <span class="dv">2</span>, <span class="at">pad =</span> <span class="st">"0"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>ここでは、ユーザを識別するための user_id列以外の列は不要となるため、<code>transmutate()</code>を利用した。年および月の値の抽出には<strong>lubridate</strong>の関数を使っている。また月の値が1,12と桁数が異なるため、<code>stringr::str_pad()</code>による桁揃えを実行した。これにより作成された<strong>df_sns_yr</strong>は次のようになっている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df_sns_yr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 2
+   user_id    post_ym
+   &lt;chr&gt;      &lt;chr&gt;  
+ 1 A-8vImElYu 201604 
+ 2 A-zpNoCiF2 201604 
+ 3 C-hbtHidIz 201604 
+ 4 B-QUU841zl 201604 
+ 5 B-JzaPVHpY 201604 
+ 6 A-G6sGnoFV 201604 
+ 7 C-NxooWvcI 201604 
+ 8 C-xeQ41RtH 201604 
+ 9 B-FkHjECs0 201604 
+10 C-Bd0DCcdp 201604 
+# … with 990 more rows</code></pre>
+</div>
+</div>
+<p>では月ごとに全ユーザでどれだけの投稿があったかを求めよう。対象の行数を指定してカウントを行う<code>count()</code>を実行するだけで計算が行われる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 月ごとの投稿件数 n を求める</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df_sns_users <span class="ot">&lt;-</span> </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  df_sns_yr <span class="sc">%&gt;%</span> </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(post_ym)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>df_sns_users</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  post_ym     n
+  &lt;chr&gt;   &lt;int&gt;
+1 201604    146
+2 201605    379
+3 201606    325
+4 201607    150</code></pre>
+</div>
+</div>
+<p>今度は、月ごとに投稿のあったユーザの数、いわゆるユニークユーザ数を調べてみよう。ユニークユーザを求めるには、1月の中で複数のデータがあるユーザに対して1つのデータとして処理する必要がある。これは次のように<code>distinct()</code>を使うことで対応できる。後の処理は上記の月ごとの投稿件数と同じであるが、最後に<code>rename()</code>による列名の変換を行う。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df_sns_unique_users <span class="ot">&lt;-</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  df_sns_yr <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ユニークなデータとする組み合わせを指定</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(user_id, post_ym) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(post_ym) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">unique_user =</span> n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>では、月ごとのユニークユーザ数および投稿件数をまとめて見てみよう。共通のキーとなる変数をもった2つのデータを結合する<code>left_join()</code>を利用する。引数<em>by</em>で指定するキー変数はここでは投稿月 post_ymである。先ほどユニークユーザ数の算出でカウントした変数名の変更を行ったのは、キー変数に追加しない含めないためである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2つのデータフレームを結合</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>df_sns_user_count <span class="ot">&lt;-</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  df_sns_unique_users,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  df_sns_users,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"post_ym"</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>df_sns_user_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  post_ym unique_user     n
+  &lt;chr&gt;         &lt;int&gt; &lt;int&gt;
+1 201604          130   146
+2 201605          304   379
+3 201606          267   325
+4 201607          130   150</code></pre>
+</div>
+</div>
+<p>最後に、この結果を可視化するためのコードを以下に示す。ユニークユーザ数も投稿件数も、同一の月ごとに計算されたカウントの値であるため、<code>tidyr::gather()</code>を使い、一つの列に記録することとした。また可視化の際のラベルに日本語を用いるために<code>recode()</code>による値の置換を追加している。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df_sns_user_count_plot <span class="ot">&lt;-</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  df_sns_user_count <span class="sc">%&gt;%</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="st">"type"</span>, <span class="st">"count"</span>, <span class="sc">-</span>post_ym) <span class="sc">%&gt;%</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">recode</span>(type,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">n =</span> <span class="st">"投稿件数"</span>, </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">unique_user =</span> <span class="st">"ユニークユーザ数"</span>))</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>df_sns_user_count_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  post_ym type             count
+  &lt;chr&gt;   &lt;chr&gt;            &lt;int&gt;
+1 201604  ユニークユーザ数   130
+2 201605  ユニークユーザ数   304
+3 201606  ユニークユーザ数   267
+4 201607  ユニークユーザ数   130
+5 201604  投稿件数           146
+6 201605  投稿件数           379
+7 201606  投稿件数           325
+8 201607  投稿件数           150</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_sns_user_count_plot,</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(post_ym, count, <span class="at">group =</span> type)) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">lty =</span> type))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch6_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>続いて、国籍・曜日別の投稿件数を調べるという処理を示す。曜日の情報は次のように<code>lubridate::wday()</code>を使うことで、日付の要素を含んだデータから簡単に求めることができる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df_sns_wod <span class="ot">&lt;-</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 国籍の情報がない行を除外</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(nationality)) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(nationality,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 投稿時間から曜日を取得。日本語での表記を採用するため</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>            <span class="co"># locale引数を調整する</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">wod =</span> <span class="fu">wday</span>(post_time, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">TRUE</span>, <span class="at">locale =</span> <span class="st">"ja_JP.UTF-8"</span>))</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>df_sns_wod</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 979 × 2
+   nationality wod  
+   &lt;chr&gt;       &lt;ord&gt;
+ 1 US          金   
+ 2 TH          金   
+ 3 HK          金   
+ 4 ID          金   
+ 5 US          土   
+ 6 AU          土   
+ 7 SG          土   
+ 8 CN          土   
+ 9 HK          日   
+10 TH          日   
+# … with 969 more rows</code></pre>
+</div>
+</div>
+<p>次に<code>wday(locale = "ja_JP.UTF-8")</code>の指定により曜日の表記が日本語になったことに対応させて、国籍名も日本語に修正し、国籍・曜日別のデータの可視化を行おう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_sns_wod <span class="ot">&lt;-</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  df_sns_wod <span class="sc">%&gt;%</span> </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nationality =</span> <span class="fu">recode</span>(nationality,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">AU =</span> <span class="st">"オーストラリア"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">CN =</span> <span class="st">"中国"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">ES =</span> <span class="st">"スペイン"</span>,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>                              <span class="at">FR =</span> <span class="st">"フランス"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>                              <span class="at">GB =</span> <span class="st">"イギリス"</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>                              <span class="at">HK =</span> <span class="st">"香港"</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>                              <span class="at">ID =</span> <span class="st">"インドネシア"</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>                              <span class="at">IN =</span> <span class="st">"インド"</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>                              <span class="at">KR =</span> <span class="st">"韓国"</span>,</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>                              <span class="at">MY =</span> <span class="st">"マレーシア"</span>,</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>                              <span class="at">PH =</span> <span class="st">"フィリピン"</span>,</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>                              <span class="at">SG =</span> <span class="st">"シンガポール"</span>,</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>                              <span class="at">TH =</span> <span class="st">"タイ"</span>,</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>                              <span class="at">TW =</span> <span class="st">"台湾"</span>,</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>                              <span class="at">US =</span> <span class="st">"アメリカ"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df_sns_wod <span class="sc">%&gt;%</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(wod, nationality) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(wod, n)) <span class="sc">+</span> </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"投稿件数"</span>) <span class="sc">+</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> nationality)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch6_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>同様に、国籍を大陸ごとにまとめてプロットを行う例を以下に示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>df_sns_wod <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">continent =</span> <span class="fu">fct_collapse</span>(nationality,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>             アジア    <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"中国"</span>, <span class="st">"香港"</span>, <span class="st">"インドネシア"</span>, <span class="st">"インド"</span>, <span class="st">"韓国"</span>, </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"マレーシア"</span>, <span class="st">"フィリピン"</span>, <span class="st">"シンガポール"</span>, <span class="st">"タイ"</span>, <span class="st">"台湾"</span>),</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>             アメリカ <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"アメリカ"</span>),</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>             ヨーロッパ  <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"スペイン"</span>, <span class="st">"フランス"</span>, <span class="st">"イギリス"</span>),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>             オセアニア <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"オーストラリア"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(wod, continent) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(wod, n)) <span class="sc">+</span> </span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> continent) <span class="sc">+</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">14</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch6_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="地名の分割" class="level3" data-number="6.1.3">
+<h3 data-number="6.1.3" class="anchored" data-anchor-id="地名の分割"><span class="header-section-number">6.1.3</span> 地名の分割</h3>
+<p><strong>df_sns</strong>に記録されているaddress列は、都道府県名、市区町村名、町字の3要素に分解可能な住所文字列である。これを<strong>dplyr</strong>を使い、データフレームを対象とした操作で個々の要素に分割した列を作成する処理を考えてみよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># addressには住所が記録されている</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>df_sns<span class="sc">$</span>address[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "石川県鳳珠郡 能登町"            "大阪府大阪市 北区角田町5"      
+[3] "大阪府泉南郡 田尻町泉州空港中1" "福島県福島市入江町1"           
+[5] "千葉県成田市木の根3"           </code></pre>
+</div>
+</div>
+<p>ここでは<strong>stringr</strong>パッケージの関数を用いる例を説明する。都道府県と市区町村の抽出にはそれぞれ、文字列置換の関数<code>str_replace()</code>と文字列分割の関数<code>str_split()</code>を使う。データフレームに対して処理を適用する前にまずはベクトルを操作対象として結果を確認しておこう。</p>
+<p>都道府県名を取得するために、「都」、「道」、「府」、「県」を境界とし、前半を都道府県名にするパターンが考えられる。一方でこのパターンでは「京都府」の分割に失敗してしまう。そこで「都」の代わりに「東京都」を指定した次のパターンを実行することにする。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 抽出に失敗するパターン</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace</span>(</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"東京都渋谷区桜ヶ丘"</span>, </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"岡山県岡山市北区清心町"</span>, </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"茨城県つくば市小野川"</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"京都府舞鶴市字浜"</span>), </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">pattern     =</span> <span class="st">"(都|道|府|県).+"</span>, </span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">replacement =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "東京都" "岡山県" "茨城県" "京都"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 都道府県名の抽出</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 一致したパターンを再利用するために後方参照を行う</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace</span>(df_sns<span class="sc">$</span>address[<span class="dv">5</span><span class="sc">:</span><span class="dv">10</span>], </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">pattern     =</span> <span class="st">"(東京都|道|府|県).+"</span>, </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">replacement =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "千葉県" "東京都" "長崎県" "熊本県" "福岡県" "東京都"</code></pre>
+</div>
+</div>
+<p>次に市区町村名であるが、これは先ほどの都道府県以降の文字列を得るために分割を行い、その後改めて後方参照による文字列置換を行うという方法をとる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 市区町村名の抽出</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str_split</span>(df_sns<span class="sc">$</span>address[<span class="dv">15</span><span class="sc">:</span><span class="dv">20</span>], </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">pattern =</span> <span class="st">"(東京都|道|府|県)"</span>, </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">n       =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_chr</span>(<span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace</span>(<span class="at">string      =</span> ., </span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">pattern     =</span> <span class="st">"(区|市|.+市 .+区|町|村).+"</span>, </span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">replacement =</span>  <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "成田市"        "泉南郡 田尻町" "渋谷区"        "新宿区"       
+[5] "御殿場市"      "松戸市"       </code></pre>
+</div>
+</div>
+<p>ベクトルでの結果を確認したら、次はその処理を<strong>dplyr</strong>を使いデータフレームへ適用しよう。変数の参照にデータフレームのオブジェクト名とドル記号を省略し、変数名を直接指定したものを、<code>transmute()</code>あるいは<code>mutate()</code>へとコピーペーストするだけで良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># transmute内の変数への処理は上記のコードをコピーペーストしたもの</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(address,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">geo_prefecture =</span> <span class="fu">str_replace</span>(address, <span class="st">"(東京都|道|府|県).+"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>),</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">geo_city       =</span> <span class="fu">str_split</span>(address, <span class="st">"(東京都|道|府|県)"</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>              <span class="fu">map_chr</span>(<span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>              <span class="fu">str_replace</span>(<span class="at">string      =</span> ., </span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">pattern     =</span> <span class="st">"(区|市|.+市 .+区|町|村).+"</span>, </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">replacement =</span>  <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,000 × 3
+   address                         geo_prefecture geo_city       
+   &lt;chr&gt;                           &lt;chr&gt;          &lt;chr&gt;          
+ 1 石川県鳳珠郡 能登町             石川県         鳳珠郡 能登町  
+ 2 大阪府大阪市 北区角田町5        大阪府         大阪市 北区    
+ 3 大阪府泉南郡 田尻町泉州空港中1  大阪府         泉南郡 田尻町  
+ 4 福島県福島市入江町1             福島県         福島市         
+ 5 千葉県成田市木の根3             千葉県         成田市         
+ 6 東京都江東区青海一丁目1         東京都         江東区         
+ 7 長崎県佐世保市ハウステンボス町8 長崎県         佐世保市       
+ 8 熊本県上益城郡 嘉島町           熊本県         上益城郡 嘉島町
+ 9 福岡県福岡市 中央区             福岡県         福岡市         
+10 東京都江戸川区東葛西五丁目19    東京都         江戸川区       
+# … with 990 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="grouping-data" class="level3" data-number="6.1.4">
+<h3 data-number="6.1.4" class="anchored" data-anchor-id="grouping-data"><span class="header-section-number">6.1.4</span> 入れ子データへのグループ処理</h3>
+<p>グループ化したデータに含まれる値を操作するには、データを入れ子にしておくと便利である。ここでは<strong>tidyr</strong>と<strong>purrr</strong>による入れ子データへのグループ処理の例を見ていこう。</p>
+<p>まず処理を別々に適用したい入れ子データの作成であるが、これは<code>tidyr::nest()</code>を直接使う方法と<code>dplyr::group_by()</code>を間にはさむ実行方法がある。次の例は<strong>df_sns</strong>データの国籍 nationality列ごとにデータをグループ化し、入れ子データとして格納するものであるが、いずれも結果は等しい。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>df_sns_nest_nations <span class="ot">&lt;-</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(nationality) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>()</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 上記のコードと同じ処理を実行</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>df_sns_nest_nations <span class="ot">&lt;-</span> </span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  df_sns <span class="sc">%&gt;%</span> </span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="sc">-</span>nationality)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: All elements of `...` must be named.
+Did you want `data = -nationality`?</code></pre>
+</div>
+</div>
+<p>では国籍ごとに投稿件数が多いユーザ上位3名のuser_idおよび投稿件数を抽出する処理を実行しよう。ここで入れ子データへの関数の適用は<strong>purrr</strong>の<code>map*()</code>を使う。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>df_sns_nest_nations <span class="sc">%&gt;%</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    nationality,</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_n =</span> <span class="fu">map</span>(data, <span class="sc">~</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>      .x <span class="sc">%&gt;%</span> </span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">count</span>(user_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">top_n</span>(<span class="dv">3</span>, <span class="at">wt =</span> n))</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `cols` is now required when using unnest().
+Please use `cols = c(max_n)`</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 165 × 3
+   nationality user_id        n
+   &lt;chr&gt;       &lt;chr&gt;      &lt;int&gt;
+ 1 US          A-Tz38wKFN     3
+ 2 US          C-EWrFgfFO     3
+ 3 US          C-vXf2Pfso     3
+ 4 TH          A-hmIIeiyU     3
+ 5 TH          B-3rIzdYs2    10
+ 6 TH          C-v48Px9pW     4
+ 7 TH          C-VaZADtzv     3
+ 8 HK          C-3njvd4vb     9
+ 9 HK          C-hbtHidIz     5
+10 HK          C-OvYgclto     5
+# … with 155 more rows</code></pre>
+</div>
+</div>
+<p>もう一つ、今度は国籍別の投稿件数とユニークユーザ数を求める処理を示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>df_sns_nest_nations <span class="sc">%&gt;%</span> </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    nationality,</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">map_int</span>(data, <span class="sc">~</span> <span class="fu">nrow</span>(..<span class="dv">1</span>)),</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">uu =</span> <span class="fu">map_int</span>(data, <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(user_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">nrow</span>())</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 3
+   nationality     n    uu
+   &lt;chr&gt;       &lt;int&gt; &lt;int&gt;
+ 1 US            152   134
+ 2 TH            166   131
+ 3 HK             58    35
+ 4 ID            119    97
+ 5 AU             23    23
+ 6 SG             29    29
+ 7 CN             84    62
+ 8 MY             30    26
+ 9 PH             77    67
+10 KR            138    67
+11 GB             34    32
+12 ES             20    16
+13 FR             19    14
+14 &lt;NA&gt;           21    21
+15 TW             29    24
+16 IN              1     1</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch5.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch7.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

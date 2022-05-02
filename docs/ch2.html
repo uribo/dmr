@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.282">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rによるデータ解析のための前処理 - 2&nbsp; データ整形および操作: tidyr, dplyrパッケージの基礎</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./ch3.html" rel="next">
+<link href="./ch1.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Rによるデータ解析のための前処理</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#データ自由自在" id="toc-データ自由自在" class="nav-link active" data-scroll-target="#データ自由自在"> <span class="header-section-number">2.1</span> データ自由自在</a>
+  <ul class="collapse">
+  <li><a href="#横長データと縦長データ" id="toc-横長データと縦長データ" class="nav-link" data-scroll-target="#横長データと縦長データ"> <span class="header-section-number">2.1.1</span> 横長データと縦長データ</a></li>
+  <li><a href="#複数列への分割" id="toc-複数列への分割" class="nav-link" data-scroll-target="#複数列への分割"> <span class="header-section-number">2.1.2</span> 複数列への分割</a></li>
+  <li><a href="#複数行への分割" id="toc-複数行への分割" class="nav-link" data-scroll-target="#複数行への分割"> <span class="header-section-number">2.1.3</span> 複数行への分割</a></li>
+  <li><a href="#入れ子データ" id="toc-入れ子データ" class="nav-link" data-scroll-target="#入れ子データ"> <span class="header-section-number">2.1.4</span> 入れ子データ</a></li>
+  </ul></li>
+  <li><a href="#柔軟なデータ操作" id="toc-柔軟なデータ操作" class="nav-link" data-scroll-target="#柔軟なデータ操作"> <span class="header-section-number">2.2</span> 柔軟なデータ操作</a>
+  <ul class="collapse">
+  <li><a href="#データ操作における5つの工程" id="toc-データ操作における5つの工程" class="nav-link" data-scroll-target="#データ操作における5つの工程"> <span class="header-section-number">2.2.1</span> データ操作における5つの工程</a></li>
+  <li><a href="#データを抽出する-filter" id="toc-データを抽出する-filter" class="nav-link" data-scroll-target="#データを抽出する-filter"> <span class="header-section-number">2.2.2</span> データを抽出する: filter</a></li>
+  <li><a href="#データフレームからの変数選択-select" id="toc-データフレームからの変数選択-select" class="nav-link" data-scroll-target="#データフレームからの変数選択-select"> <span class="header-section-number">2.2.3</span> データフレームからの変数選択: select</a></li>
+  <li><a href="#データの並び替え-arrange" id="toc-データの並び替え-arrange" class="nav-link" data-scroll-target="#データの並び替え-arrange"> <span class="header-section-number">2.2.4</span> データの並び替え: arrange</a></li>
+  <li><a href="#変数に対する処理-mutate-transmute" id="toc-変数に対する処理-mutate-transmute" class="nav-link" data-scroll-target="#変数に対する処理-mutate-transmute"> <span class="header-section-number">2.2.5</span> 変数に対する処理: mutate / transmute</a></li>
+  <li><a href="#集計値を求める-summarise" id="toc-集計値を求める-summarise" class="nav-link" data-scroll-target="#集計値を求める-summarise"> <span class="header-section-number">2.2.6</span> 集計値を求める: summarise</a></li>
+  <li><a href="#複数列へのデータ操作関数の適用-_at-_if-_all" id="toc-複数列へのデータ操作関数の適用-_at-_if-_all" class="nav-link" data-scroll-target="#複数列へのデータ操作関数の適用-_at-_if-_all"> <span class="header-section-number">2.2.7</span> 複数列へのデータ操作関数の適用: _at / _if / _all</a></li>
+  <li><a href="#データの結合" id="toc-データの結合" class="nav-link" data-scroll-target="#データの結合"> <span class="header-section-number">2.2.8</span> データの結合</a></li>
+  </ul></li>
+  <li><a href="#まとめ" id="toc-まとめ" class="nav-link" data-scroll-target="#まとめ"> <span class="header-section-number">2.3</span> まとめ</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/ch2.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="data-manipulation" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></span></h1>
+</div>
+
+
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>前章において、Rでさまざまな処理が適用しやすいtidyデータについて述べたが、本章の前半で具体的に手持ちのデータをtidyな形式へ変換する方法を学ぶ。後半は、tidyに整理した後に実行するであろう、データの操作を紹介する。これらの方法はデータの種類に問わず、あらゆるデータで共通な、データの選択や抽出、加工、結合という処理を含んでおり、多くの場面で活用の機会がある。</p>
+<section id="データ自由自在" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="データ自由自在"><span class="header-section-number">2.1</span> データ自由自在</h2>
+<p>データのあり方が多種多様であることは前章で述べた通りである。そこで、雑多なデータを規則的な形式に整形し、コンピュータによる処理を適用しやすくしたものをtidyデータと言う。ここではtidyデータの条件として定義されている形式へとのデータ整形に有効な関数を備えたRパッケージとして<strong>tidyr</strong>を取り上げる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="横長データと縦長データ" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="横長データと縦長データ"><span class="header-section-number">2.1.1</span> 横長データと縦長データ</h3>
+<p>同一の対象について反復して記録を行ったデータを反復測定データ、経時観測データと呼ぶ。反復測定データの例として、ある植物個体の高さについて2015年4月から2017年3月まで毎月1回の記録を行ったデータを示そう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># readrを使ったテキストファイルからのデータ読み込み方法は3章で解説する</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_wide <span class="ot">&lt;-</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 読み込み対象のファイルが置かれているパスをfile引数に指定して実行</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="at">file =</span> <span class="st">"data/plants.csv"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">col_types =</span> readr<span class="sc">::</span><span class="fu">cols</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.default =</span> readr<span class="sc">::</span><span class="fu">col_double</span>(),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sp =</span> readr<span class="sc">::</span><span class="fu">col_character</span>()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell-output-display">
+
+</div>
+<p>この植物データに記録された項目は”高さ”のみである。このデータは、対象が定まっているために記録の時期や回数を列として扱い、横方向に長くなる傾向がある。このデータは対象の経年変化を捉えやすいが、記録頻度の高いデータでは、対象全体について把握するのが困難となる。</p>
+<p>一方でこのデータは次のように、変数として扱われている調査時期を変数として各項目として調査時期の値を、それに対応させる形で高さの変数とその計測値を記録した3変数のデータとして表現することも可能である。</p>
+<p>このデータは調査の対象と回数が増えるほど縦に長くなる特徴がある。しかし、同時に複数の調査項目がある時には変数を追加し、同じファイルあるいはシートで管理できる。</p>
+<p>1つの変数の値を複数の変数に分けて記録する横長データに対し、縦長データは項目と値の関係を1つの列とその値として完結させている。生物サイズの例では、もともと変数名に使われていた調査時期をperiodという列として定義し、サイズについてはperiodとひもづく形で記述するようになっている。これは各変数は独立した1つの列、1行につき1つの観測値というtidyデータの原則に従っている。</p>
+<section id="横長と縦長の相互変換" class="level4" data-number="2.1.1.1">
+<h4 data-number="2.1.1.1" class="anchored" data-anchor-id="横長と縦長の相互変換"><span class="header-section-number">2.1.1.1</span> 横長と縦長の相互変換</h4>
+<p>それでは<strong>tidyr</strong>パッケージを使ってこのデータ変形を行ってみよう。植物データセットは現在、<strong>df_wide</strong>というオブジェクト名で保存されている。まずは今一度<strong>df_wide</strong>の列名を確認しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_wide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "sp"     "201504" "201505" "201506" "201507" "201508" "201509" "201510"
+ [9] "201511" "201512" "201601" "201602" "201603" "201604" "201605" "201606"
+[17] "201607" "201608" "201609" "201610" "201611" "201612" "201701" "201702"
+[25] "201703"</code></pre>
+</div>
+</div>
+<p>一列目は”sp”という列で、個体を識別するための固有な値となっている。これは<code>$</code>演算子を使って列の項目をベクトル化させることで簡単に確認できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_wide<span class="sc">$</span>sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "a_1" "a_2" "b_1" "b_2" "c_1"</code></pre>
+</div>
+</div>
+<p><strong>df_wide</strong>の残りの列は数値で表され、調査が行われた時期が西暦月の値（2015年4月の場合は201504）が使われている。各列に含まれる値が高さの観測値である。これらの列は本質的に共通である変数（高さ）を扱っているので、調査時期と高さの観測値の組み合わせからなる列にすることができる。この処理を実行するには<code>gather()</code>を利用する。</p>
+<p><code>gather()</code>は第一引数に与えたデータを対象として、キーバリューと呼ばれるkeyとvalueの2つの対となるデータ形式に整形する関数である。keyはvalueに記録される項目、valueにはkeyが扱う値が記録される。<code>gather()</code>ではkeyとvalueはそれぞれ第二、第三引数ので指定する。<em>key</em>引数は元のデータで変数として扱われていた名前が入る列で、<em>value</em>引数で指定した変数には、<em>key</em>と対になる値が入る。また<code>gather()</code>を実行する時は、全ての変数名が<em>value</em>で指定した列に格納される候補となるので、変数として残す列は<code>-</code>を使って<code>gather()</code>の対象から除外する必要がある。</p>
+<p>植物データに対して、調査時期をkey、高さの観測値をvalueとしたキーバリュー形式を適用すると次のようになる。なお個体識別の列である”sp”列は変数として残しておくことに注意である。キーバリューでは、キーとする項目の数が増えるほど縦長のデータになる特徴がある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 横長から縦長データの変換</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  df_wide <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># key... 変数を元に作成される変数</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># value... keyで対象となる変数の値を保存する変数</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 対象から除外する列は - を使って取り除く</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(<span class="at">key =</span> period, <span class="at">value =</span> height, <span class="sc">-</span>sp)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  sp    period height
+  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+1 a_1   201504   147.
+2 a_2   201504   148.
+3 b_1   201504   159.
+4 b_2   201504   160.
+5 c_1   201504   175.
+6 a_1   201505   148.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sp列を除外しない場合、</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># spの値を含めてキーバリュー形式に変形する</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df_wide <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(period, height) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  period height
+  &lt;chr&gt;  &lt;chr&gt; 
+1 sp     a_1   
+2 sp     a_2   
+3 sp     b_1   
+4 sp     b_2   
+5 sp     c_1   
+6 201504 147.34</code></pre>
+</div>
+</div>
+<p>次に縦長になったデータを横長に戻す処理を実行しよう。<code>spread()</code>は<code>gather()</code>と対をなす関数で、<em>key</em>引数に指定された値を列名、<em>value</em>引数で指定された変数の値をその値として格納する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 縦長から横長への再変換</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df_wide2 <span class="ot">&lt;-</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  df_long <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(<span class="at">key =</span> period, <span class="at">value =</span> height)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_wide2, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 25
+  sp    `201504` `201505` `201506` `201507` `201508` `201509` `201510` `201511`
+  &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 a_1       147.     148.     149.     149.     149.     149.     149.     149.
+2 a_2       148.     148.     148.     149.     149.     149.     149.     150.
+3 b_1       159.     160.     160.     160.     160.     160.     160.     160.
+# … with 16 more variables: `201512` &lt;dbl&gt;, `201601` &lt;dbl&gt;, `201602` &lt;dbl&gt;,
+#   `201603` &lt;dbl&gt;, `201604` &lt;dbl&gt;, `201605` &lt;dbl&gt;, `201606` &lt;dbl&gt;,
+#   `201607` &lt;dbl&gt;, `201608` &lt;dbl&gt;, `201609` &lt;dbl&gt;, `201610` &lt;dbl&gt;,
+#   `201611` &lt;dbl&gt;, `201612` &lt;dbl&gt;, `201701` &lt;dbl&gt;, `201702` &lt;dbl&gt;,
+#   `201703` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="複数列への分割" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="複数列への分割"><span class="header-section-number">2.1.2</span> 複数列への分割</h3>
+<p>tidyデータへの整形の例として次に、1つの列で分割可能な値を扱っている場合の処理として<code>separate()</code>および<code>extract()</code>を使った例を取り上げる。</p>
+<p>植物データの”sp”列の値を見ると、「a_1」、「a_2」という規則性のある文字列になっている。これはa種の1番目の個体、a種の2番目の個体、…という具合に個体識別のために記録されているものである。一方で種aだけのデータや各種の1番目の個体について対象にした処理を加える際にはこの列は分割しておいた方が良い。このようなデータは複数列に分割するのがtidyデータとして適切である。ここでは引き続き、縦長になった<strong>df_long</strong>を対象として、“sp”列の値を分割してみよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 同一の変数内に複数の要素をもつデータを2つの変数に分割する</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 分割対象の変数</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> sp,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 区切り文字</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">"_"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 値を保存する列を指定する</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"number"</span>),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">extra =</span> <span class="st">"warn"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># removeは、col引数の値を残すかを定義する</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">remove =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  species number period height
+  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;
+1 a       1      201504   147.
+2 a       2      201504   148.
+3 b       1      201504   159.</code></pre>
+</div>
+</div>
+<p>関数<code>separate</code>は引数<em>col</em>に分割対象とする変数名を指定し、<em>into</em>引数に分割したデータを格納する変数名を与えて実行することで、一つの列に含まれる値を複数の列へと分割する。分割の基準は<em>sep</em>引数で指定する。<em>sep</em>には既定値として正規表現の<code>[^[:alnum:]]+</code>によるパターンが与えられているが、任意の区切り文字やパターンを指定可能である。</p>
+<p><code>separate()</code>の仕様では、はじめに<em>sep</em>の値による値の分割が実施され、次にその値を<em>into</em>列に代入するという流れになる。そのため、<em>into</em>での列数と分割後の要素数が一致しない場合、何らかの警告が表示される。また引数<em>extra</em>に既定の”warn”を指定していると、指定した列に含まれない、つまり以降の要素についてはデータから除去される。引数<em>extra</em>には”warn”と”drop”、“merge”の3つの値が指定できる。“warn”は既定値であり、要素と列の不一致に対する警告を表示する。“drop”では列に入りきらない値については警告も表示せずに切り落とす。“merge”を設定しておくと、切り落としは実行されず、列に入りきる状態で<em>col</em>の値が分割される。代入先の変数の数が不足する場合や過剰な変数の指定についても同様に警告が表示される。この場合、要素が足りないものには欠損値が与えられる。</p>
+<p>変数分割の処理として次に<code>extract()</code>の例を示す。<code>extract()</code>は、1つの列にまとまっている変数を引数<em>regex</em>に指定した正規表現などの基準によって複数の列に分割する。この関数の利用例として、行の中に複数の値が記録されている場合や、特定の基準によって変数を分割するべき状況が考えられる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df_plants_sep <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  df_long <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract</span>(<span class="at">col =</span> sp,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>          <span class="co"># 分割後の変数名を与える</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"number"</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>          <span class="co"># 分割する文字列を指定する</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">regex =</span> <span class="st">"([[:alnum:]]+)_([[:alnum:]]+)"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>          <span class="co"># 元の列は取り除く</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_plants_sep, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  species number period height
+  &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;
+1 a       1      201504   147.
+2 a       2      201504   148.
+3 b       1      201504   159.</code></pre>
+</div>
+</div>
+<p><code>separate()</code>や<code>extract()</code>により分割した変数を一つの変数に結合するには<code>unite()</code>を利用する。<code>unite()</code>では<em>col</em>引数に結合した変数を格納する変数名を与え、残りの引数に結合対象の列を指定する。既定値では全ての変数が結合対象となる。</p>
+<p><code>extract()</code>を使って変数を分割した<strong>df_plants_sep</strong>の列を再び一つの変数として結合した例を次に示す。species、numberの列の値を<em>sep</em>で指定した文字列”_“で結合し、新たにsp列として扱う、という処理である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># unite()の引数sepで変数間の値をつなげる文字列を指定する</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df_plants_sep <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 新しく作成する変数の名前を指定</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> sp,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 区切り文字として結合時に利用する文字列</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">"_"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 対象のデータフレームに含まれる変数名が結合に用いられる</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    species, number) <span class="sc">%&gt;%</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  sp    period height
+  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+1 a_1   201504   147.
+2 a_2   201504   148.
+3 b_1   201504   159.</code></pre>
+</div>
+</div>
+<p><code>unite()</code>には<em>remove</em>引数が用意されており、既定では<em>TRUE</em>が与えられている。これは結合に指定された元の変数を取り除くオプションである。</p>
+</section>
+<section id="複数行への分割" class="level3" data-number="2.1.3">
+<h3 data-number="2.1.3" class="anchored" data-anchor-id="複数行への分割"><span class="header-section-number">2.1.3</span> 複数行への分割</h3>
+<p>一行に分割可能な値が記録されており、それを列ではなく行方向へ展開する場合に便利な関数として<code>separate_rows()</code>を紹介する。</p>
+<p>例えば次のような、idごとに複数のタグが記録され、それがカンマ区切りで一つの変数(tag)に記録されたデータがあるとする。各タグにはそれと対応してスコアが与えられているが、その値もまた別の列(score)にカンマ区切りで記録されている。これをデータフレームの変数名はそのままに、タグとスコアを一対の関係として一行ごとに記録したデータへと整形しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df_wide_col <span class="ot">&lt;-</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id    =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">tag   =</span> <span class="fu">c</span>(<span class="st">"apple,banana,melon"</span>, <span class="st">"grape,orange"</span>, <span class="st">"peer,mango,pine apple"</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">score =</span> <span class="fu">c</span>(<span class="st">"0.7,0.5,0.4"</span>, <span class="st">"0.6,0.2"</span>, <span class="st">"0.7,0.4,0.3"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># tag, scoreは対応関係にある</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>df_wide_col</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+     id tag                   score      
+  &lt;int&gt; &lt;chr&gt;                 &lt;chr&gt;      
+1     1 apple,banana,melon    0.7,0.5,0.4
+2     2 grape,orange          0.6,0.2    
+3     3 peer,mango,pine apple 0.7,0.4,0.3</code></pre>
+</div>
+</div>
+<p><code>separate_rows()</code>では、引数にデータフレームの変数名を与えて実行する。分割の対象となる区切り文字を<em>sep</em>で指定するが、この例では区切り文字は”,“となる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df_wide_col <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_rows</span>(tag, score, <span class="at">sep =</span> <span class="st">","</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+     id tag    score
+  &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;
+1     1 apple  0.7  
+2     1 banana 0.5  
+3     1 melon  0.4  
+4     2 grape  0.6  
+5     2 orange 0.2  
+6     3 peer   0.7  </code></pre>
+</div>
+</div>
+<p>関数を実行すると、タグの項目とスコアが一行ずつ記録されたデータになったことが確認できるが、scoreが文字列のデータとなっていることに注意しよう。<code>separate_rows()</code>の処理は、元の変数のデータ型を引き継ぐため、分割後の変数も文字列のままである。そのため分割後のデータ型を見直すためのオプションとして、<code>separate_rows()</code>では引数<em>convert</em>が用意される。<em>convert</em>引数で<em>TRUE</em>を指定した際、変換可能な変数がある場合、以下の例の通り、データ型の自動変換が行われる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df_wide_col <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_rows</span>(tag, score, <span class="at">sep =</span> <span class="st">","</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+     id tag    score
+  &lt;int&gt; &lt;chr&gt;  &lt;dbl&gt;
+1     1 apple    0.7
+2     1 banana   0.5
+3     1 melon    0.4</code></pre>
+</div>
+</div>
+</section>
+<section id="入れ子データ" class="level3" data-number="2.1.4">
+<h3 data-number="2.1.4" class="anchored" data-anchor-id="入れ子データ"><span class="header-section-number">2.1.4</span> 入れ子データ</h3>
+<p>文字列や因子型の変数は、グループとして共通の処理を施したり、グループごとの値を参照することがある。標準関数では<code>split()</code>によるデータの分割が可能であるが、これは対象がデータフレームであっても返り値はリストである。そこで、データフレームの構造を維持したままデータをグループに分割するには<code>nest()</code>が有効となる。</p>
+<p><code>nest()</code>の実行例として、sp、period、heightの3列からなる次のデータを、調査個体ごとのデータとして扱えるようにする処理を示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  sp    period height
+  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+1 a_1   201504   147.
+2 a_2   201504   148.
+3 b_1   201504   159.
+4 b_2   201504   160.
+5 c_1   201504   175.
+6 a_1   201505   148.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df_nest <span class="ot">&lt;-</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(period, height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: All elements of `...` must be named.
+Did you want `data = c(period, height)`?</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df_nest</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  sp    data             
+  &lt;chr&gt; &lt;list&gt;           
+1 a_1   &lt;tibble [24 × 2]&gt;
+2 a_2   &lt;tibble [24 × 2]&gt;
+3 b_1   &lt;tibble [24 × 2]&gt;
+4 b_2   &lt;tibble [24 × 2]&gt;
+5 c_1   &lt;tibble [24 × 2]&gt;</code></pre>
+</div>
+</div>
+<p><code>nest()</code>はデータフレームを第一引数にとり、関数内で指定されたデータフレーム中の変数を別のデータフレームとして処理し、入れ子のように新たな変数として格納する。このような、大きさ(データフレームの場合は行数)が異なるデータを、データフレームの一変数として扱うデータ構造を本書では入れ子データ nested data frameと呼ぶ。</p>
+<p><code>nest()</code>により、入れ子としてまとめられるデータは変数dataに格納される（これは引数<em>key</em>で指定した名前に変更することができる）。入れ子のデータを確認するには、変数dataを参照する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># spがa_1の値かならるデータを格納する</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>df_nest<span class="sc">$</span>data[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 24 × 2
+   period height
+   &lt;chr&gt;   &lt;dbl&gt;
+ 1 201504   147.
+ 2 201505   148.
+ 3 201506   149.
+ 4 201507   149.
+ 5 201508   149.
+ 6 201509   149.
+ 7 201510   149.
+ 8 201511   149.
+ 9 201512   150.
+10 201601   150.
+# … with 14 more rows</code></pre>
+</div>
+</div>
+<p>変数の指定方法は、既定では全ての変数が対象となっている。すなわち対象のデータフレーム中の変数名が与えられない場合はデータフレーム自体を入れ子にする。変数の指定方法は、入れ子にする変数名を直接与える他、列番号、コロン(“:”)を使った連続した変数の選択、マイナス記号(“-”)による除外などが可能である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># これらの処理は上記の処理と等しい</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># - で入れ子に含めない変数を与える</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="sc">-</span>sp)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 列番号による指定</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(period<span class="sc">:</span>height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 変数名を指定しない場合は全ての変数を入れ子に含める</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `...` must not be empty for ungrouped data frames.
+Did you want `data = everything()`?</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  data              
+  &lt;list&gt;            
+1 &lt;tibble [120 × 3]&gt;</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch7-nested-data-frame.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">入れ子データのイメージ</figcaption><p></p>
+</figure>
+</div>
+<p>入れ子を解除するには、<code>unnest()</code>を使う。これにより入れ子データとする前のデータ構造が復元される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>df_nest <span class="sc">%&gt;%</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>unnest()</code>にはいくつかのオプションが備わっている。例えば<code>unnest()</code>を実行した時に用いられる変数名は、入れ子に含まれていた元の変数名であるが、<code>.sep</code>で、<code>nest()</code>を実行した時の入れ子の変数名(<code>.data</code>引数で調整。既定値はdata)に続けて任意の文字列を含ませるようになる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 入れ子データを展開した時の変数名を "data_(元の変数名)" とする</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>df_nest <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">.sep =</span> <span class="st">"_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>また<code>unnest()</code>は、データ型が等しい、リストの要素を一行ずつ展開する機能も備えている。例えば次のようにlist列に、行ごとに長さの異なるベクトルがリストとして格納されているデータに対して、1行に要素の1つの値を含んだデータへ変換する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 長さの異なる要素をもつリストの列を含んだデータフレームを用意</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>(df <span class="ot">&lt;-</span> </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id   =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">list =</span> <span class="fu">list</span>(<span class="st">"a"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">"b"</span> <span class="ot">=</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>                <span class="st">"c"</span> <span class="ot">=</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+     id list        
+  &lt;int&gt; &lt;named list&gt;
+1     1 &lt;dbl [1]&gt;   
+2     2 &lt;int [2]&gt;   
+3     3 &lt;int [3]&gt;   </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .id引数は、展開されたデータを識別するのに有効である</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>df <span class="sc">%&gt;%</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">.id =</span> <span class="st">"list_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `cols` is now required when using unnest().
+Please use `cols = c(list)`</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `.id` argument of `unnest()` is deprecated as of tidyr 1.0.0.
+Manually create column of names instead.
+This warning is displayed once every 8 hours.
+Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+     id  list list_id
+  &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;  
+1     1     1 a      
+2     2     2 b      
+3     2     3 b      
+4     3     4 c      
+5     3     5 c      
+6     3     6 c      </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="柔軟なデータ操作" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="柔軟なデータ操作"><span class="header-section-number">2.2</span> 柔軟なデータ操作</h2>
+<p>tidyverseにはデータ操作のためのパッケージとして<strong>dplyr</strong>が整備されている。<strong>dplyr</strong>パッケージは”A Grammar of Data Manipulation”を掲げ、データ操作を文法として捉え、複雑になりがちなデータ操作を簡潔に記述することを可能としている。<strong>dplyr</strong>の機能を見るため、以下のコードを実行し、パッケージとデータセットを利用可能なようにしておこう。データは前章で扱った<strong>trees</strong>データと<strong>mtcars</strong>データである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># dplyrパッケージの読み込み</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"trees"</span>)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"mtcars"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="データ操作における5つの工程" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="データ操作における5つの工程"><span class="header-section-number">2.2.1</span> データ操作における5つの工程</h3>
+<p>データに行う基本操作は、<strong>選択</strong>、<strong>抽出</strong>、<strong>並び替え</strong>、<strong>集計</strong>、<strong>加工</strong>の5工程に分けられる。データ分析の前処理として、これらの操作を組み合わせデータを加工したあとで、可視化やモデリング、分析関数を実施することになるだろう。</p>
+<p><strong>dplyr</strong>パッケージではこれらのデータ操作のための処理を個別の関数として提供する。加工と選択を実行する関数はそれぞれ<code>mutate()</code>および<code>transmute()</code>、<code>select()</code>であり、抽出は<code>filter()</code>、<code>summarise()</code>による集計、並び替えは<code>arrange()</code>で実行される。</p>
+<p>選択 select: 必要な変数を参照・抽出する、不要な変数を削除する</p>
+<p>抽出 filter: 特定の条件に一致する値を取り出す</p>
+<p>並び替え arrange: 変数内の項目の順序を変更する</p>
+<p>集計 summarise: データ全体あるいはグループ別の代表値・統計量等の算出</p>
+<p>加工 mutate, transmute: 値の単位・尺度などを変更する、新たな列を追加する</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch2-dplyr-data-manupulation.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">データ操作をdplyrの関数で実施する例</figcaption><p></p>
+</figure>
+</div>
+<!-- 1枚の図ではなく、以下の個々の関数の説明時にデータがどうなるかという感じで図示するのが良さそう -->
+<p>これらのデータ操作関数の特徴は、基本的にはtidyverseの原則に従い、第一引数に対象のデータ、上記の5つの関数は全てデータフレームをとり、関数内部で処理内容を記述するという形式をとる。<strong>dplyr</strong>のフレームワークでは、関数名はデータに適用する「動詞」、その内容を「文法」として表現する。</p>
+</section>
+<section id="データを抽出する-filter" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="データを抽出する-filter"><span class="header-section-number">2.2.2</span> データを抽出する: filter</h3>
+<p>データ抽出とは、データからあるまとまりを取り出すことである。部分集合を抽出すると言い変えても良い。<code>filter()</code>は<strong>比較・論理演算子</strong>を用いた条件指定を行い、<strong>条件に該当するデータ (TRUEとなる値)を返す</strong>関数である。関数の第一引数には対象のデータをとり、以降に条件式を記述して実行する。</p>
+<p>条件式は、左辺に対象の変数を指定して不等号を挟んで右辺に比較する値を与える、という記述となる。<strong>trees</strong>の”Volume”列の値が52以上のデータを抽出するコードは次のようになる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># filter()では比較演算子を用いたデータ抽出を実行する</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Volume <span class="sc">&gt;=</span> <span class="fl">52.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  17.3     81   55.4
+2  17.5     82   55.7
+3  17.9     80   58.3
+4  20.6     87   77.0</code></pre>
+</div>
+</div>
+<p>このコードの「文法」を読み解いてみよう。データ抽出を実行する<code>filter()</code>に、<strong>trees</strong>をパイプ演算子で対象に与えている。続く第二引数に、具体的な条件を指定しているが、ここで注目すべきは”Volume”列の参照に<code>$</code>演算子を必要とせず、変数名を直接指定することである。<strong>dplyr</strong>を使ったデータ操作では、主な対象がデータ自身とその変数になるため、変数を参照する<code>$</code>は省略可能になっている。</p>
+<p>複数の条件を指定して抽出をする場合、カンマ (<code>,</code>)あるいは縦線 (<code>|</code>)により条件となる処理を区切る。ここでカンマは「かつ and」であり、縦線は「または or」である。次の実行例は「Heightが65より小さい、またはVolumeが52以上の行を抽出」する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Height <span class="sc">&lt;</span> <span class="dv">65</span> <span class="sc">|</span> Volume <span class="sc">&gt;=</span> <span class="fl">52.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1   8.8     63   10.2
+2  13.8     64   24.9
+3  17.3     81   55.4
+4  17.5     82   55.7
+5  17.9     80   58.3
+6  20.6     87   77.0</code></pre>
+</div>
+</div>
+<!-- Table: Rにおける比較・論理演算子-->
+<table class="table">
+<thead>
+<tr class="header">
+<th>演算子</th>
+<th>効果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&gt;</code></td>
+<td>左辺が右辺より大きい</td>
+</tr>
+<tr class="even">
+<td><code>&gt;=</code></td>
+<td>左辺が右辺より大きいか等しい</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;</code></td>
+<td>左辺が右辺より小さい</td>
+</tr>
+<tr class="even">
+<td><code>&lt;=</code></td>
+<td>左辺が右辺より小さいか等しい</td>
+</tr>
+<tr class="odd">
+<td><code>==</code></td>
+<td>左辺と左辺が一致する</td>
+</tr>
+<tr class="even">
+<td><code>!=</code></td>
+<td>左辺と左辺不一致</td>
+</tr>
+<tr class="odd">
+<td><code>|</code></td>
+<td>論理和 (2つの条件式のいずれかが真)</td>
+</tr>
+<tr class="even">
+<td><code>&amp;</code></td>
+<td>論理積 (2つの条件式が共に真)</td>
+</tr>
+</tbody>
+</table>
+<p>一つの変数に複数の条件を与える場合、<code>|</code>と同等の機能をもつ<code>%in%</code>演算子を利用することもできる。<code>%in%</code>演算子は<code>match()</code>関数の機能を演算子として提供するもので、左辺ベクトルから右辺のベクトルの値を抽出する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2つの処理結果は等しい</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Height <span class="sc">==</span> <span class="dv">70</span> <span class="sc">|</span> Height <span class="sc">==</span> <span class="dv">81</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># %in%演算子を使い、左辺に含まれる右辺のベクトルの値を抽出する</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">filter</span>(cyl <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>また数値を対象にとり、範囲指定による抽出が<code>between()</code>を用いることで可能である。この関数は第一引数に対象の数値ベクトル、第二、第三引数で下限と上限を指定し、範囲に含まれるかを論理値で返す。この関数を<code>filter()</code>に用いた例を以下に示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># disp列の値が200から300までの値を抽出する</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">between</span>(disp, <span class="dv">200</span>, <span class="dv">300</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="欠損値を含む変数に対するfilterの働き" class="level4" data-number="2.2.2.1">
+<h4 data-number="2.2.2.1" class="anchored" data-anchor-id="欠損値を含む変数に対するfilterの働き"><span class="header-section-number">2.2.2.1</span> 欠損値を含む変数に対するfilter()の働き</h4>
+<p>欠損値を含んだ変数について<code>filter()</code>を実行した結果を確かめておこう。<code>filter()</code>では記述した条件に従う値を取り出すという処理が適用されるため、下記のコードを実行すると欠損値を含んだ行は除外される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">var =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="cn">NA</span>, <span class="dv">4</span>, <span class="dv">5</span>))</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(var <span class="sc">&gt;=</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 1
+    var
+  &lt;dbl&gt;
+1     2
+2     4
+3     5</code></pre>
+</div>
+</div>
+<p>変数varが2以上の値の抽出に欠損値を含んだ行を加えるにはどうすれば良いだろうか。これには縦線による「または」の条件に欠損値である値を指定すると良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(var <span class="sc">&gt;=</span> <span class="dv">2</span> <span class="sc">|</span> <span class="fu">is.na</span>(var))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 1
+    var
+  &lt;dbl&gt;
+1     2
+2    NA
+3     4
+4     5</code></pre>
+</div>
+</div>
+</section>
+<section id="位置を利用した抽出" class="level4" data-number="2.2.2.2">
+<h4 data-number="2.2.2.2" class="anchored" data-anchor-id="位置を利用した抽出"><span class="header-section-number">2.2.2.2</span> 位置を利用した抽出</h4>
+<p>特定の変数の値が大きいあるいは小さいものから何行か分の抽出を行いたい、という時には<code>top_n()</code>や<code>nth()</code>などの関数が役立つ。</p>
+<p><code>top_n()</code>は対象をデータフレームとし、引数で行数や基準となる変数を指定する(初期値では第一番目の変数が基準となる)。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">var =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="co"># var変数が大きな値から2行抽出する</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">top_n</span>(<span class="at">n =</span> 2L, <span class="at">wt =</span> var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 1
+    var
+  &lt;int&gt;
+1     4
+2     5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># -演算子をつけて降順での抽出を行う</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">top_n</span>(<span class="sc">-</span>2L, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 1
+    var
+  &lt;int&gt;
+1     1
+2     2</code></pre>
+</div>
+</div>
+<p>一方、<code>nth()</code>や<code>first()</code>、<code>last()</code>はベクトルを対象にとり、それぞれ、任意の位置の値、先頭、末尾の値を抽出する。そのため<code>filter()</code>と組み合わせて利用することも可能である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">first</span>(d<span class="sc">$</span>var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nth</span>(d<span class="sc">$</span>var, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(var <span class="sc">==</span> <span class="fu">first</span>(var))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+    var
+  &lt;int&gt;
+1     1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(var <span class="sc">==</span> <span class="fu">last</span>(var))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+    var
+  &lt;int&gt;
+1     5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">filter</span>(var <span class="sc">==</span> <span class="fu">nth</span>(var, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+    var
+  &lt;int&gt;
+1     2</code></pre>
+</div>
+</div>
+</section>
+<section id="重複を除いた抽出" class="level4" data-number="2.2.2.3">
+<h4 data-number="2.2.2.3" class="anchored" data-anchor-id="重複を除いた抽出"><span class="header-section-number">2.2.2.3</span> 重複を除いた抽出</h4>
+<p>データから重複した行を取り除いたユニークなデータへ加工するには関数<code>distinct()</code>を用いる。引数に重複のある変数を指定することで、重複を除いた値を返す。一方で変数名を指定した実行では対象外の変数は初期値では削除されてしまうので、ユニークにする処理を行いつつ他の変数を残す場合は<em>.keep_all</em>で<em>TRUE</em>を指定する必要がある。またこの時、ユニークに扱う変数以外の値は、重複のある行の第一行目の値が選択される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>),</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">var2 =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"D"</span>),</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var3 =</span> <span class="fu">c</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">2.3</span>)</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a><span class="co"># データ全体から重複する行を除く</span></span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">distinct</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+    var var2   var3
+  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+1     1 A       1  
+2     2 B       1  
+3     3 A       2  
+4     4 D       2.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 引数に指定した変数の重複を解消する</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(var2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 1
+  var2 
+  &lt;chr&gt;
+1 A    
+2 B    
+3 D    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .keep_allを指定することで</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ユニークな値として扱いつつ他の変数も残す</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(var2, var3, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+    var var2   var3
+  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
+1     1 A       1  
+2     2 B       1  
+3     3 A       2  
+4     4 D       2.3</code></pre>
+</div>
+</div>
+<p>また、ベクトルに含まれるユニークな値の数を数える<code>n_distinct()</code>もある。この関数は<code>length(unique(x))</code>のラッパとして機能するが幾分か処理が高速であり、欠損値をカウントに含めないための引数<em>na.rm</em>が用意されている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 欠損を含んだベクトルを生成</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 3および欠損値 NAが重複</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="cn">NA</span>, <span class="dv">5</span>)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">n_distinct</span>() <span class="co"># NAを含めたユニークな要素の和</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">n_distinct</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="co"># 欠損を含めないユニークな要素数</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</section>
+<section id="選択した行を抽出する" class="level4" data-number="2.2.2.4">
+<h4 data-number="2.2.2.4" class="anchored" data-anchor-id="選択した行を抽出する"><span class="header-section-number">2.2.2.4</span> 選択した行を抽出する</h4>
+<p>データの抽出方法として、<code>filter()</code>のような条件指定による抽出とは別に、<code>slice()</code>を利用した位置を指定したデータ抽出がある。これはRで標準的に利用可能な<code>head()</code>や<code>tail()</code>のようにデータの特定の行を抽出する関数であるが、抽出対象の位置が指定可能な点で異なっている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3行目のデータを抽出</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">slice</span>(3L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1   8.8     63   10.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 抽出対象の行数を指定する</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1   8.3     70   10.3
+2   8.8     63   10.2
+3  10.8     83   19.7</code></pre>
+</div>
+</div>
+</section>
+<section id="データの一部を無作為に抽出-sample_n-sample_frac" class="level4" data-number="2.2.2.5">
+<h4 data-number="2.2.2.5" class="anchored" data-anchor-id="データの一部を無作為に抽出-sample_n-sample_frac"><span class="header-section-number">2.2.2.5</span> データの一部を無作為に抽出: sample_n / sample_frac</h4>
+<p>データからランダムに一部を取り出す時に<code>sample_n()</code>および<code>sample_frac()</code>が役立つ。これらは引数<em>size</em>で指定した条件でいずれも無作為にデータフレームの特定行を抽出する関数であるが、その違いは<code>sample_n()</code>は具体的に行数を、<code>sample_frac()</code>はデータ全体の行数から抽出するデータの行数の割合を指定するということになる。なお無作為抽出の際に復元抽出を認める<em>replace</em>オプションを用意している(既定値では<em>FALSE</em>)。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mtcarsデータセットの行数を確認</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">nrow</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 32</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 無作為抽出により5行分のデータを抽出</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+Fiat X1-9      27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+Ferrari Dino   19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+Maserati Bora  15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+Fiat 128       32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 復元抽出による無作為抽出</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Toyota Corolla の行が複数回抽出されている点に注意</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">4</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+Fiat X1-9           27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+Dodge Challenger    15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample_frac()ではデータセット全体の行数に対する割合を指定</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">sample_frac</span>(<span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    mpg cyl  disp  hp drat   wt  qsec vs am gear carb
+Hornet Sportabout  18.7   8 360.0 175 3.15 3.44 17.02  0  0    3    2
+Merc 450SE         16.4   8 275.8 180 3.07 4.07 17.40  0  0    3    3
+Cadillac Fleetwood 10.4   8 472.0 205 2.93 5.25 17.98  0  0    3    4</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="データフレームからの変数選択-select" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="データフレームからの変数選択-select"><span class="header-section-number">2.2.3</span> データフレームからの変数選択: select</h3>
+<p><code>select()</code>は<strong>データフレームから特定の列(変数)を選択する</strong>のに用いられる。選択対象は関数内部で指定された変数になる。対象の変数の列が並ぶ時は<code>:</code>を使って表記を省略できる。また対象の変数の前に記号<code>-</code>をつけることで選択から除外することもできる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 変数名を与え、2列を選択する</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Height, Volume) <span class="sc">%&gt;%</span></span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31  2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 列番号による変数の選択</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Girth"  "Volume"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 除外する列名は - で指定する</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mtcarsデータセットのdispからwtまでの列を削除する</span></span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>(disp<span class="sc">:</span>wt), <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   mpg cyl  qsec vs am gear carb disp
+Mazda RX4         21.0   6 16.46  0  1    4    4  160
+Mazda RX4 Wag     21.0   6 17.02  0  1    4    4  160
+Datsun 710        22.8   4 18.61  1  1    4    1  108
+Hornet 4 Drive    21.4   6 19.44  1  0    3    1  258
+Hornet Sportabout 18.7   8 17.02  0  0    3    2  360
+Valiant           18.1   6 20.22  1  0    3    1  225</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 選択した列の順に変数名が並び替えられる</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Volume, Height) <span class="sc">%&gt;%</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Volume" "Height"</code></pre>
+</div>
+</div>
+<section id="変数名の変更-rename" class="level4" data-number="2.2.3.1">
+<h4 data-number="2.2.3.1" class="anchored" data-anchor-id="変数名の変更-rename"><span class="header-section-number">2.2.3.1</span> 変数名の変更: rename</h4>
+<p>関数<code>select</code>では関数内部で<code>変更後の変数名 = 変更前の変数名</code>と指定すると選択時に列名の変更ができる。ただし<code>select()</code>は、変数を選択する関数であり、選択しなかった変数はデータフレームから除外される。そのため変数名の変更には関数<code>rename</code>を用いるか、あるいは<code>everything()</code>を使い、全ての変数を選択すると良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 変更後 = 変更前、の形式で変数名を記述することで変数名の変更が行われる</span></span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a><span class="co"># select()では選択した変数名以外は取り除かれる</span></span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb100-4"><a href="#cb100-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">height =</span> Height) <span class="sc">%&gt;%</span></span>
+<span id="cb100-5"><a href="#cb100-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "height"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rename()では他の変数に影響を与えずに変数名の変更を行う</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">height =</span> Height) <span class="sc">%&gt;%</span></span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Girth"  "height" "Volume"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="co"># everything()により他の変数名を残す</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ただし変数の並びが変更されることに注意</span></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">height =</span> Height, <span class="fu">everything</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "height" "Girth"  "Volume"</code></pre>
+</div>
+</div>
+</section>
+<section id="変数選択の補助関数" class="level4" data-number="2.2.3.2">
+<h4 data-number="2.2.3.2" class="anchored" data-anchor-id="変数選択の補助関数"><span class="header-section-number">2.2.3.2</span> 変数選択の補助関数</h4>
+<p><code>select_helpers</code>関数群を利用すると効率的な変数選択が可能になる。これらの関数は、例えば先ほど紹介した「全ての変数を選択する」<code>everything()</code>をはじめとして、「XXXで始まる変数」、「XXXとマッチする」というようなパターンマッチや条件指定による選択を実行する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x_col =</span> <span class="dv">7</span>,</span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_col =</span> <span class="fu">c</span>(<span class="st">"あ"</span>, <span class="st">"い"</span>, <span class="st">"う"</span>),</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var_1 =</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>],</span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">var_2 =</span> <span class="dv">9</span><span class="sc">:</span><span class="dv">7</span>,</span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">var_3 =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="cn">NA</span>, <span class="fl">0.4</span>),</span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">var_z =</span> <span class="fu">rnorm</span>(<span class="dv">3</span>)</span>
+<span id="cb106-8"><a href="#cb106-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb106-9"><a href="#cb106-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-10"><a href="#cb106-10" aria-hidden="true" tabindex="-1"></a><span class="co"># データの変数名を確認</span></span>
+<span id="cb106-11"><a href="#cb106-11" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x_col" "y_col" "var_1" "var_2" "var_3" "var_z"</code></pre>
+</div>
+</div>
+<!-- 図あるいは表にする? -->
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'var'で始まる変数を選択する</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"var"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "var_1" "var_2" "var_3" "var_z"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'col'で終わる変数を選択</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">ends_with</span>(<span class="st">"col"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x_col" "y_col"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'co'を含んだ変数を選択</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"co"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x_col" "y_col"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 正規表現を用いたマッチングによって変数を選択する</span></span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">matches</span>(<span class="st">".ar_[0-9]"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "var_1" "var_2" "var_3"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 任意の文字列と数値の組み合わせからなる変数を選択</span></span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">num_range</span>(<span class="st">"var_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "var_1" "var_2" "var_3"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 任意の変数集合の中から該当する列を選択</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">one_of</span>(<span class="fu">c</span>(<span class="st">"var_1"</span>, <span class="st">"x_col"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "var_1" "x_col"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="co"># すべての変数を選択</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(y_col, var_z, <span class="fu">everything</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "y_col" "var_z" "x_col" "var_1" "var_2" "var_3"</code></pre>
+</div>
+</div>
+<p><code>select_helpers</code>関数群は、<code>select()</code>以外の関数、<strong>tidyr</strong>を始めたとしたtidyverseに含まれるパッケージでも利用可能である。また<strong>tidyselect</strong>というパッケージでの開発が進んでおり、将来的にはこちらのパッケージに移植される可能性がある。</p>
+</section>
+</section>
+<section id="データの並び替え-arrange" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="データの並び替え-arrange"><span class="header-section-number">2.2.4</span> データの並び替え: arrange</h3>
+<p>データの並び替えは、単純に見た目を良くするためや、集計や加工のために順番を変更する、という理由で行われる。この処理は関数<code>arrange</code>により実行する。例えば<strong>trees</strong>データセットでは、Girth列の大きさによってデータが並べられているが、他の変数を基準として順序を入れ替えるという処理を行う時、次のようにする。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="co"># treesではGirthの大きさでデータが並ぶ</span></span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1   8.3     70   10.3
+2   8.6     65   10.3
+3   8.8     63   10.2
+4  10.5     72   16.4
+5  10.7     81   18.8
+6  10.8     83   19.7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Height列を基準とした昇順並び替えを行う</span></span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Height) <span class="sc">%&gt;%</span></span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1   8.8     63   10.2
+2  13.8     64   24.9
+3   8.6     65   10.3
+4  11.0     66   15.6
+5  11.7     69   21.3
+6   8.3     70   10.3</code></pre>
+</div>
+</div>
+<p><code>arrange()</code>はデータを任意の変数を基準に並び替える。この時の並びは昇順となるが、降順指定するには<code>desc()</code>を併用する。なお基準とする変数の値が数値型である場合は<code>-</code>をつけて降順の指定が可能である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 降順に並び替えるにはdesc()や-演算子を用いる</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Girth)) <span class="sc">%&gt;%</span></span>
+<span id="cb126-4"><a href="#cb126-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  20.6     87   77.0
+2  18.0     80   51.5
+3  18.0     80   51.0
+4  17.9     80   58.3
+5  17.5     82   55.7
+6  17.3     81   55.4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 数値からなる変数では - で降順指定が可能</span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>Height, <span class="sc">-</span>Volume) <span class="sc">%&gt;%</span></span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  20.6     87   77.0
+2  13.3     86   27.4
+3  12.9     85   33.8
+4  10.8     83   19.7
+5  17.5     82   55.7
+6  17.3     81   55.4</code></pre>
+</div>
+</div>
+</section>
+<section id="変数に対する処理-mutate-transmute" class="level3" data-number="2.2.5">
+<h3 data-number="2.2.5" class="anchored" data-anchor-id="変数に対する処理-mutate-transmute"><span class="header-section-number">2.2.5</span> 変数に対する処理: mutate / transmute</h3>
+<p>データフレームの既存の変数に処理を加えたり、新たな列を追加するには<code>mutate()</code>および<code>transmute()</code>を利用する。これらの関数では、引数内で算術演算や任意の関数を指定し、データの変数をベクトルとして引数に渡すことが可能である。形式としては、<code>mutate(データ, 変更後の変数 = 処理内容)</code>という具合になる。次の例は「<strong>trees</strong>に、各行のGirth列に2.54を乗した値をgirth_cmという列を追加する」という処理である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">girth_cm =</span> Girth <span class="sc">*</span> <span class="fl">2.54</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume girth_cm
+1   8.3     70   10.3   21.082
+2   8.6     65   10.3   21.844
+3   8.8     63   10.2   22.352</code></pre>
+</div>
+</div>
+<p><code>mutate()</code>では、引数で指定した変数名を追加するが、対象のデータに存在する場合、変数の値を上書きする。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Height       =</span> <span class="fu">as.character</span>(Height),</span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">Volume_round =</span> <span class="fu">round</span>(Volume, <span class="at">digits =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume Volume_round
+1   8.3     70   10.3           10
+2   8.6     65   10.3           10
+3   8.8     63   10.2           10</code></pre>
+</div>
+</div>
+<p><code>mutate()</code>と似た機能をもつ関数として<code>transmute()</code>がある。その違いは<code>mutate()</code>では変更を加えなかった列も残るのに対し、<code>transmute()</code>では引数内部で指定した処理の結果からなるデータフレームを返す点にある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="co"># transmute()では実行結果のみからなるデータフレームを返す</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">girth_cm =</span> Girth <span class="sc">*</span> <span class="fl">2.54</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb134-4"><a href="#cb134-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  girth_cm
+1   21.082
+2   21.844
+3   22.352</code></pre>
+</div>
+</div>
+<section id="ベクトルを対象とした値の操作" class="level4" data-number="2.2.5.1">
+<h4 data-number="2.2.5.1" class="anchored" data-anchor-id="ベクトルを対象とした値の操作"><span class="header-section-number">2.2.5.1</span> ベクトルを対象とした値の操作</h4>
+<p><strong>dplyr</strong>では、ベクトルを対象にしたデータ操作の関数が備わっており、中にはベクトル内の欠損を処理する関数もある。いずれの関数も<code>mutate()</code>内外で利用できる。これらの関数はそれぞれ表XXに示すような差異がある。</p>
+<table class="table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 85%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>関数</th>
+<th>特徴</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>case_when()</code></td>
+<td>ベクトルの各要素に対する挙動を指定。指定しない場合には欠損値として扱われる</td>
+</tr>
+<tr class="even">
+<td><code>recode()</code></td>
+<td>ベクトル内の特定の値だけを変更する。変換後の型に注意</td>
+</tr>
+<tr class="odd">
+<td><code>if_else()</code></td>
+<td><code>ifelse()</code>の拡張。条件式とその結果に対する処理を定義する。欠損値に対する挙動も指定できる</td>
+</tr>
+<tr class="even">
+<td><code>na_if()</code></td>
+<td>特定の値を欠損値へと変換する</td>
+</tr>
+<tr class="odd">
+<td><code>coalesce()</code></td>
+<td>欠損値を特定の値へと変換する</td>
+</tr>
+</tbody>
+</table>
+<p>関数<code>if_else</code>は条件式および、条件式について真・偽であった時の挙動をそれぞれ引数の値として指定して実行する。<strong>trees</strong>のHeight列の値をベクトルとして参照し、各要素が80より大きければ”large”、小さければ”small”を返す例を次に示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> trees<span class="sc">$</span>Height <span class="sc">&gt;</span> <span class="dv">80</span>,</span>
+<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">true =</span> <span class="st">"large"</span>,</span>
+<span id="cb136-3"><a href="#cb136-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">false =</span> <span class="st">"small"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "small" "small" "small" "small" "large" "large" "small" "small" "small"
+[10] "small" "small" "small" "small" "small" "small" "small" "large" "large"
+[19] "small" "small" "small" "small" "small" "small" "small" "large" "large"
+[28] "small" "small" "small" "large"</code></pre>
+</div>
+</div>
+<p>なお<code>if_else()</code>では変換に用いる値のデータ型は統一されている必要がある。特に欠損値として処理させる場合、<code>NA_integer</code>のようにデータ型についても指定しなければならない点に注意である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 返り値を欠損値とする場合は</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 真・偽の結果でデータ型を揃える必要がある</span></span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(trees<span class="sc">$</span>Height, <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 整数と実数を区別するため、データ型の不一致によるエラーとなる</span></span>
+<span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> x <span class="sc">&gt;</span> <span class="dv">80</span>, 1L, <span class="dv">0</span>)</span>
+<span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Error: `false` must be type integer, not double</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="co"># いずれの返り血も整数型であるので処理は実行される</span></span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> x <span class="sc">&gt;</span> <span class="dv">80</span>, 1L, 0L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  0  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  1  1  0  0  0  0  0  0  0
+[26]  1  1  0  0  0  1 NA</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 真であるときの返り値が整数値なので</span></span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 偽であるときの返り値も整数型の欠損値にする</span></span>
+<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> x <span class="sc">&gt;</span> <span class="dv">80</span>, 1L, <span class="cn">NA</span>)</span>
+<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Error: `false` must be type integer, not logical</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> x <span class="sc">&gt;</span> <span class="dv">80</span>, 1L, <span class="cn">NA_integer_</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] NA NA NA NA  1  1 NA NA NA NA NA NA NA NA NA NA  1  1 NA NA NA NA NA NA NA
+[26]  1  1 NA NA NA  1 NA</code></pre>
+</div>
+</div>
+<p>引数<em>missing</em>は欠損値への処理を指定するために利用できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a><span class="fu">if_else</span>(<span class="at">condition =</span> x <span class="sc">&gt;</span> <span class="dv">80</span>, 1L, 0L, <span class="at">missing =</span> <span class="sc">-</span>99L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]   0   0   0   0   1   1   0   0   0   0   0   0   0   0   0   0   1   1   0
+[20]   0   0   0   0   0   0   1   1   0   0   0   1 -99</code></pre>
+</div>
+</div>
+<p><code>if_else()</code>では、関数の中で指定できる条件は一つなので、より複数の条件を設定するには入れ子としてさらに<code>if_else()</code>を記述することが可能である。ただしこのような場合には次の<code>case_when()</code>や<code>recode()</code>のように複数の条件が指定可能な関数を利用するのが適切である。</p>
+<p><code>case_when()</code>は複数の条件分岐をベクトルに適用するのに用いられる。通常の関数とは引数の指定方法が異なっており、関数内部で条件式と、TRUEとなる場合の変更後の値をチルダ記号（~）で繋いでformulaとして記述する(「対象の値 == 条件式 ~ 変換後の値」)。条件文はカンマによって区切られるが、宣言の順に値の評価が実行される。また対象のベクトルが、記述したいずれかの条件に一致しない場合には欠損値として扱わるという点については注意が必要である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a><span class="co"># treesデータセットのGirthの値に応じて指定した文字列を返す</span></span>
+<span id="cb147-2"><a href="#cb147-2" aria-hidden="true" tabindex="-1"></a><span class="fu">case_when</span>(</span>
+<span id="cb147-3"><a href="#cb147-3" aria-hidden="true" tabindex="-1"></a>  trees<span class="sc">$</span>Girth <span class="sc">&lt;=</span> <span class="dv">12</span> <span class="sc">~</span> <span class="st">"small"</span>,</span>
+<span id="cb147-4"><a href="#cb147-4" aria-hidden="true" tabindex="-1"></a>  trees<span class="sc">$</span>Girth <span class="sc">&lt;=</span> <span class="dv">13</span> <span class="sc">~</span> <span class="st">"medium"</span>,</span>
+<span id="cb147-5"><a href="#cb147-5" aria-hidden="true" tabindex="-1"></a>  trees<span class="sc">$</span>Girth <span class="sc">&gt;</span> <span class="dv">13</span> <span class="sc">~</span> <span class="st">"large"</span></span>
+<span id="cb147-6"><a href="#cb147-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "small"  "small"  "small"  "small"  "small"  "small"  "small"  "small" 
+ [9] "small"  "small"  "small"  "small"  "small"  "small"  "small"  "medium"
+[17] "medium" "large"  "large"  "large"  "large"  "large"  "large"  "large" 
+[25] "large"  "large"  "large"  "large"  "large"  "large"  "large" </code></pre>
+</div>
+</div>
+<p>ベクトルの特定の値を変更したい時には<code>recode()</code>も利用できる。この関数も引数内で「対象の値 = 変換後の値」を記述する形式となるように、対象となる値を直接記述するのが<code>case_when()</code>との違いである。また、変更後の値が指定されていない要素には元の値が採用されるが、引数<code>.default</code>に与えた値を利用することもできる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mtcarsデータセットのcylの値を変更する</span></span>
+<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a><span class="fu">recode</span>(mtcars<span class="sc">$</span>cyl, <span class="st">`</span><span class="at">4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"四"</span>, <span class="st">`</span><span class="at">6</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"六"</span>, <span class="st">`</span><span class="at">8</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"八"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "六" "六" "四" "六" "八" "六" "八" "四" "四" "六" "六" "八" "八" "八" "八"
+[16] "八" "八" "四" "四" "四" "四" "八" "八" "八" "八" "四" "四" "四" "八" "六"
+[31] "八" "四"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 変更後の値を指定しない時の挙動 (.default)と、欠損値の変更を.missingにより指定する</span></span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a><span class="fu">recode</span>(<span class="fu">c</span>(mtcars<span class="sc">$</span>cyl, <span class="cn">NA</span>),</span>
+<span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a>       <span class="st">`</span><span class="at">4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"四"</span>,</span>
+<span id="cb151-4"><a href="#cb151-4" aria-hidden="true" tabindex="-1"></a>       <span class="st">`</span><span class="at">8</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"八"</span>,</span>
+<span id="cb151-5"><a href="#cb151-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">.default =</span> <span class="st">"その他"</span>,</span>
+<span id="cb151-6"><a href="#cb151-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">.missing =</span> <span class="st">"なし"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "その他" "その他" "四"     "その他" "八"     "その他" "八"     "四"    
+ [9] "四"     "その他" "その他" "八"     "八"     "八"     "八"     "八"    
+[17] "八"     "四"     "四"     "四"     "四"     "八"     "八"     "八"    
+[25] "八"     "四"     "四"     "四"     "八"     "その他" "八"     "四"    
+[33] "なし"  </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 文字列ベクトルに数値を混ぜることはできない</span></span>
+<span id="cb153-2"><a href="#cb153-2" aria-hidden="true" tabindex="-1"></a><span class="fu">recode</span>(mtcars<span class="sc">$</span>cyl, <span class="st">`</span><span class="at">4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"四"</span>, <span class="st">`</span><span class="at">6</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"六"</span>,  <span class="st">`</span><span class="at">8</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">8.0</span>)</span>
+<span id="cb153-3"><a href="#cb153-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Error: Vector 3 must be type character, not double</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>欠損値を処理する関数<code>na_if()</code>はベクトル中の欠損値を対象に、<em>y</em>引数で指定された特定の値への変換する。<code>coalesce()</code>は対象と同じ長さのベクトルを与えることで、欠損値を同じ要素の位置の値で置換する。また、長さが異なるベクトルとして1つの値が与えられた時は、その値が繰り返し使われる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb154"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="st">""</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb154-2"><a href="#cb154-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ベクトル中の "" を欠損値へ変換</span></span>
+<span id="cb154-3"><a href="#cb154-3" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">na_if</span>(<span class="at">y =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1" NA  "3" "4"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="dv">5</span>)</span>
+<span id="cb156-2"><a href="#cb156-2" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">coalesce</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 2 2 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 欠損値が含まれる3, 4番目の要素を</span></span>
+<span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 3, 4へと置換</span></span>
+<span id="cb158-3"><a href="#cb158-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coalesce</span>(x,</span>
+<span id="cb158-4"><a href="#cb158-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5</code></pre>
+</div>
+</div>
+</section>
+<section id="値を前後にずらす-lead-lag" class="level4" data-number="2.2.5.2">
+<h4 data-number="2.2.5.2" class="anchored" data-anchor-id="値を前後にずらす-lead-lag"><span class="header-section-number">2.2.5.2</span> 値を前後にずらす: lead / lag</h4>
+<p>植物データのように行ごとに調査時期と数値のキーペアからなる反復測定データでは、1つ前の期間との差分を求めたり、2つの期間の合計値を求める、などの処理を実施することがある。この処理を実行するには、対象のベクトルの要素を前後にずらして参照する機能をもつ<code>lead()</code>および<code>lag()</code>を利用する。</p>
+<p>次の例は5つの要素をもつベクトル<strong>x</strong>に<code>lead()</code>を適用した物である。<code>lead()</code>、<code>lag()</code>は引数<em>n</em>で対象ベクトルの基準となる位置を前後に調整する。ベクトルを参照した時、元の長さ以上の位置にある要素には<em>NA</em>が与えられるが、これは<em>default</em>引数により任意の値に変更可能である。</p>
+<!-- `lead()`や`lag()`は、引数*n*で指定した数だけベクトルを前後にずらし、同じ長さのベクトルを返す処理をする。値の再利用は行われないので、先頭あるいは末尾の値が欠損となることがある。これには引数*default*により任意の値が指定可能である。 -->
+<div class="cell">
+<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span></span>
+<span id="cb160-2"><a href="#cb160-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb160-3"><a href="#cb160-3" aria-hidden="true" tabindex="-1"></a><span class="co"># n の既定値には1が与えられている</span></span>
+<span id="cb160-4"><a href="#cb160-4" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">lead</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  2  3  4  5 NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3つ後ろの要素を参照</span></span>
+<span id="cb162-2"><a href="#cb162-2" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">lead</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  4  5 NA NA NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb164"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a><span class="co"># defaultによりNAの値を変更</span></span>
+<span id="cb164-2"><a href="#cb164-2" aria-hidden="true" tabindex="-1"></a>x <span class="sc">%&gt;%</span> <span class="fu">lead</span>(<span class="dv">3</span>, <span class="at">default =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 5 0 0 0</code></pre>
+</div>
+</div>
+<p>この関数を用いて植物データの各個体の高さ成長が調査時期でどれだけ増えたかを確認しよう。ここでは簡潔な結果を示すために一個体分のデータを用いることにする。</p>
+<!-- group_by()の説明が後に入る -->
+<div class="cell">
+<div class="sourceCode cell-code" id="cb166"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href="#cb166-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 植物データ (data/plants.csv)を</span></span>
+<span id="cb166-2"><a href="#cb166-2" aria-hidden="true" tabindex="-1"></a><span class="co"># tidyrを用いて縦長にしたデータを利用する</span></span>
+<span id="cb166-3"><a href="#cb166-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb166-4"><a href="#cb166-4" aria-hidden="true" tabindex="-1"></a><span class="co"># a_1個体のみを抽出し (filter)、</span></span>
+<span id="cb166-5"><a href="#cb166-5" aria-hidden="true" tabindex="-1"></a><span class="co"># periodの並びにする (arrange)</span></span>
+<span id="cb166-6"><a href="#cb166-6" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb166-7"><a href="#cb166-7" aria-hidden="true" tabindex="-1"></a>  df_long <span class="sc">%&gt;%</span></span>
+<span id="cb166-8"><a href="#cb166-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(sp <span class="sc">==</span> <span class="st">"a_1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb166-9"><a href="#cb166-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(period)</span>
+<span id="cb166-10"><a href="#cb166-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb166-11"><a href="#cb166-11" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  sp    period height
+  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;
+1 a_1   201504   147.
+2 a_1   201505   148.
+3 a_1   201506   149.
+4 a_1   201507   149.
+5 a_1   201508   149.
+6 a_1   201509   149.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb168"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>height[<span class="dv">2</span>] <span class="sc">-</span> d<span class="sc">$</span>height[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.16</code></pre>
+</div>
+</div>
+<p>ここで2015年4月と次の調査時期である2015年5月の値を見ると、1増えていることがわかる。これを<code>lag()</code>で算出しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">%&gt;%</span></span>
+<span id="cb170-2"><a href="#cb170-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">growth =</span> height <span class="sc">-</span> <span class="fu">lag</span>(height))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 24 × 4
+   sp    period height  growth
+   &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 a_1   201504   147. NA     
+ 2 a_1   201505   148.  0.160 
+ 3 a_1   201506   149.  1.17  
+ 4 a_1   201507   149.  0.0800
+ 5 a_1   201508   149.  0.220 
+ 6 a_1   201509   149.  0.170 
+ 7 a_1   201510   149.  0.160 
+ 8 a_1   201511   149.  0.150 
+ 9 a_1   201512   150.  0.110 
+10 a_1   201601   150.  0.0400
+# … with 14 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="順位や割合累積和を求める-ranking-cumall" class="level4" data-number="2.2.5.3">
+<h4 data-number="2.2.5.3" class="anchored" data-anchor-id="順位や割合累積和を求める-ranking-cumall"><span class="header-section-number">2.2.5.3</span> 順位や割合、累積和を求める: ranking / cumall</h4>
+<p>ベクトル内の要素の順位や割合を求めるための関数群が<code>ranking</code>として提供されている。これを用いて、次のデータフレームの変数<em>var</em>の値へ順位に関する関数を適用する例を紹介する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb172"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb172-2"><a href="#cb172-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">3</span>, <span class="cn">NA</span>)</span>
+<span id="cb172-3"><a href="#cb172-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb172-4"><a href="#cb172-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(d,</span>
+<span id="cb172-5"><a href="#cb172-5" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 行の順番に番号を与える</span></span>
+<span id="cb172-6"><a href="#cb172-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">row_number =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb172-7"><a href="#cb172-7" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 指定の変数の昇順での順位を与える。</span></span>
+<span id="cb172-8"><a href="#cb172-8" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 同位値がある場合、同位の数が順位に影響する</span></span>
+<span id="cb172-9"><a href="#cb172-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">min_rank   =</span> <span class="fu">min_rank</span>(var),</span>
+<span id="cb172-10"><a href="#cb172-10" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 同位値の数とは関係なく、連続した順位が与えられる</span></span>
+<span id="cb172-11"><a href="#cb172-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">dense_rank =</span> <span class="fu">dense_rank</span>(var),</span>
+<span id="cb172-12"><a href="#cb172-12" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 順位を0から1の範囲で示す</span></span>
+<span id="cb172-13"><a href="#cb172-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">percent_rank =</span> <span class="fu">percent_rank</span>(var),</span>
+<span id="cb172-14"><a href="#cb172-14" aria-hidden="true" tabindex="-1"></a>       <span class="co"># 順位を積み上げ、全体での割合を示す</span></span>
+<span id="cb172-15"><a href="#cb172-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">cume_dist =</span> <span class="fu">cume_dist</span>(var),</span>
+<span id="cb172-16"><a href="#cb172-16" aria-hidden="true" tabindex="-1"></a>       <span class="co"># データを引数nで指定した値で分割した時のグループ</span></span>
+<span id="cb172-17"><a href="#cb172-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">ntile =</span> <span class="fu">ntile</span>(var, <span class="at">n =</span> <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 7
+    var row_number min_rank dense_rank percent_rank cume_dist ntile
+  &lt;dbl&gt;      &lt;int&gt;    &lt;int&gt;      &lt;int&gt;        &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;
+1     1          1        1          1          0       0.167     1
+2     2          2        2          2          0.2     0.333     1
+3     3          3        3          3          0.4     0.667     1
+4     4          4        5          4          0.8     0.833     2
+5     5          5        6          5          1       1         2
+6     3          6        3          3          0.4     0.667     2
+7    NA          7       NA         NA         NA      NA        NA</code></pre>
+</div>
+</div>
+<p><em>NA</em>の扱いについては、関数により処理が異なる点に注意である。なおこれらの関数内においても、降順並び替えのための<code>desc()</code>や<code>-</code>演算子が利用可能である。</p>
+<!-- 表 ranking関数 -->
+<table class="table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 80%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>関数</th>
+<th>処理内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>row_number()</code></td>
+<td>行番号</td>
+</tr>
+<tr class="even">
+<td><code>min_rank()</code></td>
+<td>順位(同位値には同じ順位を与える。同位値の数を含めて次の順位が考慮される)</td>
+</tr>
+<tr class="odd">
+<td><code>dense_rank()</code></td>
+<td>順位(同位値には同じ順位を与え、以降の順には連続した順位が割り振られる)</td>
+</tr>
+<tr class="even">
+<td><code>percent_rank()</code></td>
+<td>順位のパーセント(0から1の範囲)</td>
+</tr>
+<tr class="odd">
+<td><code>cume_dist()</code></td>
+<td>順位の積み上げ値に対する割合(累積比率)</td>
+</tr>
+<tr class="even">
+<td><code>ntile()</code></td>
+<td>指定した群数に分割</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="集計値を求める-summarise" class="level3" data-number="2.2.6">
+<h3 data-number="2.2.6" class="anchored" data-anchor-id="集計値を求める-summarise"><span class="header-section-number">2.2.6</span> 集計値を求める: summarise</h3>
+<p><code>summarise()</code>は、データ全体あるいはグループに要約統計量を算出するのに役立つ。</p>
+<p><strong>trees</strong>の3つの変数に対し、平均 <code>mean()</code>、最大値 <code>max()</code>、標準偏差 <code>sd()</code>を求める処理は以下のようになる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb174"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb174-1"><a href="#cb174-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各変数の要約統計量を求める</span></span>
+<span id="cb174-2"><a href="#cb174-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(</span>
+<span id="cb174-3"><a href="#cb174-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean_girth =</span> <span class="fu">mean</span>(Girth),</span>
+<span id="cb174-4"><a href="#cb174-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_height =</span> <span class="fu">max</span>(Height),</span>
+<span id="cb174-5"><a href="#cb174-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd_volume  =</span> <span class="fu">sd</span>(Volume))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  mean_girth max_height sd_volume
+1   13.24839         87  16.43785</code></pre>
+</div>
+</div>
+<p>データに共通の項目、すなわちグループがある場合、グループごとの集計値を求めるには<code>summarise()</code>と<code>group_by()</code>を組み合わせて利用する。<code>group_by()</code>は引数に与えた変数をグループとして扱い、以降の処理をグループ単位で適用する。返り値はデータフレームであるがgrouped_dfというクラスが与えられている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb176"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mtcarsデータセットをcylの値ごとにグループ化する</span></span>
+<span id="cb176-2"><a href="#cb176-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="ot">&lt;-</span></span>
+<span id="cb176-3"><a href="#cb176-3" aria-hidden="true" tabindex="-1"></a>  mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb176-4"><a href="#cb176-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl)</span>
+<span id="cb176-5"><a href="#cb176-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb176-6"><a href="#cb176-6" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(grp_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "grouped_df" "tbl_df"     "tbl"        "data.frame"</code></pre>
+</div>
+</div>
+<p>例えば、<strong>mtcars</strong>の車種のシリンダ (気筒)数ごとの1ガロンあたりの平均走行距離を求めるには次のようなコードを実行する。グループに含まれる値は水準として扱われ、ここでの水準はcylに含まれる4、6、8の3水準である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarise()の処理は水準ごとに出力される</span></span>
+<span id="cb178-2"><a href="#cb178-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb178-3"><a href="#cb178-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_mpg =</span> <span class="fu">mean</span>(mpg))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+    cyl mean_mpg
+  &lt;dbl&gt;    &lt;dbl&gt;
+1     4     26.7
+2     6     19.7
+3     8     15.1</code></pre>
+</div>
+</div>
+<p>一つの変数を元にグループ化を実行した場合、<code>summarise()</code>や<code>mutate()</code>関数を適用した後はグループ化が解除されるが、複数の変数からグループを作成した場合、グループの解除は<code>ungroup()</code>を使い明示的に実行する必要がある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb180"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href="#cb180-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 複数の変数でグループを作る</span></span>
+<span id="cb180-2"><a href="#cb180-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cylのグループ化は継続する</span></span>
+<span id="cb180-3"><a href="#cb180-3" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb180-4"><a href="#cb180-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl, gear) <span class="sc">%&gt;%</span></span>
+<span id="cb180-5"><a href="#cb180-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_mpg =</span> <span class="fu">mean</span>(mpg))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'cyl'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+# Groups:   cyl [3]
+    cyl  gear mean_mpg
+  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1     4     3     21.5
+2     4     4     26.9
+3     4     5     28.2
+4     6     3     19.8
+5     6     4     19.8
+6     6     5     19.7
+7     8     3     15.0
+8     8     5     15.4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb183"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ungroup()でグループを解除する</span></span>
+<span id="cb183-2"><a href="#cb183-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb183-3"><a href="#cb183-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl, gear) <span class="sc">%&gt;%</span></span>
+<span id="cb183-4"><a href="#cb183-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_mpg =</span> <span class="fu">mean</span>(mpg)) <span class="sc">%&gt;%</span></span>
+<span id="cb183-5"><a href="#cb183-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'cyl'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+    cyl  gear mean_mpg
+  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1     4     3     21.5
+2     4     4     26.9
+3     4     5     28.2
+4     6     3     19.8
+5     6     4     19.8
+6     6     5     19.7
+7     8     3     15.0
+8     8     5     15.4</code></pre>
+</div>
+</div>
+<section id="グループのカウント" class="level4" data-number="2.2.6.1">
+<h4 data-number="2.2.6.1" class="anchored" data-anchor-id="グループのカウント"><span class="header-section-number">2.2.6.1</span> グループのカウント</h4>
+<p>要素数を数える関数として<code>n()</code>が提供されている。これをグループ化したデータフレームに実行すると、各グループの数を求めるのに便利である。次の処理は、cyl列でグループ化した<strong>matcars</strong>の各cylの値がどれだけ含まれるかを数えた物である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb186"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb186-1"><a href="#cb186-1" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb186-2"><a href="#cb186-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+    cyl     n
+  &lt;dbl&gt; &lt;int&gt;
+1     4    11
+2     6     7
+3     8    14</code></pre>
+</div>
+</div>
+<p>また、単にグループの数を求めるという処理の場合には上記の記述を簡略化させた<code>tally()</code>や<code>count()</code>を用いると良い。<code>tally()</code>と<code>count()</code>、前者ではあらかじめグループ化されたデータを渡す(<code>summarise(n = n())</code>のラッパー関数として動作する)が、後者では引数でグループ化する変数を指定する点が異なる。2つの関数には引数<em>sort</em>があり、<em>TRUE</em>を指定することで降順並び替えを実行する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb188"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb188-1"><a href="#cb188-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tallyではgroup_by()によりグループ化をあらかじめ実行しておく</span></span>
+<span id="cb188-2"><a href="#cb188-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb188-3"><a href="#cb188-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl, gear) <span class="sc">%&gt;%</span></span>
+<span id="cb188-4"><a href="#cb188-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+# Groups:   cyl [3]
+    cyl  gear     n
+  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+1     4     3     1
+2     4     4     8
+3     4     5     2
+4     6     3     2
+5     6     4     4
+6     6     5     1
+7     8     3    12
+8     8     5     2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb190"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb190-1"><a href="#cb190-1" aria-hidden="true" tabindex="-1"></a><span class="co"># count()では引数に含めた変数をグループ化してカウントを実施する</span></span>
+<span id="cb190-2"><a href="#cb190-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb190-3"><a href="#cb190-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(cyl, gear)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  cyl gear  n
+1   4    3  1
+2   4    4  8
+3   4    5  2
+4   6    3  2
+5   6    4  4
+6   6    5  1
+7   8    3 12
+8   8    5  2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb192"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb192-1"><a href="#cb192-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb192-2"><a href="#cb192-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(cyl, gear, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  cyl gear  n
+1   8    3 12
+2   4    4  8
+3   6    4  4
+4   4    5  2
+5   6    3  2
+6   8    5  2
+7   4    3  1
+8   6    5  1</code></pre>
+</div>
+</div>
+<p>なお、<code>summarise()</code>を含め、グループ化したデータのカウントを求める関数では、返り値がデータの集約結果となっているが、<code>add_tally()</code>または<code>add_count()</code>を使うことで、データフレームの他の変数に影響を及ぼさずにカウント値を算出し、列として追加することができる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb194"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb194-1"><a href="#cb194-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb194-2"><a href="#cb194-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cyl) <span class="sc">%&gt;%</span></span>
+<span id="cb194-3"><a href="#cb194-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_tally</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb194-4"><a href="#cb194-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear"
+[11] "carb" "n"   </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb196"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb196-1"><a href="#cb196-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sortの並び替えがデータフレームに対して有効になる</span></span>
+<span id="cb196-2"><a href="#cb196-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb196-3"><a href="#cb196-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_count</span>(cyl, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb196-4"><a href="#cb196-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   mpg cyl  disp  hp drat   wt  qsec vs am gear carb  n
+1 18.7   8 360.0 175 3.15 3.44 17.02  0  0    3    2 14
+2 14.3   8 360.0 245 3.21 3.57 15.84  0  0    3    4 14
+3 16.4   8 275.8 180 3.07 4.07 17.40  0  0    3    3 14
+4 17.3   8 275.8 180 3.07 3.73 17.60  0  0    3    3 14
+5 15.2   8 275.8 180 3.07 3.78 18.00  0  0    3    3 14
+6 10.4   8 472.0 205 2.93 5.25 17.98  0  0    3    4 14</code></pre>
+</div>
+</div>
+<p>グループに関する補助関数として、水準数や水準ごとの件数を出力する関数が用意されている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb198"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb198-1"><a href="#cb198-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループとなっている変数を確認する</span></span>
+<span id="cb198-2"><a href="#cb198-2" aria-hidden="true" tabindex="-1"></a><span class="fu">groups</span>(grp_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+cyl</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb200"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb200-1"><a href="#cb200-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループの水準数を数える</span></span>
+<span id="cb200-2"><a href="#cb200-2" aria-hidden="true" tabindex="-1"></a><span class="fu">n_groups</span>(grp_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb202"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb202-1"><a href="#cb202-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループの水準に含まれる件数を出力</span></span>
+<span id="cb202-2"><a href="#cb202-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_size</span>(grp_mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11  7 14</code></pre>
+</div>
+</div>
+</section>
+<section id="グループに対するsummarise以外のデータ操作" class="level4" data-number="2.2.6.2">
+<h4 data-number="2.2.6.2" class="anchored" data-anchor-id="グループに対するsummarise以外のデータ操作"><span class="header-section-number">2.2.6.2</span> グループに対するsummarise以外のデータ操作</h4>
+<!-- ref) https://github.com/tidyverse/dplyr/blob/master/vignettes/dplyr.Rmd#grouped-operations -->
+<p>グループ化されたデータフレームに対する処理は<code>summarise()</code>以外でも適用できる。引き続き、<strong>mtcars</strong>のcylについてグループ化したデータを対象に、グループ化されたデータフレームが対象となることで挙動の変化する関数の例を見ていこう。</p>
+<p>まず<code>slice()</code>でデータの任意の行のデータを抽出する際、グループ化されたデータが対象の場合、グループの各要素の位置からデータを返却する。cylは3つの要素をもつ変数なので、次の処理を実行すると、各グループの要素の値について出力を得る。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb204"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb204-1"><a href="#cb204-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループ化されていないため、</span></span>
+<span id="cb204-2"><a href="#cb204-2" aria-hidden="true" tabindex="-1"></a><span class="co"># データ全体から1行を返す</span></span>
+<span id="cb204-3"><a href="#cb204-3" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">slice</span>(1L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          mpg cyl disp  hp drat   wt  qsec vs am gear carb
+Mazda RX4  21   6  160 110  3.9 2.62 16.46  0  1    4    4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb206"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各グループのデータの先頭から1行抽出。</span></span>
+<span id="cb206-2"><a href="#cb206-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span> <span class="fu">slice</span>(1L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 11
+# Groups:   cyl [3]
+    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1  22.8     4   108    93  3.85  2.32  18.6     1     1     4     1
+2  21       6   160   110  3.9   2.62  16.5     0     1     4     4
+3  18.7     8   360   175  3.15  3.44  17.0     0     0     3     2</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb208"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb208-1"><a href="#cb208-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループの要素から各1行返す</span></span>
+<span id="cb208-2"><a href="#cb208-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 11
+# Groups:   cyl [3]
+    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1  21.4     4   121   109  4.11  2.78  18.6     1     1     4     2
+2  19.7     6   145   175  3.62  2.77  15.5     0     1     5     6
+3  15       8   301   335  3.54  3.57  14.6     0     1     5     8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb210"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb210-1"><a href="#cb210-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各グループからサイズ数のデータを無作為に抽出</span></span>
+<span id="cb210-2"><a href="#cb210-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span> <span class="fu">sample_n</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 11
+# Groups:   cyl [3]
+    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1  21.5     4  120.    97  3.7   2.46  20.0     1     0     3     1
+2  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+3  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+4  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+5  15.8     8  351    264  4.22  3.17  14.5     0     1     5     4
+6  15.2     8  276.   180  3.07  3.78  18       0     0     3     3</code></pre>
+</div>
+</div>
+<p>各グループの最大値あるいは最小値を求めるという処理は、次のように<code>arrange()</code>と組み合わせることで実現可能になる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb212"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb212-1"><a href="#cb212-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wtが小さい順に各グループから2行ずつ抽出</span></span>
+<span id="cb212-2"><a href="#cb212-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb212-3"><a href="#cb212-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(wt) <span class="sc">%&gt;%</span></span>
+<span id="cb212-4"><a href="#cb212-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span>2L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 11
+# Groups:   cyl [3]
+    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1  30.4     4  95.1   113  3.77  1.51  16.9     1     1     5     2
+2  30.4     4  75.7    52  4.93  1.62  18.5     1     1     4     2
+3  21       6 160     110  3.9   2.62  16.5     0     1     4     4
+4  19.7     6 145     175  3.62  2.77  15.5     0     1     5     6
+5  15.8     8 351     264  4.22  3.17  14.5     0     1     5     4
+6  15.2     8 304     150  3.15  3.44  17.3     0     0     3     2</code></pre>
+</div>
+</div>
+<p>同様に<code>sample_n()</code>や<code>distinct()</code>などのデータ抽出に関する関数もグループ化の影響を受ける。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb214"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb214-1"><a href="#cb214-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(carb, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb214-2"><a href="#cb214-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb216"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb216-1"><a href="#cb216-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各グループのcarbの値がユニークに処理される</span></span>
+<span id="cb216-2"><a href="#cb216-2" aria-hidden="true" tabindex="-1"></a>grp_mtcars <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(carb, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb216-3"><a href="#cb216-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
+</div>
+</div>
+<p>ベクトルの値を前後にずらす<code>lead-lag</code>もグループ化されたデータが対象の際に挙動が変化する。これを利用して、1個体分の高さ成長量を求めた処理を植物データ全体に適用可能になる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb218"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb218-1"><a href="#cb218-1" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">%&gt;%</span></span>
+<span id="cb218-2"><a href="#cb218-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(sp, period) <span class="sc">%&gt;%</span></span>
+<span id="cb218-3"><a href="#cb218-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sp) <span class="sc">%&gt;%</span></span>
+<span id="cb218-4"><a href="#cb218-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">growth =</span> height <span class="sc">-</span> <span class="fu">lag</span>(height)) <span class="sc">%&gt;%</span></span>
+<span id="cb218-5"><a href="#cb218-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 120 × 4
+   sp    period height  growth
+   &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 a_1   201504   147. NA     
+ 2 a_1   201505   148.  0.160 
+ 3 a_1   201506   149.  1.17  
+ 4 a_1   201507   149.  0.0800
+ 5 a_1   201508   149.  0.220 
+ 6 a_1   201509   149.  0.170 
+ 7 a_1   201510   149.  0.160 
+ 8 a_1   201511   149.  0.150 
+ 9 a_1   201512   150.  0.110 
+10 a_1   201601   150.  0.0400
+# … with 110 more rows</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="複数列へのデータ操作関数の適用-_at-_if-_all" class="level3" data-number="2.2.7">
+<h3 data-number="2.2.7" class="anchored" data-anchor-id="複数列へのデータ操作関数の適用-_at-_if-_all"><span class="header-section-number">2.2.7</span> 複数列へのデータ操作関数の適用: _at / _if / _all</h3>
+<p><strong>dplyr</strong>を使ったデータ操作の関数群では、例えば「共通の接頭語をもつ変数」「文字列である変数」「すべての変数」というような複数の列を同時に処理するための効率的な方法が提供されている。<code>*_at()</code>、<code>*_if()</code>、<code>*_all()</code>である。これらの複数列への処理が可能な関数の原形は、データ操作の基本として本章で取り上げてきた<code>mutate()</code>、<code>transmute()</code>、<code>select()</code>、<code>filter()</code>、<code>summarise()</code>、<code>group_by()</code>、<code>arrange()</code>がある。</p>
+<p>例えば全ての変数の平均値を<code>mean()</code>を使って求めるという処理を<code>summarise()</code>関数を使うと次のような記述となるが、<code>summarise()</code>の処理を全変数に適用する<code>summarise_all()</code>を使うことで簡略化できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb220"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb220-1"><a href="#cb220-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各変数の平均値を求める</span></span>
+<span id="cb220-2"><a href="#cb220-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb220-3"><a href="#cb220-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_girth =</span> <span class="fu">mean</span>(Girth),</span>
+<span id="cb220-4"><a href="#cb220-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_height =</span> <span class="fu">mean</span>(Height),</span>
+<span id="cb220-5"><a href="#cb220-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_volume  =</span> <span class="fu">mean</span>(Volume))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  mean_girth max_height sd_volume
+1   13.24839         76  30.17097</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb222"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb222-1"><a href="#cb222-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarise_allではデータフレームの全列に関数を適用する</span></span>
+<span id="cb222-2"><a href="#cb222-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb222-3"><a href="#cb222-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="at">.funs =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Girth Height   Volume
+1 13.24839     76 30.17097</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb224"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb224-1"><a href="#cb224-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 文字列で指定しても良い</span></span>
+<span id="cb224-2"><a href="#cb224-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb224-3"><a href="#cb224-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="at">.funs =</span> <span class="st">"mean"</span>)</span>
+<span id="cb224-4"><a href="#cb224-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb224-5"><a href="#cb224-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 関数名を.funsに指定するとエラーになる</span></span>
+<span id="cb224-6"><a href="#cb224-6" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb224-7"><a href="#cb224-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="at">.funs =</span> <span class="fu">mean</span>())</span>
+<span id="cb224-8"><a href="#cb224-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Error in mean.default() : argument "x" is missing, with no default</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>*_all()</code>では関数内の引数として、対象のデータに含まれる全ての列に適用する関数名を文字列で指定し、その関数に適用する引数を記述する。すなわち、先の例で各列に適用した関数は<code>mean()</code>であったが<code>mean()</code>の引数<em>trim</em>を有効にするには次のようにする必要がある。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb225"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb225-1"><a href="#cb225-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mean()を全ての列に適用するが、</span></span>
+<span id="cb225-2"><a href="#cb225-2" aria-hidden="true" tabindex="-1"></a><span class="co"># meanは文字として定義する</span></span>
+<span id="cb225-3"><a href="#cb225-3" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb225-4"><a href="#cb225-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(mean, <span class="at">trim =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  12.9     76   24.2</code></pre>
+</div>
+</div>
+<p>一方で<code>funs()</code>を使うことで関数呼び出しのリストを生成することも可能である。この場合、表現式はラムダ式で記述する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb227"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb227-1"><a href="#cb227-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 次の3つの実行結果は全て等しい</span></span>
+<span id="cb227-2"><a href="#cb227-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb227-3"><a href="#cb227-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="fu">funs</span>(<span class="fu">mean</span>(<span class="at">x =</span> ., <span class="at">trim =</span> <span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `funs()` was deprecated in dplyr 0.8.0.
+Please use a list of either functions or lambdas: 
+
+  # Simple named list: 
+  list(mean = mean, median = median)
+
+  # Auto named with `tibble::lst()`: 
+  tibble::lst(mean, median)
+
+  # Using lambdas
+  list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+This warning is displayed once every 8 hours.
+Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  12.9     76   24.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb230"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb230-1"><a href="#cb230-1" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb230-2"><a href="#cb230-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="cf">function</span>(x) {</span>
+<span id="cb230-3"><a href="#cb230-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(x, <span class="at">trim =</span> <span class="dv">2</span>)</span>
+<span id="cb230-4"><a href="#cb230-4" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  12.9     76   24.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb232"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb232-1"><a href="#cb232-1" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb232-2"><a href="#cb232-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="fu">funs</span>(mean), <span class="at">trim =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth Height Volume
+1  12.9     76   24.2</code></pre>
+</div>
+</div>
+<p>いずれの実行結果も各列の変数名を保持しているが、変数名は<code>funs(変数名 = 適用する関数名)</code>の形式で調整できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb234"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb234-1"><a href="#cb234-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 処理後の列名を変更する</span></span>
+<span id="cb234-2"><a href="#cb234-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb234-3"><a href="#cb234-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="fu">funs</span>(<span class="at">heikin =</span> mean), <span class="at">trim =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Girth_heikin Height_heikin Volume_heikin
+1         12.9            76          24.2</code></pre>
+</div>
+</div>
+<p><code>*_all()</code>は、データフレームがもつすべての変数に対し任意の関数を適用するが、変数のデータ型が異なる場合には意図しない出力結果となることがあるので注意が必要である。例えば、先の例では<code>mean()</code>をすべての変数に実行したが、文字列型の変数が含まれている場合には欠損値や警告が出力される。このような時には、より柔軟に関数の適用範囲を指定する<code>*_if()</code>や<code>*_at()</code>を利用すると良い。</p>
+<p><code>*_if()</code>は、関数を適用する変数の条件を指定し、その条件に合うものに任意の関数を処理できるようになっている。また<code>*_at()</code>は、適用する変数を明示的あるいは補助関数 (変数選択の補助関数を参考)を<code>vars()</code>と組み合わせて指定すると良い。</p>
+<p>次の例は<code>select_at()</code>、<code>select_if()</code>を利用して条件に従う変数を選択するものである。1番目は<code>vars()</code>を用いて任意の変数名をベクトルとして与え、一致する変数名の列を選択する、という処理になる。2番目の処理は、<code>vars()</code>内部で変数選択の補助関数の一種<code>end_with()</code>により条件指定を実行している。最後は関数を定義しているが、ここで引数<em>x</em>には各変数がベクトルで与えられる。この例では変数のベクトルの合計値が1000以下となる変数を選択するようにしている。ここで注意なのは、対象のデータに数値以外のデータ型の変数が含まれる場合、この処理はエラーになることである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb236"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb236-1"><a href="#cb236-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 選択する変数名を直接指定する</span></span>
+<span id="cb236-2"><a href="#cb236-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb236-3"><a href="#cb236-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_at</span>(<span class="fu">vars</span>(<span class="fu">c</span>(<span class="st">"mpg"</span>, <span class="st">"cyl"</span>, <span class="st">"gear"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb236-4"><a href="#cb236-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "mpg"  "cyl"  "gear"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb238"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a><span class="co"># end_with()を使い、pで終わる変数を選択する</span></span>
+<span id="cb238-2"><a href="#cb238-2" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb238-3"><a href="#cb238-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_at</span>(<span class="fu">vars</span>(<span class="fu">ends_with</span>(<span class="st">"p"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb238-4"><a href="#cb238-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "disp" "hp"  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb240"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 各列の合計値が1000以下となる変数を選択</span></span>
+<span id="cb240-2"><a href="#cb240-2" aria-hidden="true" tabindex="-1"></a>trees <span class="sc">%&gt;%</span></span>
+<span id="cb240-3"><a href="#cb240-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(<span class="cf">function</span>(x) <span class="fu">sum</span>(x) <span class="sc">&lt;</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb240-4"><a href="#cb240-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Girth"  "Volume"</code></pre>
+</div>
+</div>
+<p><code>summarise_all()</code>などの関数は、適用する関数の形式（<code>*_all()</code>、<code>_at()</code>、<code>_if()</code>）に応じて、第二引数以降で指定する引数が異なっている。特定の変数を対象とする<code>*_at</code>では<em>.vars</em>、条件に従う変数を対象にする<code>*_if</code>では<em>.predicate</em>である。これらはいずれも変数の適用範囲を指定するのに用いられる。そして処理する関数を与える。データ操作の「文法」としては、対象のデータを指定し、その変数の適用範囲を決めたのちに処理する内容を述べる、という具合になる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb242"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb242-1"><a href="#cb242-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb242-2"><a href="#cb242-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_at</span>(<span class="fu">vars</span>(<span class="st">"mpg"</span>, <span class="st">"vs"</span>, <span class="st">"am"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb242-3"><a href="#cb242-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># vsからamまでを論理値に変換</span></span>
+<span id="cb242-4"><a href="#cb242-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(vs<span class="sc">:</span>am), as.logical) <span class="sc">%&gt;%</span></span>
+<span id="cb242-5"><a href="#cb242-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   mpg    vs    am
+Mazda RX4         21.0 FALSE  TRUE
+Mazda RX4 Wag     21.0 FALSE  TRUE
+Datsun 710        22.8  TRUE  TRUE
+Hornet 4 Drive    21.4  TRUE FALSE
+Hornet Sportabout 18.7 FALSE FALSE
+Valiant           18.1  TRUE FALSE
+Duster 360        14.3 FALSE FALSE
+Merc 240D         24.4  TRUE FALSE
+Merc 230          22.8  TRUE FALSE
+Merc 280          19.2  TRUE FALSE</code></pre>
+</div>
+</div>
+</section>
+<section id="データの結合" class="level3" data-number="2.2.8">
+<h3 data-number="2.2.8" class="anchored" data-anchor-id="データの結合"><span class="header-section-number">2.2.8</span> データの結合</h3>
+<p>これまで<strong>dplyr</strong>のデータ操作関数の振る舞いについて紹介してきたが、次は2つのデータを結合する処理について見ていこう。データフレームの結合には、<code>bind_rows()</code>と<code>bind_cols()</code>を用いる方法と、<code>join</code>関数群を使う方法とがある。</p>
+<section id="行列方向による結合-bind_rows-bind_cols" class="level4" data-number="2.2.8.1">
+<h4 data-number="2.2.8.1" class="anchored" data-anchor-id="行列方向による結合-bind_rows-bind_cols"><span class="header-section-number">2.2.8.1</span> 行・列方向による結合: bind_rows / bind_cols</h4>
+<p>まず<code>bind_rows()</code>、<code>bind_cols()</code>だが、この関数は結合するデータの方向性、すなわち行を増やすのか、列を追加するのか、により使い分ける。<code>bind_rows()</code>では結合対象のデータの変数名が共通である場合にデータを追加する。共通でない変数名が含まれる場合、それらの列をもたない行については欠損値が与えられる。一方<code>bind_cols()</code>は列の結合を実施する関数であり、与えるデータの行数が一致していなければいけない。</p>
+<p><strong>trees</strong>を使って結合の例を示そう。まず<strong>trees</strong>を10行ごとに分割したオブジェクトを作成し、これを<code>bind_rows()</code>で結合する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb244"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb244-1"><a href="#cb244-1" aria-hidden="true" tabindex="-1"></a>trees_x <span class="ot">&lt;-</span> trees[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, ]</span>
+<span id="cb244-2"><a href="#cb244-2" aria-hidden="true" tabindex="-1"></a>trees_y <span class="ot">&lt;-</span> trees[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>, ]</span>
+<span id="cb244-3"><a href="#cb244-3" aria-hidden="true" tabindex="-1"></a>trees_z <span class="ot">&lt;-</span> trees[<span class="dv">21</span><span class="sc">:</span><span class="fu">nrow</span>(trees), ]</span>
+<span id="cb244-4"><a href="#cb244-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb244-5"><a href="#cb244-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(trees_x, trees_y) <span class="sc">%&gt;%</span></span>
+<span id="cb244-6"><a href="#cb244-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20  3</code></pre>
+</div>
+</div>
+<p><code>bind_rows()</code>や<code>bind_cols()</code>では、引数に与えたデータを対象に結合の処理を行うが、これらのデータ数に制約はない。つまり複数のデータを一度に結合する処理も可能なのである。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb246"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb246-1"><a href="#cb246-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(trees_x, trees_y, trees_z) <span class="sc">%&gt;%</span></span>
+<span id="cb246-2"><a href="#cb246-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31  3</code></pre>
+</div>
+</div>
+<p>次に<code>bind_cols()</code>の例であるが、結合の方向が異なるだけで<code>bind_rows()</code>と差異はない。<strong>trees</strong>の列ごとに結合を行おう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb248"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb248-1"><a href="#cb248-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_cols</span>(trees[<span class="dv">1</span>], trees[<span class="dv">2</span>], trees[<span class="dv">3</span>]) <span class="sc">%&gt;%</span> <span class="fu">dim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31  3</code></pre>
+</div>
+</div>
+</section>
+<section id="リレーショナルデータの結合-_join" class="level4" data-number="2.2.8.2">
+<h4 data-number="2.2.8.2" class="anchored" data-anchor-id="リレーショナルデータの結合-_join"><span class="header-section-number">2.2.8.2</span> リレーショナルデータの結合: _join</h4>
+<!-- 図は配置を含めて再検討 -->
+<div class="cell">
+
+</div>
+<p><strong>dplyr</strong>パッケージの<code>*_join</code>関数群を使ったデータフレームの結合は、2つのデータのいずれかに含まれる値を結合したり、共通する項目を除外したりと応用範囲の広い結合関数である。基本は引数<em>x</em>、<em>y</em>に共通の変数をもった対象のデータフレームを指定し、<em>by</em>引数で変数名を記述する、という形式になる。</p>
+<p><code>*_join</code>関数群の例を見ていくために用意した2つのデータを用意しよう。<strong>df1</strong>は変数:x”と”y”をもつ。また<strong>df2</strong>は変数”x”、“z”をもっている。どちらも3行2列のデータフレームであり、共通する変数は”x”である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb250"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb250-1"><a href="#cb250-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 模擬のデータフレームを生成する</span></span>
+<span id="cb250-2"><a href="#cb250-2" aria-hidden="true" tabindex="-1"></a>(df1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>),</span>
+<span id="cb250-3"><a href="#cb250-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  x         y
+  &lt;chr&gt; &lt;int&gt;
+1 A         1
+2 B         2
+3 C         3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb252"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb252-1"><a href="#cb252-1" aria-hidden="true" tabindex="-1"></a>(df2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"D"</span>),</span>
+<span id="cb252-2"><a href="#cb252-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">z =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  x     z    
+  &lt;chr&gt; &lt;lgl&gt;
+1 A     TRUE 
+2 B     FALSE
+3 D     TRUE </code></pre>
+</div>
+</div>
+<!-- ##### 外部結合・内部結合 -->
+<p><code>*_join</code>関数群には2種類の結合形式があるが、一つの結合形式は、<code>left_join()</code>、<code>inner_join()</code>など、別テーブルと共通する変数を照合し、一致する行に該当する別テーブルの<strong>変数を追加する</strong>結合の方法である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb254"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb254-1"><a href="#cb254-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(<span class="at">x =</span> df1, <span class="at">y =</span> df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 B         2 FALSE
+3 C         3 NA   </code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-left-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">左外部結合 left_join</figcaption><p></p>
+</figure>
+</div>
+<p>この例では<code>left_join()</code>で変数xを<em>by</em>に指定している。2つのデータのx変数で共通な値は”A”と”B”である。この共通の値が含まれる<strong>df2</strong>の変数を<strong>df1</strong>に結合するのが<code>left_join()</code>の働きとなる。</p>
+<p>結合を行う際、2つのデータフレームを紐付ける一つ以上の変数が必要であることが<code>*_join()</code>の働きを理解するのに重要である。この役割は引数<em>by</em>により指定する。また<em>by</em>引数に指定する変数のデータ型は2つのデータで共通でなければならないという制約がある(変数名が同じであっても文字列型と数値型の変数では失敗する)。</p>
+<p><strong>dplyr</strong>ではデータフレームに共通する変数名を自動的に検出し、それを結合に利用する。そのため<em>by</em>引数の指定は必須ではない。しかし後でコードを見返したときのため、どの変数をキーとしたかをコードとして記述しておくことが好ましい。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb256"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb256-1"><a href="#cb256-1" aria-hidden="true" tabindex="-1"></a><span class="co"># byの指定をしなくても</span></span>
+<span id="cb256-2"><a href="#cb256-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 自動的に結合が行われる</span></span>
+<span id="cb256-3"><a href="#cb256-3" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(df2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining, by = "x"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 B         2 FALSE
+3 C         3 NA   </code></pre>
+</div>
+</div>
+<p>結合する変数名がデータフレーム間で異なる場合には、引数<em>by</em>の値を<code>c(col_a = COL_A)</code>のように互いの変数名を紐付ける指定をする。先ほど<code>left_join()</code>を用いた結合結果を示した<strong>df1</strong>の変数xを<code>rename()</code>を使って変更し、その処理を見てみよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb259"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb259-1"><a href="#cb259-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 共通する変数名が存在しないためエラーになる</span></span>
+<span id="cb259-2"><a href="#cb259-2" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span></span>
+<span id="cb259-3"><a href="#cb259-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">X =</span> x) <span class="sc">%&gt;%</span></span>
+<span id="cb259-4"><a href="#cb259-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(df_y)</span>
+<span id="cb259-5"><a href="#cb259-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Error: `by` required, because the data sources have no common variables</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb260"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb260-1"><a href="#cb260-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">X =</span> x) <span class="sc">%&gt;%</span></span>
+<span id="cb260-2"><a href="#cb260-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(df2, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"X"</span> <span class="ot">=</span> <span class="st">"x"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  X         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 B         2 FALSE
+3 C         3 NA   </code></pre>
+</div>
+</div>
+<p><code>*_join</code>関数群で扱う対象データのうち、引数<em>x</em>に与えられるデータを特にマスタと呼ぶ。<code>left_join()</code>はマスタに指定したデータに変更を加えるが、マスタに含まれる情報が失われることはない。次に、<code>*_join</code>の複数の種類を扱うが、<code>*_join</code>関数群の中で利用頻度の高い関数となるだろう。</p>
+<p><code>left_join()</code>と同様の働きをもつ<code>right_join()</code>があるが、これは引数<em>y</em>のデータをマスタとして扱う関数である。そのため次の結果は<code>df1 %&gt;% left_join(df2)</code>と同じデータを返すが、注意すべきなのは変数の並びが<strong>df2</strong>に含まれる変数が先に与えられている点である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb262"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb262-1"><a href="#cb262-1" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">%&gt;%</span> <span class="fu">right_join</span>(df1, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  x     z         y
+  &lt;chr&gt; &lt;lgl&gt; &lt;int&gt;
+1 A     TRUE      1
+2 B     FALSE     2
+3 C     NA        3</code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-right-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">右外部結合 right_join</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb264"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb264-1"><a href="#cb264-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 B         2 FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb266"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb266-1"><a href="#cb266-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">full_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 B         2 FALSE
+3 C         3 NA   
+4 D        NA TRUE </code></pre>
+</div>
+</div>
+<p><code>inner_join()</code>は引数<em>by</em>で指定された変数の値をもつ行について結合を実施する。<code>full_join()</code>は2つのデータに含まれる全ての変数を結合する。</p>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-inner-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">内部結合 inner_join</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-full-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">完全外部結合 full_join</figcaption><p></p>
+</figure>
+</div>
+<p><code>left_join()</code>、<code>right_join()</code>、<code>full_join()</code>のような結合形式は外部結合として知られる。外部結合で一致しない行に追加される変数の値には欠損値が与えられる。一方、<code>inner_join()</code>は内部結合と呼ばれる。</p>
+<p><code>left_join()</code>等の結合を利用する際、値の重複がある場合には注意が必要である。次の例は変数xを共通してもつ2つのデータの結合であるが、<strong>df2</strong>の変数xには”A”の値が複数出現しており、それぞれが異なるzの値をもっている。この状態だと<code>x = "A", z = TRUE</code>、<code>x = "A", z = FALSE</code>の2パターンである。このように結合する値がユニークに扱えない時、結合は一致する観測値のすべての組み合わせを返す。この機能は複数変数の組み合わせからなるデータを生成するのに役立つだろう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb268"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb268-1"><a href="#cb268-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>),</span>
+<span id="cb268-2"><a href="#cb268-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb268-3"><a href="#cb268-3" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"D"</span>, <span class="st">"A"</span>),</span>
+<span id="cb268-4"><a href="#cb268-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">z =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>))</span>
+<span id="cb268-5"><a href="#cb268-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb268-6"><a href="#cb268-6" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 A         1 FALSE
+3 B         2 FALSE
+4 C         3 NA   </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb270"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb270-1"><a href="#cb270-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  x         y z    
+  &lt;chr&gt; &lt;int&gt; &lt;lgl&gt;
+1 A         1 TRUE 
+2 A         1 FALSE
+3 B         2 FALSE</code></pre>
+</div>
+</div>
+<!-- 制限付き結合 -->
+<p><code>*_join()</code>群のもう一つの結合形式は、これまで見てきた<code>left_join()</code>などの関数が変数を追加する結合であったのに対して変数には影響することはない。マスタとするデータの変数は保持されるが、行について影響する結合となる。このような結合は、結合結果の不一致を確認するのに役立つだろう。</p>
+<p><code>semi_join()</code>は2つのデータに含まれる、引数<em>by</em>で指定した変数で共通する行を抽出する。<code>anti_join()</code>はマスタにのみ含まれる行を抽出する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb272"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb272-1"><a href="#cb272-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">semi_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  x         y
+  &lt;chr&gt; &lt;int&gt;
+1 A         1
+2 B         2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb274"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb274-1"><a href="#cb274-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">%&gt;%</span> <span class="fu">anti_join</span>(df2, <span class="at">by =</span> <span class="st">"x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  x         y
+  &lt;chr&gt; &lt;int&gt;
+1 C         3</code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-semi-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">準結合 semi_join</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch8-anti-join-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">逆結合 anti_join</figcaption><p></p>
+</figure>
+</div>
+</section>
+</section>
+</section>
+<section id="まとめ" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="まとめ"><span class="header-section-number">2.3</span> まとめ</h2>
+<ul>
+<li>多様なデータの表現形式と、コンピュータ処理に適したtidyデータへの相互変換の方法を学んだ。<strong>tidyr</strong>パッケージを使うことで、データを柔軟に変形することが可能になる。</li>
+<li><strong>dplyr</strong>はデータ操作を「文法」として表現するパッケージで、基本的なデータ処理である、選択、抽出、並び替え、集計、加工の5工程を実行する関数をそれぞれ提供する。</li>
+<li><strong>dplyr</strong>はtidyデータの利用を前提としており、関数内部ではデータフレームの変数名を指定した処理が中心となる。</li>
+<li><strong>dplyr</strong>が提供する結合関数は、変数の対応関係を考慮したリレーショナルな処理も行える。</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch1.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch3.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

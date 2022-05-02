@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.282">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rによるデータ解析のための前処理 - 1&nbsp; データを扱うための下準備</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./ch2.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Rによるデータ解析のための前処理</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch7.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#rプログラミングの基礎" id="toc-rプログラミングの基礎" class="nav-link active" data-scroll-target="#rプログラミングの基礎"> <span class="header-section-number">1.1</span> Rプログラミングの基礎</a>
+  <ul class="collapse">
+  <li><a href="#データ型-データの種類" id="toc-データ型-データの種類" class="nav-link" data-scroll-target="#データ型-データの種類"> <span class="header-section-number">1.1.1</span> データ型: データの種類</a></li>
+  <li><a href="#rではすべてがオブジェクトである" id="toc-rではすべてがオブジェクトである" class="nav-link" data-scroll-target="#rではすべてがオブジェクトである"> <span class="header-section-number">1.1.2</span> Rではすべてがオブジェクトである</a></li>
+  <li><a href="#クラス" id="toc-クラス" class="nav-link" data-scroll-target="#クラス"> <span class="header-section-number">1.1.3</span> クラス</a></li>
+  <li><a href="#データフレームの行ないし列の指定" id="toc-データフレームの行ないし列の指定" class="nav-link" data-scroll-target="#データフレームの行ないし列の指定"> <span class="header-section-number">1.1.4</span> データフレームの行ないし列の指定</a></li>
+  </ul></li>
+  <li><a href="#tidyverse-モダンなrのフレームワーク" id="toc-tidyverse-モダンなrのフレームワーク" class="nav-link" data-scroll-target="#tidyverse-モダンなrのフレームワーク"> <span class="header-section-number">1.2</span> tidyverse: モダンなRのフレームワーク</a>
+  <ul class="collapse">
+  <li><a href="#tidyデータ" id="toc-tidyデータ" class="nav-link" data-scroll-target="#tidyデータ"> <span class="header-section-number">1.2.1</span> tidyデータ</a></li>
+  <li><a href="#tidyverseパッケージ" id="toc-tidyverseパッケージ" class="nav-link" data-scroll-target="#tidyverseパッケージ"> <span class="header-section-number">1.2.2</span> tidyverseパッケージ</a></li>
+  <li><a href="#tibble-ユーザの使い勝手を向上させたデーターフレーム拡張" id="toc-tibble-ユーザの使い勝手を向上させたデーターフレーム拡張" class="nav-link" data-scroll-target="#tibble-ユーザの使い勝手を向上させたデーターフレーム拡張"> <span class="header-section-number">1.2.3</span> tibble: ユーザの使い勝手を向上させたデーターフレーム拡張</a></li>
+  <li><a href="#パイプ処理" id="toc-パイプ処理" class="nav-link" data-scroll-target="#パイプ処理"> <span class="header-section-number">1.2.4</span> パイプ処理</a></li>
+  </ul></li>
+  <li><a href="#まとめ" id="toc-まとめ" class="nav-link" data-scroll-target="#まとめ"> <span class="header-section-number">1.3</span> まとめ</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/ch1.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="introduction" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></span></h1>
+</div>
+
+
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>この章は、Rプログラミングの基礎と、近年注目を集めているtidyverseの枠組みを紹介する。すでにRに慣れている読者であれば、本章前半のR基本操作は読み飛ばしても問題がない。一方、後半はtidyverseの導入として、tidyデータという概念を解説し、この枠組みでのデータ読み込み、データ操作、効率的な処理ついて触れる。加えて、tidyverseの根幹にあるtibbleと呼ばれる拡張クラスや、パイプ処理と呼ばれるコード記述について説明する。</p>
+<section id="rプログラミングの基礎" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="rプログラミングの基礎"><span class="header-section-number">1.1</span> Rプログラミングの基礎</h2>
+<p>ここではオブジェクトの扱い、特にデータ型ついて説明しよう。</p>
+<section id="データ型-データの種類" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="データ型-データの種類"><span class="header-section-number">1.1.1</span> データ型: データの種類</h3>
+<p>プログラミング言語では、データは型で区別され、型ごとに適切な処理が定義されている。Rで頻繁に利用されるデータ型として、論理値 (logical)、数値 (整数型 integerおよび 倍精度小数点型 double)、文字型 (character)の4種類がある。これらは他の要素に分解することのできない原始的な(atomic)データ型である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># c()はベクトルを生成する関数</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 以下は3つの数値要素からなるベクトルを生成</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3 1 6</code></pre>
+</div>
+</div>
+<p>ベクトルは<code>c()</code>によって生成されるが、ベクトル内では、要素のデータ型は統一されるという制約がある。もしベクトル内部で複数のデータ型を混在させようとすると、Rはいずれかのデータ型に強制変換を行う。変換はもっとも自由度の高いデータ型で統一される。例えば数値と文字では文字のほうが自由度が高い。文字は数値型として扱えないが、数値の方は文字列として保存することが可能である（必要があればRではなどを使って数値に変換できる）。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">123</span>, <span class="st">"十二三"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+</div>
+<p>ここで <code>class()</code> はデータの型を出力する関数である。 データ型の変換はこのように、データ型の扱いやすさによって決定する。データ型の変換の優先順位は柔軟性の低い型から論理型、整数型、倍精度小数点型、文字列の順となる。</p>
+<p>Rではオブジェクトに関数を適用する際に自動的に型変換が行われることがある。例えば論理値の<em>TRUE</em>および<em>FALSE</em>は、合計を求める関数を適用すると自動的に数値に変換されて処理される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>1L <span class="sc">+</span> <span class="cn">TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FALSEは数値の1以下である </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (正しいのでTRUEが返却される)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cn">FALSE</span> <span class="sc">&lt;=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 論理値のTRUE, FALSEは数値として処理され、それぞれ1と0として計算される</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="dv">1</span>, <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+<p>一方で<code>as.numeric()</code>や<code>as.character()</code>といった関数を実行することで、任意のタイミングでデータ型を変換をすることも可能である。これらの関数の多くは <code>as.</code>と変換後のデータ名をつなげた名前で定義されている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 明示的に型変換を行う</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(<span class="fu">as.numeric</span>(<span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1"</code></pre>
+</div>
+</div>
+</section>
+<section id="rではすべてがオブジェクトである" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="rではすべてがオブジェクトである"><span class="header-section-number">1.1.2</span> Rではすべてがオブジェクトである</h3>
+<p>Rでは文字や数値、関数など、すべてがオブジェクトである。10や”abc”という数値や文字（リテラルという）、関数<code>c()</code>もまたオブジェクトである。通常オブジェクトには名前がつけられる。<code>c</code>は要素を結合する関数オブジェクトに付けられた名前である。また以下の例ではオブジェクト（リテラル）である3と5を加算した結果のオブジェクトを <code>x</code> という名前で保存している。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 処理の結果を x として保存する</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">3</span> <span class="sc">+</span> <span class="dv">5</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 保存されたオブジェクトを出力する</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># オブジェクトに対して処理を加える</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x <span class="sc">+</span> <span class="dv">8</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># xの値を上書きする</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="st">"こんにちは"</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "こんにちは"</code></pre>
+</div>
+</div>
+<p><code>x</code> はオブジェクトである 8 に付けられた名前であるが、簡単のため <code>x</code> もオブジェクトと呼ぶことが多い。ユーザが作成したオブジェクトは作業スペースに保存される。作業スペース中のオブジェクトの一覧は <code>ls()</code> で確認できる。</p>
+<p>オブジェクトに名前をつける操作を代入と呼ぶ。代入には <code>&lt;-</code> を利用する。この記号は代入演算子と呼ばれる。オブジェクトには自由に名前をつけることができるが、数値で始まる名前をつけることはできない(<code>1x</code> などは不可）。また予約語と呼ばれる、R内部で利用されるオブジェクト名を使うことはできない。既存のオブジェクトに代入を行うとその中身は上書される。</p>
+</section>
+<section id="クラス" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="クラス"><span class="header-section-number">1.1.3</span> クラス</h3>
+<p>数値や文字といった基本的(atomic)なデータ型とは別に、日付や時間のような複雑な情報を表現するデータもある。これらはRで<strong>クラス</strong>として定義されている。 クラスは基本データ型と並んでRを扱う上では大事な概念であるので、ここで簡単に説明しておこう。以下では現在の時間を表すオブジェクトを生成している。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "POSIXct" "POSIXt" </code></pre>
+</div>
+</div>
+<p>Rのオブジェクトの方を確認するには <code>class()</code>を使う。<code>Sys.time()</code>で生成されたオブジェクト <code>y</code>に適用してみると <code>POSIXct</code>, <code>POSIXt</code> と出力される。これはオブジェクト<code>y</code> がクラス<code>POSIXct</code>のインスタンス（クラスを実体化したオブジェクトのことをインスタンスと表現することもある）であり、そして <code>POSIXct</code> クラスは <code>POSIXt</code> という親クラスとして継承している（共通する特性の引き継いでいる）ことを意味している。本項ではクラスの継承関係を説明する余裕はないので、興味ある読者は〇〇を参照されたいが、ここで<code>y</code>を実行してみると以下の出力を得られる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>y </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2022-05-02 16:49:29 JST"</code></pre>
+</div>
+</div>
+<p>出力では日付と時刻が<code>年-月-日 時:分:秒 タイムゾーン</code>の形式で表示される。しかしながら<code>y</code>の実態は文字列ではない。<code>y</code>からクラス属性を外すと以下のように出力される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unclass</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1651477769</code></pre>
+</div>
+</div>
+<p><code>y</code>の実態は1970年1月1日からの経過時間を表す整数値である。ところが<code>POSIXct</code>クラスにはこの整数を時間として表現し直すための関数（メソッドともいう）が実装されている。 Rのコンソールにオブジェクト名を入力して実行すると、Rは自動的に <code>print</code> 関数を呼び出すが、この際オブジェクトのクラスに適合する関数を探し出して実行する。 <code>POSIXct</code>クラスのオブジェクトである <code>y</code> の場合は <code>print.POSIXct()</code> が呼び出されるが、この関数では整数値が日付のフォーマットに変換して上で画面に表示されるのである。</p>
+<p>オブジェクト <code>y</code>の実態は整数値であるため、加算などの数値演算を行うことができる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>y <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2022-05-02 16:49:30 JST"</code></pre>
+</div>
+</div>
+<p>同様に<code>Sys.Date()</code>は日付を表すクラスオブジェクト（インスタンス）を出力する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">Sys.Date</span>()</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>z</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2022-05-02"</code></pre>
+</div>
+</div>
+<p>ここで <code>z</code> は <code>Date</code> クラスのオブジェクト（インスタンス）であり、デフォルトでは実行時点での日付を1970年1月1日からの経過日数として保存する。 <code>Date</code>クラスでは出力用の関数として <code>print.Date()</code>が定義されているため、コンソールには日付フォーマットで表示される。 しかしながら実態は整数値であるため、<code>POSIXct</code>クラスのオブジェクトと同様、算術演算を適用できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unclass</span>(z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 19114</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>z <span class="sc">-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2022-05-01"</code></pre>
+</div>
+</div>
+<p>ちなみに <code>print.Date()</code> は以下のように定義されている（コンソールに関数名を入力すると表示される）。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>print.Date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function (x, max = NULL, ...) 
+{
+    if (is.null(max)) 
+        max &lt;- getOption("max.print", 9999L)
+    if (max &lt; length(x)) {
+        print(format(x[seq_len(max)]), max = max + 1, ...)
+        cat(" [ reached 'max' / getOption(\"max.print\") -- omitted", 
+            length(x) - max, "entries ]\n")
+    }
+    else if (length(x)) 
+        print(format(x), max = max, ...)
+    else cat(class(x)[1L], "of length 0\n")
+    invisible(x)
+}
+&lt;bytecode: 0x1031631d8&gt;
+&lt;environment: namespace:base&gt;</code></pre>
+</div>
+</div>
+<p>この定義から、<code>y</code>オブジェクトの実態である整数値を日付にフォーマットし直して出力することが分かる（正確には内部でさらに <code>format.Date()</code>などを呼び出している）。</p>
+<p>つまり<code>Date</code>や <code>POSIXct</code>, <code>POSIXt</code> の実態は整数なのだが、日付や時間として直感的な操作（整数としての足し算引き算など）ができるように工夫されたクラスなのである。 Rでオブジェクト名をコンソールで実行した場合、暗黙のうちにオブジェクごとに定義された <code>print()</code>が呼ばれる。クラスには専用に関数が定義されることが多い。</p>
+<p>Rでは関数名とドットに続けてクラス名をつなげた関数は、指定されたクラスのオブジェクトを表示するためのメソッドとなる。この仕組みによるクラス設計をRではS3と呼ぶ。 <code>summary()</code> などもオブジェクトごとに異なる定義が実装されている（線形回帰を実行する <code>lm</code> クラスには出力を表示するための <code>summary.lm()</code> が実装されている）。 Rではクラス（オブジェクト）ごとに独自の関数が実行されうることは常に意識しておく必要がある。</p>
+<p>Rはオブジェクト指向のプログラミング言語であり、C++やJava,Pythonと同様にユーザーが独自にクラスを定義して利用することもできる。 Rではクラスを定義する方法としてS3の他に、S4やReferance Classという仕組みが導入されている。これらの詳細に興味のある読者は〇〇を参照されたい。</p>
+<p>なお日付や時間オブジェクトの操作方法については別の章で解説する。</p>
+<section id="データフレーム" class="level4" data-number="1.1.3.1">
+<h4 data-number="1.1.3.1" class="anchored" data-anchor-id="データフレーム"><span class="header-section-number">1.1.3.1</span> データフレーム</h4>
+<p>データフレームは、Rにおいてデータを保存して操作するための基本クラスである。データフレームはデータベースやExcelファイルなどと共通の形式を持つ。つまりデータは長方形で記録され、行がレコード（測定対象）に対応し、列には対象のある性質について測定した結果が保存される。つまり列はデータ分析における<strong>変数</strong>に対応する。データフレームでは列ごとにデータ型は異なっていても構わないが、ある列に記録される型は統一されていなければならない。以下Rの標準データセットから、<strong>trees</strong>と <strong>mtcars</strong> を例にデータフレームの確認をしよう。<strong>trees</strong>はアメリカンブラックチェリーと呼ばれるバラ科の樹木の伐採時の幹の直径、重量および高さに関するデータ、<strong>mtcars</strong>は1970年代に米国で発行された専門雑誌に掲載された自動車の仕様と性能をまとめたデータである。</p>
+<p>R組み込みのデータセット(<strong>datasets</strong>パッケージのデータオブジェクト）は、Rの起動時に参照可能になっている。 インストール後に追加したパッケージに付属するデータは（<code>library(パッケージ名)</code>を実行することで参照可能になるが、<code>data(データ名, package = "パッケージ名")</code>としても参照できる。まれに<code>data()</code>を明示的に呼ばなければデータを参照できないケースもある(<strong>kernlab</strong>パッケージの<strong>income</strong>データセットなど）。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># dplyrパッケージのデータを利用する</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(band_members, <span class="at">package =</span> <span class="st">"dplyr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>データの概要は<code>?</code>演算子あるいは<code>help()</code>を利用して確認できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># クラスの確認。data.frame</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ヘルプを確認</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">help</span>(trees)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>?mtcars</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>trees</strong>の中身をみるには、コンソールに<code>trees</code>と打ち込むか、あるいはRStudioを使っているのであれば<code>View()</code>の引数にデータを指定して実行する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># コンソールにデータセット名 (オブジェクト名) を</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 与えて実行するとデータが出力される</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>trees</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="co"># View関数でも同様</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>データ全体ではなく、データの一部を確認したい場合には<code>head()</code>や<code>tail()</code>を使う。これらの関数はオブジェクトの先頭ないし末尾の値を出力する関数で、データフレームの場合先頭ないし末尾から6行を表示する。表示行数は引数<em>n</em>により調整できる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># head, tailでは引数 n により出力する行数を調整できる</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(trees, <span class="at">n =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>データフレームのサイズ(行数や列数)を確認するのであれば、<code>dim()</code>を使うの便利である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># データセットの行数と列数を確認</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31  3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(mtcars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 32 11</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="データフレームの行ないし列の指定" class="level3" data-number="1.1.4">
+<h3 data-number="1.1.4" class="anchored" data-anchor-id="データフレームの行ないし列の指定"><span class="header-section-number">1.1.4</span> データフレームの行ないし列の指定</h3>
+<p>データフレームの行ないし列、あるいは一部を参照するには<code>$</code>や<code>[</code>、<code>[[</code> を使う。 最初に<code>[</code>演算子をベクトルに適用してみよう。<code>[</code>にはベクトルの番号を整数値で指定する。これを添え字という。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1から10までのベクトルを作成</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co"># :はfrom:toの形式で連続する値をベクトル化</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ベクトルの番号を指定</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>x[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 3 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">5</span><span class="sc">:</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5 4 3 2 1</code></pre>
+</div>
+</div>
+<p>では<code>[</code>演算子をデータフレームに適用していこう。データフレームでは添え字として整数だけでなく列名も利用可能である。 データフレームでは参照する行と列を区別するためにカンマ (<code>,</code>) を間に挟む。すなわち<code>[行,列]</code>としてカンマの前に行番号、後に列番号（あるいは列名）をベクトルとして指定する。省略した場合、すべての行（なしいし列）を指定したことになる。行番号を省略し、特定の1列だけを指定した場合、返り値はベクトルに変換される。 ただし、<code>[</code>でカンマを使わずに整数値1つを指定した場合、該当する列がデータフレームの属性を保ったまま出力される。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1行目を参照</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>trees[<span class="dv">1</span>, ]</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1列目を参照 (返り値はベクトルになる)</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>trees[, <span class="dv">1</span>]</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 行番号と列番号を指定</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>trees[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 列を名前で指定</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>trees[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="st">"Height"</span>, <span class="st">"Volume"</span>)]</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a><span class="co"># カンマを加えない場合列番号を指定したことになる（出力はデータフレームのまま）</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>trees[<span class="dv">1</span>]</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Girth列だけを抽出する</span></span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>trees[<span class="st">"Girth"</span>]</span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 複数の列を指定して抽出する</span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 1列目から3列目を指定</span></span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>trees[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>trees[<span class="fu">c</span>(<span class="st">"Girth"</span>, <span class="st">"Height"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>次に<code>[[</code>と<code>$</code>演算子について説明しよう。前節の<code>[</code>演算子では<code>x[1:3]</code>のようにベクトルを添え字として指定できたが、<code>[[</code>では単独の値しか指定できない。そして返り値はベクトルとなる。同様に<code>$</code>演算子はデータフレームの列名を指定する。この場合も返り値はベクトルになる。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 列番号による参照</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(mtcars)[[<span class="dv">3</span>]] <span class="co"># 3列目は disp</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>mtcars[[<span class="dv">3</span>]]</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="co"># $演算子による参照</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a><span class="co"># データフレームではベクトルとして列の値を参照する</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>mtcars<span class="sc">$</span>disp</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>mtcars[[<span class="st">"disp"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="tidyverse-モダンなrのフレームワーク" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="tidyverse-モダンなrのフレームワーク"><span class="header-section-number">1.2</span> tidyverse: モダンなRのフレームワーク</h2>
+<section id="tidyデータ" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="tidyデータ"><span class="header-section-number">1.2.1</span> tidyデータ</h3>
+<p>分析の対象となるデータが、Rで処理するのに適した形式であるとは限らない。むしろ何らかの整形を必要とする場合がほとんどだろう。 この際、データの形式の不備には大きく2つのケースがあるだろう。1つは、データの入力そのものがおかしいケースで、例えばデータの列数が途中からずれていてフォーマットそのものが崩れている場合や、文字化けが起こってしまって判読不能なケースである。この場合は、最初から入力し直すなど、根本的な修正を解こなさいと、そもそもRなどの統計解析ソフトで読み込むことが不可能だろう。</p>
+<p>もう1つは、形式的にデータは正しく記録されておりRなどで読み込むことが可能だが、必要な分析を行うにはデータの不統一やフォーマットを調整しなければならない場合である。 これには欠損値の表記方法が統一されていない（<code>NA</code>であったり空白であったり、9999などの大きな整数値であったり）、あるいはカテゴリの表記に揺れがある（「女性」、「女」、「F]）などの場合である。これらはRで読み込んで一括変換するなどの処理が必要だろう。こうした入力の不統一などを修正した後で、さらにデータのフォーマットを変換しなければならないこともある。 例えば、以下はある生物個体の体重を記録したフォーマットの例である。2つの形式で表現したデータである。</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: right;">time1</th>
+<th style="text-align: right;">time2</th>
+<th style="text-align: right;">time3</th>
+<th style="text-align: right;">time4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a</td>
+<td style="text-align: right;">3.7</td>
+<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">3.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b</td>
+<td style="text-align: right;">4.4</td>
+<td style="text-align: right;">4.2</td>
+<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">4.6</td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: left;">var</th>
+<th style="text-align: right;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">time1</td>
+<td style="text-align: right;">3.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">time2</td>
+<td style="text-align: right;">3.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">time3</td>
+<td style="text-align: right;">3.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">time4</td>
+<td style="text-align: right;">3.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">b</td>
+<td style="text-align: left;">time1</td>
+<td style="text-align: right;">4.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b</td>
+<td style="text-align: left;">time2</td>
+<td style="text-align: right;">4.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">b</td>
+<td style="text-align: left;">time3</td>
+<td style="text-align: right;">4.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">b</td>
+<td style="text-align: left;">time4</td>
+<td style="text-align: right;">4.6</td>
+</tr>
+</tbody>
+</table>
+<p>最初の表では個体を行、記録した時間を独立した列にとっている。これに対して2つ目の表では時間を1列にまとめ、別の列に測定値をまとめている。 前者は反復データなどを記録するフォーマットとして珍しくないが、Rではこの形式そのままではデータを解析関数に適用できず、後者のように変換する必要があることが多い。</p>
+<p>Hadley (2014)は、Rをはじめとしたコンピュータによるデータ操作や可視化、モデリングを行う上で処理を実行しやすい形式を<strong>tidyデータ</strong>と呼んだ。tidyには「片付いた」、「綺麗な」という訳が当てられる。tidyの対義語はmessy 「散らかった」、「雑な」であり、tidyデータとはデータをプログラミングで扱いやすい形式に整理したものである。</p>
+<p>tidyデータの原則は以下にまとめられる。</p>
+<ul>
+<li>変数は独立した列として表現する</li>
+<li>観測対象は行として表現する</li>
+<li>観測値はそれぞれ独立させる</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-ch7-tidy-data.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">tidyデータの設計</figcaption><p></p>
+</figure>
+</div>
+<p>この原則からすると先の表1の形式はtidyではなく、messy（散らかった）データということになる。実際、表1の形式のままではRで分析を実行することはできない場合が多い。 著者の経験では、ほとんどのデータはHadleyのtidyデータの思想にそっていない。そのためRなどで効率的にデータ処理をするためには、これらのtidyでないデータを整形する必要がある。 Hadleyらはデータを効率的かつ一貫した方法でtidyな形式に整形するための技法をさまざまなパッケージにまとめている。 そしてこれらのパッケージ群のセットを <strong>tidyverse</strong> パッケージとして公開している。続く節では<strong>tidyverse</strong> パッケージについて解説する。</p>
+</section>
+<section id="tidyverseパッケージ" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="tidyverseパッケージ"><span class="header-section-number">1.2.2</span> tidyverseパッケージ</h3>
+<p>Hadleyは2016年よりRでデータをtidyな形式に整形し、そして効率的なデータ操作を行うためのパッケージ群の開発に着手している。 現在、これらのパッケージ群は<strong>tidyverse</strong>という名称で統合されている。これは以下のパッケージで構成されている。</p>
+<ul>
+<li>ggplot2パッケージ</li>
+<li>tibbleパッケージ</li>
+<li>tidyrパッケージ</li>
+<li>readrパッケージ</li>
+<li>purrrパッケージ</li>
+<li>dplyrパッケージ</li>
+<li>stringrパッケージ</li>
+<li>forcatsパッケージ</li>
+</ul>
+<p>同時にtidyverseはRでのデータ分析プロセスを総称する概念でもある。ここでRでのデータ分析プロセスとは**(1)データ取得、(2)データ操作、(3)可視化、(4)統計モデリングの4つを指し、tidyverseの理想はこれらをシームレスに実現することにある。</p>
+<p>このうちtidyverseにおけるデータ処理の理念をHadleyは以下の4点にまとめている (https://cran.r-project.org/web/packages/tidyverse/vignettes/manifesto.html)</p>
+<p>既存のデータ構造を利用する: パッケージで独自にデータ処理用の関数を実装するのではなく、Rのデータフレーム操作を踏襲すべきである。</p>
+<p>1つ1つの関数の処理を簡潔にし、パイプ演算子で連結可能にする: 1つの関数に複雑な処理を実装すべきでなく、処理ごとに小さな関数に分割すべきである。小さな関数はその構造が理解しやすいだけでなく、保守性も優れている。前処理ではこれらの関数を後述するパイプ演算子を使って連結させればよい。なおパイプ演算子を適用するには、それぞれの関数がデータを第一引数に指定する必要がある。</p>
+<p>関数型プログラミングを活用する: Rは関数型プログラミング言語をサポートしている。関数型プログラミングの技法を取り入れるとコードを簡潔にすることができる。</p>
+<p>人間にもわかりやすい設計であること: 処理を実行するのはプログラムであるがコードを書くのは人である。関数や引数は人が理解しやすいよう適切な長さの名前であるのが望ましい。特に関数の名前は処理内容が想像できるようにすべきだ。</p>
+<p>tidyverseパッケージ群は、基本的にこれらの原則が守られている。これによりユーザーが関数を習得しやすくなる。</p>
+<p><code>library(tidyverse)</code>を実行すると、tidyverseに含まれるパッケージのほとんどが一度に読み込まれる。Hadleyのイメージするデータ分析フローでは、これらのパッケージに含まれる関数を適宜パイプ演算子で連結させて処理をつづけていくので、個々のパッケージを必要になるたびに読み込むのは手間だろう。</p>
+<p>本書の基礎編では<strong>tidyverse</strong> から特に以下のパッケージについて解説する。</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>パッケージ</th>
+<th>主な機能</th>
+<th>本書で取り上げる章</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>tibble</strong></td>
+<td>データフレームの拡張</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td><strong>tidyr</strong></td>
+<td>データ整形</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td><strong>readr</strong></td>
+<td>データ読み込み・書き込み</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><strong>purrr</strong></td>
+<td>効率的な処理</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td><strong>dplyr</strong></td>
+<td>データ操作</td>
+<td>3, 6</td>
+</tr>
+<tr class="even">
+<td><strong>stringr</strong></td>
+<td>文字列処理</td>
+<td>4, 6</td>
+</tr>
+<tr class="odd">
+<td><strong>forcats</strong></td>
+<td>因子型データ処理</td>
+<td>4, 6</td>
+</tr>
+</tbody>
+</table>
+<p>この他にも<strong>tidyverse</strong>には多くのパッケージが含まれる。<strong>glue</strong>や<strong>httr</strong>、<strong>haven</strong>、<strong>modelr</strong>などであるが、これらについては本書では省略する。また、<strong>ggplot2</strong>パッケージによる作図をテーマとした書籍が豊富にあるため、詳細を知りたい読者は参考文献を当たって欲しい。</p>
+</section>
+<section id="tibble-ユーザの使い勝手を向上させたデーターフレーム拡張" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="tibble-ユーザの使い勝手を向上させたデーターフレーム拡張"><span class="header-section-number">1.2.3</span> tibble: ユーザの使い勝手を向上させたデーターフレーム拡張</h3>
+<p><strong>tidyverse</strong>では、データ解析の基本となるデータフレームを拡張したtibbleが主に利用される。そこで最初に <code>tbl_df</code> クラスについて解説しよう</p>
+<p>まずは <code>tbl_df</code> の特徴を把握するため、データフレームと比較しよう。最初に通常のデータフレームを生成する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 標準のdata.frame()とdplyr::data_frame()を比較する</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">21</span>)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>df_data_frame <span class="ot">&lt;-</span> </span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">v1        =</span> <span class="fu">c</span>(<span class="st">"value1"</span>, <span class="st">"value2"</span>, <span class="cn">NA</span>, <span class="st">"value4"</span>),</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">var 2</span><span class="st">`</span>   <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">v3        =</span> <span class="fu">rnorm</span>(<span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">4th var</span><span class="st">`</span> <span class="ot">=</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>df_data_frame</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      v1 var.2         v3 X4th.var
+1 value1     1  1.7930132        a
+2 value2     2  1.5222513        b
+3   &lt;NA&gt;     3  2.7462222        c
+4 value4     4 -0.2713361        d</code></pre>
+</div>
+</div>
+<p>次に<code>tibble()</code> を使って同じ内容のオブジェクト <code>df_tibble</code> を生成する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">21</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>df_tibble <span class="ot">&lt;-</span> </span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">v1        =</span> <span class="fu">c</span>(<span class="st">"value1"</span>, <span class="st">"value2"</span>, <span class="cn">NA</span>, <span class="st">"value4"</span>),</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">var 2</span><span class="st">`</span>   <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">v3        =</span> <span class="fu">rnorm</span>(<span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">4th var</span><span class="st">`</span> <span class="ot">=</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>df_tibble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  v1     `var 2`     v3 `4th var`
+  &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;    
+1 value1       1  1.79  a        
+2 value2       2  1.52  b        
+3 &lt;NA&gt;         3  2.75  c        
+4 value4       4 -0.271 d        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(df_tibble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "tbl_df"     "tbl"        "data.frame"</code></pre>
+</div>
+</div>
+<p><code>df_tibble</code> は <code>tbl_df</code> クラスのオブジェクトであるが、コンソールでの出力は従来のデータフレームと若干異なっている。以下、tibbleの特徴をあげる。</p>
+<ul>
+<li>データフレームのソースと大きさ、変数のデータ型を表示する</li>
+<li>出力の際にデータフレーム全体を表示するのではなく、データフレームの一部を返す</li>
+<li>入力された値(文字列)をそのまま評価する
+<ul>
+<li><code>data.frame()</code>で列要素として文字列を指定するとデフォルトでは因子化されたが、tibbleでは文字列のままとなる − tibbleではrow.namesは与えられない</li>
+</ul></li>
+<li>列名の空白や記号を入力の通りに評価する
+<ul>
+<li><code>data.frame()</code> では列名が数値で始まっていたり、空白が使われているとXやドットに変換されたが、tibbleではそのまま列名として設定される（ただしクオートされる）</li>
+</ul></li>
+<li>変数の遅延評価を行える – 上の例にはないが <code>v4 = v3 *10</code> のように他の列（変数）を<code>=</code>の右辺におくことができる</li>
+<li>要素としてリストクラスのオブジェクトを指定できる</li>
+<li>変数を参照する際、正確な名称を指定しない限りNULLを返す
+<ul>
+<li><code>data.frame</code>では列名は部分マッチが適用されるが(<code>iris\$Spe</code> は <code>iris$Species</code> と解釈される）、<code>tibble</code>では完全に指定する必要がある。 \end{itemize}</li>
+</ul></li>
+</ul>
+</section>
+<section id="パイプ処理" class="level3" data-number="1.2.4">
+<h3 data-number="1.2.4" class="anchored" data-anchor-id="パイプ処理"><span class="header-section-number">1.2.4</span> パイプ処理</h3>
+<p>従来のRでは、複数の関数を続けて適用する場合、一次オブジェクトを利用するか、あるいは関数を入れ子にすることが多かった。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一時オブジェクトを作成する例</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>ex1_1 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>ex1_2 <span class="ot">&lt;-</span> <span class="fu">mean</span>(ex1_1)</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(ex1_2, <span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 関数を入れ子にする例</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mean</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>), <span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+</div>
+<p>一時変数を作成する方法は処理が逐次的に行われるため理解しやすいが、多数のオブジェクトがワークスペースに乱立すると混乱を招く恐れがないとはいえない。 一方、関数を入れ子にするとなんの処理をしているのかがわかりにくくなってしまう。 そのため、これらの方法で処理を繰り返していると、コードの見通しが悪くなってしまう。</p>
+<p>この2つのコーディングと異なる発想で処理を連携させる方法がtidyverseで導入されている<strong>パイプ処理</strong>である。パイプ処理では <code>%&gt;%</code> 演算子でそれぞれの処理を連結することができる。先のコードを <code>%&gt;%</code> 演算子を使って書き直した例を示す。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># %&gt;% は library(tidyverse)を実行することで導入される</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">:</span><span class="dv">4</span> <span class="sc">%&gt;%</span> </span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>() <span class="sc">%&gt;%</span> <span class="co"># 最初の処理... 平均値を算出</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">0</span>) <span class="co"># 2番目の処理... 小数点の丸め込み</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+</div>
+<p><code>%&gt;%</code> 演算子では、演算子の左側にあるオブジェクトが右側の関数の第一引数に暗黙のうちに渡される。したがって<code>round()</code>では<em>digits</em>引数だけを指定すればよい。</p>
+<p>パイプ処理を使うことで中間的なオブジェクトを作成する必要はなくなり、処理の順番とコードの記述を揃えることができる。 <code>%&gt;%</code> 演算子の挙動が不明瞭な場合は、中間に<code>print()</code>を使い、途中結果を出力すると段階的な処理結果が見られるので理解しやすくなるだろう。</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fig-pipe.png" class="img-fluid figure-img"></p>
+<p></p><figcaption aria-hidden="true" class="figure-caption">パイプ処理の実行</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">:</span><span class="dv">4</span> <span class="sc">%&gt;%</span> </span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># . の値として1:4が引き継がれているのを確認する</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># なお本来、x = . の表記は不要である</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="at">x =</span> .) <span class="sc">%&gt;%</span> </span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">%&gt;%</span> <span class="co"># 途中の値を表示する </span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+</div>
+<p>パイプ処理およびパイプ演算子の特徴をまとめると次のようになる。</p>
+<ul>
+<li>直前の%&gt;%で示された内容は次の関数内の第一引数に渡され、ドット(.)によって表記できる<br>
+</li>
+<li>第一引数のドットは省略が可能</li>
+<li>第一引数以外の引数に渡す場合には明示的にドットで表記する</li>
+<li>%&gt;%は処理が完了するまで連続して利用できる</li>
+</ul>
+<p>以降本書では、積極的にパイプ処理を取り入れたコードを実行する。</p>
+</section>
+</section>
+<section id="まとめ" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="まとめ"><span class="header-section-number">1.3</span> まとめ</h2>
+<ul>
+<li>Rで扱う主要なデータ型として、論理値、数値、文字型がある。これらはベクトルで処理することが多く、異なるデータ型が同一のベクトル内で与えられた時は、データ型の強制変換が行われる。</li>
+<li>Rではすべてがオブジェクトである。オブジェクトにはクラス属性があり、適用可能な関数や出力結果が異なる。</li>
+<li>データフレームは、表形式のデータ構造である。</li>
+<li>Rにおけるデータ分析を統一的な枠組みで提供するtidyverseが存在する。tidyverseはデータ分析に必要となる処理を実行する複数のパッケージの集合パッケージとしても提供されている。</li>
+<li>tidyverseでは<code>data.frame</code> を拡張した <code>tbl_df</code> クラスが実装されている。</li>
+<li>段階的なRの処理を記述する方法として、パイプ演算子を利用したパイプ処理がある。パイプ処理による記述は従来の方法と比べるとユーザが解釈しやすく、記述が用意になるという利点がある。</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">まえがき</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ch2.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.282">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rによるデータ解析のための前処理 - 7&nbsp; オープンデータの整形</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./references.html" rel="next">
+<link href="./ch6.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Rによるデータ解析のための前処理</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">データを扱うための下準備</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">データ整形および操作: tidyr, dplyrパッケージの基礎</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch3.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">表形式のデータソースからのデータ取得</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch4.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">データ型に応じた処理</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch5.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">効率的なデータ操作</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch6.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch7.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#政府統計の総合窓口-e-stat" id="toc-政府統計の総合窓口-e-stat" class="nav-link active" data-scroll-target="#政府統計の総合窓口-e-stat"> <span class="header-section-number">7.1</span> 政府統計の総合窓口 e-Stat</a>
+  <ul class="collapse">
+  <li><a href="#学校保健統計調査" id="toc-学校保健統計調査" class="nav-link" data-scroll-target="#学校保健統計調査"> <span class="header-section-number">7.1.1</span> 学校保健統計調査</a></li>
+  </ul></li>
+  <li><a href="#気象庁の過去データ" id="toc-気象庁の過去データ" class="nav-link" data-scroll-target="#気象庁の過去データ"> <span class="header-section-number">7.2</span> 気象庁の過去データ</a></li>
+  <li><a href="#青果物卸売市場調査平成29年年間計及び月別結果農林水産省" id="toc-青果物卸売市場調査平成29年年間計及び月別結果農林水産省" class="nav-link" data-scroll-target="#青果物卸売市場調査平成29年年間計及び月別結果農林水産省"> <span class="header-section-number">7.3</span> 「青果物卸売市場調査（平成29年年間計及び月別結果）」（農林水産省）</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/ch7.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="applied" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">オープンデータの整形</span></span></h1>
+</div>
+
+
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>オープンデータとは、許可される範囲内で誰もが自由に利用・再利用・再配布できるデータのことを指す。日本でも、政府や地方行政、研究機関が統計調査の結果を公開する例が増えているが、公開されたデータはRでの処理をすぐに実行できない状態であることがしばしばある。これらのファイルもtidyverseのパッケージを使うことで読み込みからデータ整形、可視化までの作業を一貫して行うことが可能である。本章では、実際に公開されているオープンデータを例にtidyverseによる作業の例を紹介しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 必要なパッケージを準備する</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ ggplot2 3.3.5     ✔ purrr   0.3.4
+✔ tibble  3.1.6     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.0
+✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+</div>
+<section id="政府統計の総合窓口-e-stat" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="政府統計の総合窓口-e-stat"><span class="header-section-number">7.1</span> 政府統計の総合窓口 e-Stat</h2>
+<p>政府統計の総合窓口 (e-Stat) は日本国内の政府統計のポータルサイトである。各府省等が公表する各種の統計情報を閲覧、ダウンロード可能であり、Rなどのプログラムを介したデータ参照を行うためのAPIも整備されている。</p>
+<p>Rからはe-StatのAPIを操作する<strong>estatapi</strong>パッケージを使うことで、提供されるデータの一覧や、データの読み込み、ファイルダウンロードが可能となる。APIの利用にはe-Statでのメールアドレス等の登録が必要となるが、ここではあらかじめ用意したアプリケーションIDを用いる例を紹介する。なお本書の付録として、e-Statからダウンロードしたデータを掲載しているので、アプリケーションIDの取得を行わないでも実行可能である。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(estatapi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>このサービスは、政府統計総合窓口(e-Stat)のAPI機能を使用していますが、サービスの内容は国によって保証されたものではありません。</code></pre>
+</div>
+</div>
+<section id="学校保健統計調査" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="学校保健統計調査"><span class="header-section-number">7.1.1</span> 学校保健統計調査</h3>
+<p>「学校保健統計調査」は、学校における幼児、児童及び生徒の発育及び健康の状態を明らかにすることを目的に行われている。調査の対象は、文部科学大臣があらかじめ指定する学校に在籍する満5歳から17歳（4月1日現在）までの幼児、児童及び生徒となっている。調査は毎年実施され、学校保健安全法により義務づけられている健康診断の結果に基づき、発育及び健康状態に関する事項（身長、体重及び被患率等）に関する調査結果が記録されている。</p>
+<p>このデータがe-StatのAPIで取得可能かどうか、まずは<strong>estatapi</strong>パッケージの<code>estat_getStatsList()</code>で調べてみよう。<code>estat_getStatsList()</code>には引数<em>appId</em>があり、ここに取得したアプリケーションIDを指定する。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_list <span class="ot">&lt;-</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estat_getStatsList</span>(<span class="at">appId      =</span> <span class="st">"&lt;APIで取得したアプリケーションID&gt;"</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">searchWord =</span> <span class="st">"学校保健統計調査"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>df_list</strong>を見ると、学校保健統計調査に関する様々なデータがあることが確認できる。その中から、今回は「学校保健統計調査による身体発育値」の名目で記録されたデータを抽出してみよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df_list <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(TITLE, <span class="fu">regex</span>(<span class="st">"学校保健統計調査による身体発育値"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 13
+  `@id`      STAT_NAME GOV_ORG STATISTICS_NAME TITLE CYCLE SURVEY_DATE OPEN_DATE
+  &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    
+1 0003079318 学校保健… 文部科… 学校保健統計調… （参… 年度… 0           2014-03-…
+2 0003107473 学校保健… 文部科… 学校保健統計調… （参… 年度… 201404-201… 2015-03-…
+3 0003107409 学校保健… 文部科… 学校保健統計調… （参… 年度… 201404-201… 2015-03-…
+4 0003146920 学校保健… 文部科… 学校保健統計調… （参… 年度… 201504-201… 2016-03-…
+5 0003146941 学校保健… 文部科… 学校保健統計調… （参… 年度… 201504-201… 2016-03-…
+# … with 5 more variables: SMALL_AREA &lt;chr&gt;, MAIN_CATEGORY &lt;chr&gt;,
+#   SUB_CATEGORY &lt;chr&gt;, OVERALL_TOTAL_NUMBER &lt;chr&gt;, UPDATED_DATE &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>「学校保健統計調査による身体発育値」の項目には5件のデータが該当している。STATISTICS_NAME列を見ると、データは平成22年度以降、平成26年度、平成27年度の3期間に渡り、平成26年と27年ではLMS法を採用した項目が別にあることが確認できる。</p>
+<p><strong>estatapi</strong>パッケージを使ったe-Statのデータ取得には、対象データの第一列に記録された”@id”の値が必要となる。そのため、取得対象のデータを決めたらこの値を控えておくと良い。次の処理では、データフレーム中の”@id”列の値を参照するが、LMS法の項目を区別するために正規表現による抽出を試みている。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 「学校保健統計調査による身体発育値」のデータを取得するためのIDを控えておく</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  df_list <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># regex()内で正規表現のパターンマッチを行い、「身体発育値」で終わる項目を抽出する</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(TITLE, <span class="fu">regex</span>(<span class="st">"学校保健統計調査による身体発育値$"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  .<span class="sc">$</span><span class="st">`</span><span class="at">@id</span><span class="st">`</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>ids</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "0003079318" "0003107473" "0003146920"</code></pre>
+</div>
+</div>
+<p>抽出されたデータの件数は3件である。次はこの”@id”から、R上にデータを読み込んでみよう。データ取得は<code>estat_getStatsData()</code>で対象の統計データIDおよびアプリケーションIDを指定して行う。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estat_getStatsData</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">appId =</span> config<span class="sc">::</span><span class="fu">get</span>(<span class="st">"estat_token"</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">statsDataId =</span> ids[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>学校保健統計調査は年に一度であるが、今回取得可能なデータの件数は3期間分ある。これを一つのデータフレームとして処理するには、次のように<code>purrr::map_dfr()</code>を使い、<code>estat_getStatsData()</code>の<em>statsDataId</em>引数にidsの要素を一つずつ渡して実行し、行方向への結合を行うと良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  ids <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> <span class="fu">estat_getStatsData</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">appId =</span> <span class="st">"&lt;API token&gt;"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">statsDataId =</span> .x</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>それでは<code>tibble::glimpse()</code>を使い取得したデータを確認しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_age_height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 2,184
+Columns: 14
+$ tab_code                     &lt;chr&gt; "0000300", "0000300", "0000300", "0000300…
+$ 表章項目                     &lt;chr&gt; "身長のパーセンタイル値(cm)", "身長のパー…
+$ cat01_code                   &lt;chr&gt; "20", "20", "20", "20", "20", "20", "20",…
+$ 性別                         &lt;chr&gt; "男", "男", "男", "男", "男", "男", "男",…
+$ cat03_code                   &lt;chr&gt; "00000100", "00000100", "00000100", "0000…
+$ パーセンタイル               &lt;chr&gt; "3%", "3%", "3%", "3%", "3%", "3%", "3%",…
+$ cat06_code                   &lt;chr&gt; "10", "10", "20", "20", "30", "30", "40",…
+$ `学校種別-年齢別（5～17歳）` &lt;chr&gt; "幼稚園（5歳）", "幼稚園（5歳）", "小学校…
+$ area_code                    &lt;chr&gt; "00000", "00000", "00000", "00000", "0000…
+$ 都道府県別                   &lt;chr&gt; "全国", "全国", "全国", "全国", "全国", "…
+$ time_code                    &lt;chr&gt; "2013000000", "2012000000", "2013000000",…
+$ `時間軸(年次)`               &lt;chr&gt; "2013年", "2012年", "2013年", "2012年", "…
+$ value                        &lt;dbl&gt; 101.7, 101.6, 107.5, 107.7, 113.0, 113.3,…
+$ `時間軸（年度次）`           &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
+</div>
+</div>
+<p>次に、ここから<strong>dplyr</strong>のデータ操作関数を使いながらデータを加工していこう。まずは今後使う列だけを選択する。また、この際に日本語の列名から適当な列名に変更を行う。各列の値はそれぞれ以下の項目を示している。</p>
+<p>type: 計測項目。身長、体重、座高の3種がある。</p>
+<p>gender: 性別。「男」と「女」の二値が記録されている。</p>
+<p>percent: データのパーセンタイル値。</p>
+<p>age: 対象者の学年および年齢。</p>
+<p>fiscal_year: 調査の実施年度。</p>
+<p>value: 計測項目 typeごとの計測値。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="ot">&lt;-</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  df_age_height <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">type =</span> <span class="st">`</span><span class="at">表章項目</span><span class="st">`</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">gender =</span> <span class="st">`</span><span class="at">性別</span><span class="st">`</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">percent =</span> <span class="st">`</span><span class="at">パーセンタイル</span><span class="st">`</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">age =</span> <span class="st">`</span><span class="at">学校種別-年齢別（5～17歳）</span><span class="st">`</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">fiscal_year =</span> <span class="st">`</span><span class="at">時間軸(年次)</span><span class="st">`</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>         value)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_age_height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 2,184
+Columns: 6
+$ type        &lt;chr&gt; "身長のパーセンタイル値(cm)", "身長のパーセンタイル値(cm)"…
+$ gender      &lt;chr&gt; "男", "男", "男", "男", "男", "男", "男", "男", "男", "男"…
+$ percent     &lt;chr&gt; "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%"…
+$ age         &lt;chr&gt; "幼稚園（5歳）", "幼稚園（5歳）", "小学校（6歳）", "小学校…
+$ fiscal_year &lt;chr&gt; "2013年", "2012年", "2013年", "2012年", "2013年", "2012年"…
+$ value       &lt;dbl&gt; 101.7, 101.6, 107.5, 107.7, 113.0, 113.3, 118.2, 118.6, 12…</code></pre>
+</div>
+</div>
+<p>type、ageの列には、括弧の中に計測値の単位、対象者の年齢が記録されている。これを<strong>tidyr</strong>の<code>extract()</code>で新たな列として独立させよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="ot">&lt;-</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  df_age_height <span class="sc">%&gt;%</span> </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract</span>(type, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"type"</span>, <span class="st">"unit"</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">regex =</span> <span class="st">"(.+)(</span><span class="sc">\\</span><span class="st">([[:alnum:]]{1,}+</span><span class="sc">\\</span><span class="st">))"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract</span>(age, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"school"</span>, <span class="st">"age"</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">regex =</span> <span class="st">"(^.+)(（.+$)"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_age_height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 2,184
+Columns: 8
+$ type        &lt;chr&gt; "身長のパーセンタイル値", "身長のパーセンタイル値", "身長…
+$ unit        &lt;chr&gt; "(cm)", "(cm)", "(cm)", "(cm)", "(cm)", "(cm)", "(cm)", "(…
+$ gender      &lt;chr&gt; "男", "男", "男", "男", "男", "男", "男", "男", "男", "男"…
+$ percent     &lt;chr&gt; "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%", "3%"…
+$ school      &lt;chr&gt; "幼稚園", "幼稚園", "小学校", "小学校", "小学校", "小学校"…
+$ age         &lt;chr&gt; "（5歳）", "（5歳）", "（6歳）", "（6歳）", "（7歳）", "（…
+$ fiscal_year &lt;chr&gt; "2013年", "2012年", "2013年", "2012年", "2013年", "2012年"…
+$ value       &lt;dbl&gt; 101.7, 101.6, 107.5, 107.7, 113.0, 113.3, 118.2, 118.6, 12…</code></pre>
+</div>
+</div>
+<p>次に、単位のついたageとfiscal_yearの列を対象として、数値を抽出する処理を実行する。ここでは対象列の指定に<code>mutate_at()</code>、数値の抽出に<code>parse_number()</code>を適用する。また、<code>mutate_at()</code>の適用後も、変数は元の文字列のデータ型を保持しているため、これを<code>type_convert()</code>を使い数値変数として扱えるようにしておこう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="ot">&lt;-</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  df_age_height <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"fiscal_year"</span>)), parse_number) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  type = col_character(),
+  unit = col_character(),
+  gender = col_character(),
+  percent = col_character(),
+  school = col_character()
+)</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df_age_height</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,184 × 8
+   type                   unit  gender percent school   age fiscal_year value
+   &lt;chr&gt;                  &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+ 1 身長のパーセンタイル値 (cm)  男     3%      幼稚園     5        2013  102.
+ 2 身長のパーセンタイル値 (cm)  男     3%      幼稚園     5        2012  102.
+ 3 身長のパーセンタイル値 (cm)  男     3%      小学校     6        2013  108.
+ 4 身長のパーセンタイル値 (cm)  男     3%      小学校     6        2012  108.
+ 5 身長のパーセンタイル値 (cm)  男     3%      小学校     7        2013  113 
+ 6 身長のパーセンタイル値 (cm)  男     3%      小学校     7        2012  113.
+ 7 身長のパーセンタイル値 (cm)  男     3%      小学校     8        2013  118.
+ 8 身長のパーセンタイル値 (cm)  男     3%      小学校     8        2012  119.
+ 9 身長のパーセンタイル値 (cm)  男     3%      小学校     9        2013  123.
+10 身長のパーセンタイル値 (cm)  男     3%      小学校     9        2012  123.
+# … with 2,174 more rows</code></pre>
+</div>
+</div>
+<p>こうして加工した学校保健統計調査のデータを、最後に<strong>ggplot2</strong>を使って可視化してみよう。まずは3種の計測項目(“type”)のデータのばらつきを<code>geom_density()</code>で表示させる。複数の項目からなるデータを、項目別に描画するには次のように<code>facet_wrap()</code>を使うと良い。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">color =</span> gender)) <span class="sc">+</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># typeごとに図を分ける。</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> type, </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>             <span class="co"># x軸はtypeごとに独立した軸をもつことを指定する</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free_x"</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>             <span class="co"># 分割して描画する図の列数</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch7_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>次の図は、2013年に記録された男女の身長データについてプロットしたものである。まず<code>filter()</code>を使い対象のデータを抽出する。x軸には年齢を指定するが、ここで元の”age”が数値であるために<code>forcats::as_factor()</code>を使い因子へと変換させた。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_age_height <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(type, <span class="st">"身長"</span>), </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>         fiscal_year <span class="sc">==</span> <span class="dv">2013</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(forcats<span class="sc">::</span><span class="fu">as_factor</span>(<span class="fu">as.character</span>(age)), value, </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> percent, <span class="at">color =</span> percent)) <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"年齢"</span>) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"身長 (cm)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch7_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> gender, <span class="at">ncol =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;ggproto object: Class FacetWrap, Facet, gg&gt;
+    compute_layout: function
+    draw_back: function
+    draw_front: function
+    draw_labels: function
+    draw_panels: function
+    finish_data: function
+    init_scales: function
+    map_data: function
+    params: list
+    setup_data: function
+    setup_params: function
+    shrink: TRUE
+    train_scales: function
+    vars: function
+    super:  &lt;ggproto object: Class FacetWrap, Facet, gg&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="気象庁の過去データ" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="気象庁の過去データ"><span class="header-section-number">7.2</span> 気象庁の過去データ</h2>
+<p>気象庁のウェブサイト ()では、過去の起床データをダウンロードできるサービスが提供されている。ここでは、観測地点「つくば（館野）」での2017年における気象データを用意した。このデータを使い、気象庁のデータ整形と簡単な可視化を行おう。このデータを使わなくても気象庁の「過去の気象データ・ダウンロード」ページでダウンロードしたファイルには同様の処理が有効だろう。</p>
+<p>まずダウンロードしたファイルの読み込みを実施する。元のデータはcsv形式で提供されるが、エンコーディングがWindows向けとなっているため、文字化けを防ぐために<code>readr::locale()</code>でエンコードの指定する。また先頭行はファイルをダウンロードした時刻と対象の観測所名が記録されているので、これらの読み込みを引数<em>skip</em>で除外しよう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_weather <span class="ot">&lt;-</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"data-raw/jma_tsukubka_2017data.csv"</span>, </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">encoding =</span> <span class="st">"cp932"</span>), </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">skip =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+Rows: 367 Columns: 24
+── Column specification
+──────────────────────────────────────────────────────── Delimiter: "," chr
+(17): 年月日, 平均気温(℃)...3, 平均気温(℃)...4, 最低気温(℃)...6,
+最低気温(℃)...7, 最高気温(℃)..... dbl (6): 平均気温(℃)...2, 最低気温(℃)...5,
+最高気温(℃)...8, 降水量の合計(mm)...11, 日照時間(時間)..... lgl (1):
+平均雲量(10分比)...22
+ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• `平均気温(℃)` -&gt; `平均気温(℃)...2`
+• `平均気温(℃)` -&gt; `平均気温(℃)...3`
+• `平均気温(℃)` -&gt; `平均気温(℃)...4`
+• `最低気温(℃)` -&gt; `最低気温(℃)...5`
+• `最低気温(℃)` -&gt; `最低気温(℃)...6`
+• `最低気温(℃)` -&gt; `最低気温(℃)...7`
+• `最高気温(℃)` -&gt; `最高気温(℃)...8`
+• `最高気温(℃)` -&gt; `最高気温(℃)...9`
+• `最高気温(℃)` -&gt; `最高気温(℃)...10`
+• `降水量の合計(mm)` -&gt; `降水量の合計(mm)...11`
+• `降水量の合計(mm)` -&gt; `降水量の合計(mm)...12`
+• `降水量の合計(mm)` -&gt; `降水量の合計(mm)...13`
+• `降水量の合計(mm)` -&gt; `降水量の合計(mm)...14`
+• `日照時間(時間)` -&gt; `日照時間(時間)...15`
+• `日照時間(時間)` -&gt; `日照時間(時間)...16`
+• `日照時間(時間)` -&gt; `日照時間(時間)...17`
+• `日照時間(時間)` -&gt; `日照時間(時間)...18`
+• `平均風速(m/s)` -&gt; `平均風速(m/s)...19`
+• `平均風速(m/s)` -&gt; `平均風速(m/s)...20`
+• `平均風速(m/s)` -&gt; `平均風速(m/s)...21`
+• `平均雲量(10分比)` -&gt; `平均雲量(10分比)...22`
+• `平均雲量(10分比)` -&gt; `平均雲量(10分比)...23`
+• `平均雲量(10分比)` -&gt; `平均雲量(10分比)...24`</code></pre>
+</div>
+</div>
+<p>データを確認すると、平均気温、最高気温などの各項目にその値と品質情報、均質番号が記録された列があることがわかる。欲しいのは項目の値であるので品質情報および均質番号の列はデータから削除しよう。これには、品質情報および均質番号の列が最初の行だけ値があり、あとは欠損値であることを利用して、対象の変数をベクトルとして得る次の処理を実行すると良いだろう。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_weather)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 367
+Columns: 24
+$ 年月日                  &lt;chr&gt; NA, NA, "2017/1/1", "2017/1/2", "2017/1/3", "2…
+$ `平均気温(℃)...2`       &lt;dbl&gt; NA, NA, 4.0, 3.9, 4.8, 5.7, 3.6, 0.7, 0.8, 3.0…
+$ `平均気温(℃)...3`       &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `平均気温(℃)...4`       &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `最低気温(℃)...5`       &lt;dbl&gt; NA, NA, -3.0, -1.4, -2.2, -2.4, -3.2, -5.6, -5…
+$ `最低気温(℃)...6`       &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `最低気温(℃)...7`       &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `最高気温(℃)...8`       &lt;dbl&gt; NA, NA, 13.3, 12.5, 13.8, 14.1, 9.7, 8.3, 8.8,…
+$ `最高気温(℃)...9`       &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `最高気温(℃)...10`      &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `降水量の合計(mm)...11` &lt;dbl&gt; NA, NA, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 9.5…
+$ `降水量の合計(mm)...12` &lt;chr&gt; NA, "現象なし情報", "1", "1", "1", "1", "1", "…
+$ `降水量の合計(mm)...13` &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `降水量の合計(mm)...14` &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `日照時間(時間)...15`   &lt;dbl&gt; NA, NA, 9.5, 4.9, 9.3, 9.2, 8.9, 8.1, 9.3, 0.3…
+$ `日照時間(時間)...16`   &lt;chr&gt; NA, "現象なし情報", "0", "0", "0", "0", "0", "…
+$ `日照時間(時間)...17`   &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `日照時間(時間)...18`   &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `平均風速(m/s)...19`    &lt;dbl&gt; NA, NA, 1.4, 1.3, 2.0, 2.3, 1.8, 1.3, 1.1, 2.2…
+$ `平均風速(m/s)...20`    &lt;chr&gt; NA, "品質情報", "8", "8", "8", "8", "8", "8", …
+$ `平均風速(m/s)...21`    &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …
+$ `平均雲量(10分比)...22` &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ `平均雲量(10分比)...23` &lt;chr&gt; NA, "品質情報", "0", "0", "0", "0", "0", "0", …
+$ `平均雲量(10分比)...24` &lt;chr&gt; NA, "均質番号", "1", "1", "1", "1", "1", "1", …</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>select_vars <span class="ot">&lt;-</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  df_weather <span class="sc">%&gt;%</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(2L) <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(<span class="at">.predicate =</span> <span class="fu">is.na</span>(.)) <span class="sc">%&gt;%</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>()</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>df_weather <span class="ot">&lt;-</span> </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  df_weather <span class="sc">%&gt;%</span> </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>2L)) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(select_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: Using an external vector in selections is ambiguous.
+ℹ Use `all_of(select_vars)` instead of `select_vars` to silence this message.
+ℹ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.
+This message is displayed once per session.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>df_weather <span class="ot">&lt;-</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  df_weather <span class="sc">%&gt;%</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date =</span> <span class="st">`</span><span class="at">年月日</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">ymd</span>(date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  年月日 = col_character()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>df_weather <span class="sc">%&gt;%</span> </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract(`平均気温(℃)`, into = "temp_mean", convert = TRUE) %&gt;% </span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract(`最低気温(℃)`, into = "temp_min", convert = TRUE) %&gt;% </span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract(`最高気温(℃)`, into = "temp_max", convert = TRUE) %&gt;% </span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(type, value, <span class="sc">-</span>date, <span class="at">convert =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  type = col_character()
+)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,555 × 3
+   date       type            value
+   &lt;date&gt;     &lt;chr&gt;           &lt;dbl&gt;
+ 1 2017-01-01 平均気温(℃)...2   4  
+ 2 2017-01-02 平均気温(℃)...2   3.9
+ 3 2017-01-03 平均気温(℃)...2   4.8
+ 4 2017-01-04 平均気温(℃)...2   5.7
+ 5 2017-01-05 平均気温(℃)...2   3.6
+ 6 2017-01-06 平均気温(℃)...2   0.7
+ 7 2017-01-07 平均気温(℃)...2   0.8
+ 8 2017-01-08 平均気温(℃)...2   3  
+ 9 2017-01-09 平均気温(℃)...2   5.6
+10 2017-01-10 平均気温(℃)...2   6  
+# … with 2,545 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>df_weather_temp <span class="ot">&lt;-</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  df_weather <span class="sc">%&gt;%</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span>, <span class="fu">contains</span>(<span class="st">"気温"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>df_weather_temp <span class="sc">%&gt;%</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(class, value, <span class="sc">-</span>date) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(date, value, <span class="at">color =</span> class)) <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="青果物卸売市場調査平成29年年間計及び月別結果農林水産省" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="青果物卸売市場調査平成29年年間計及び月別結果農林水産省"><span class="header-section-number">7.3</span> 「青果物卸売市場調査（平成29年年間計及び月別結果）」（農林水産省）</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>xx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"卸売数量"</span>, <span class="st">"卸売価額"</span>, <span class="st">"卸売価格"</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>df_1 <span class="ot">&lt;-</span> </span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_excel</span>(<span class="st">"data-raw/seika_oroshi17.xls"</span>, <span class="at">sheet =</span> <span class="dv">7</span>, <span class="at">skip =</span> <span class="dv">5</span>, </span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">col_names =</span> <span class="fu">c</span>(<span class="cn">NA</span>, </span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"国産_輸入"</span>, <span class="st">"品目"</span>, <span class="st">"種別"</span>,</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">NA</span>,</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"主要都市の市場計"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"対　　前　　年　　比"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"１月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"２月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"３月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">NA</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">contains</span>(<span class="st">"月"</span>)), <span class="at">.funs =</span> <span class="fu">funs</span>(<span class="fu">recode</span>(., <span class="st">`</span><span class="at">-</span><span class="st">`</span> <span class="ot">=</span> <span class="cn">NA_character_</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">num_range</span>(<span class="st">"X__"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>, <span class="st">`</span><span class="at">品目</span><span class="st">`</span>, <span class="at">.direction =</span> <span class="st">"down"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>)</span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>df_2 <span class="ot">&lt;-</span> </span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_excel</span>(<span class="st">"data-raw/seika_oroshi17.xls"</span>, <span class="at">sheet =</span> <span class="dv">8</span>, <span class="at">skip =</span> <span class="dv">5</span>,</span>
+<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>             <span class="at">col_names =</span> <span class="fu">c</span>(<span class="cn">NA</span>, </span>
+<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"国産_輸入"</span>, <span class="st">"品目"</span>, <span class="st">"種別"</span>,</span>
+<span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">NA</span>,</span>
+<span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"４月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"５月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"６月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"７月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-31"><a href="#cb44-31" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"８月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-32"><a href="#cb44-32" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">str_c</span>(<span class="st">"９月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-33"><a href="#cb44-33" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">NA</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-34"><a href="#cb44-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">contains</span>(<span class="st">"月"</span>)), <span class="at">.funs =</span> <span class="fu">funs</span>(<span class="fu">recode</span>(., <span class="st">`</span><span class="at">-</span><span class="st">`</span> <span class="ot">=</span> <span class="cn">NA_character_</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-35"><a href="#cb44-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-36"><a href="#cb44-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">num_range</span>(<span class="st">"X__"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-37"><a href="#cb44-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>, <span class="st">`</span><span class="at">品目</span><span class="st">`</span>, <span class="at">.direction =</span> <span class="st">"down"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-38"><a href="#cb44-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>)</span>
+<span id="cb44-39"><a href="#cb44-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-40"><a href="#cb44-40" aria-hidden="true" tabindex="-1"></a>df_3 <span class="ot">&lt;-</span> </span>
+<span id="cb44-41"><a href="#cb44-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_excel</span>(<span class="st">"data-raw/seika_oroshi17.xls"</span>, <span class="at">sheet =</span> <span class="dv">9</span>, <span class="at">skip =</span> <span class="dv">5</span>,</span>
+<span id="cb44-42"><a href="#cb44-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">col_names =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">"国産_輸入"</span>, <span class="st">"品目"</span>, <span class="st">"種別"</span>,</span>
+<span id="cb44-43"><a href="#cb44-43" aria-hidden="true" tabindex="-1"></a>                         <span class="cn">NA</span>,</span>
+<span id="cb44-44"><a href="#cb44-44" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">str_c</span>(<span class="st">"10月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-45"><a href="#cb44-45" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">str_c</span>(<span class="st">"11月"</span>, <span class="st">"_"</span>, xx),</span>
+<span id="cb44-46"><a href="#cb44-46" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">str_c</span>(<span class="st">"12月"</span>, <span class="st">"_"</span>, xx))) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-47"><a href="#cb44-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">contains</span>(<span class="st">"月"</span>)), <span class="at">.funs =</span> <span class="fu">funs</span>(<span class="fu">recode</span>(., <span class="st">`</span><span class="at">-</span><span class="st">`</span> <span class="ot">=</span> <span class="cn">NA_character_</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-48"><a href="#cb44-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-49"><a href="#cb44-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">num_range</span>(<span class="st">"X__"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-50"><a href="#cb44-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>, <span class="st">`</span><span class="at">品目</span><span class="st">`</span>, <span class="at">.direction =</span> <span class="st">"down"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-51"><a href="#cb44-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(<span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df_seika <span class="ot">&lt;-</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(df_1, df_2, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"国産_輸入"</span>, <span class="st">"品目"</span>, <span class="st">"種別"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(df_3, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"国産_輸入"</span>, <span class="st">"品目"</span>, <span class="st">"種別"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_at</span>(<span class="fu">vars</span>(<span class="st">`</span><span class="at">品目</span><span class="st">`</span>, <span class="st">`</span><span class="at">種別</span><span class="st">`</span>), <span class="fu">any_vars</span>(<span class="sc">!</span><span class="fu">is.na</span>(.))) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_at</span>(<span class="fu">vars</span>(<span class="sc">-</span><span class="fu">contains</span>(<span class="st">"主要都市の市場計"</span>), <span class="sc">-</span><span class="fu">contains</span>(<span class="st">"対　　前　　年　　比"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(key, value, <span class="sc">-</span><span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>, <span class="sc">-</span><span class="st">`</span><span class="at">品目</span><span class="st">`</span>, <span class="sc">-</span><span class="st">`</span><span class="at">種別</span><span class="st">`</span>, <span class="sc">-</span>data) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(key, <span class="fu">c</span>(<span class="st">"month"</span>, <span class="st">"key"</span>), <span class="at">sep =</span> <span class="st">"_"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>df_seika <span class="sc">%&gt;%</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(key <span class="sc">==</span> <span class="st">"卸売数量"</span>, month <span class="sc">==</span> <span class="st">"１月"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="st">`</span><span class="at">品目</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">value =</span> <span class="fu">sum</span>(value)) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">品目</span><span class="st">`</span> <span class="ot">=</span> forcats<span class="sc">::</span><span class="fu">fct_reorder</span>(<span class="st">`</span><span class="at">品目</span><span class="st">`</span>, value)) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="st">`</span><span class="at">品目</span><span class="st">`</span>, value)) <span class="sc">+</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>df_seika <span class="sc">%&gt;%</span> </span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(key <span class="sc">==</span> <span class="st">"卸売数量"</span>, <span class="st">`</span><span class="at">品目</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"りんご計"</span>, <span class="sc">!</span><span class="fu">is.na</span>(種別)) <span class="sc">%&gt;%</span> </span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(month, value, <span class="at">color =</span> <span class="st">`</span><span class="at">種別</span><span class="st">`</span>, <span class="at">group =</span> <span class="st">`</span><span class="at">種別</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> <span class="st">`</span><span class="at">国産_輸入</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch6.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">tidyverseの組み合わせ</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
