@@ -1,0 +1,320 @@
+# オープンデータの整形 {#applied}
+
+オープンデータとは、許可される範囲内で誰もが自由に利用・再利用・再配布できるデータのことを指す。日本でも、政府や地方行政、研究機関が統計調査の結果を公開する例が増えているが、公開されたデータはRでの処理をすぐに実行できない状態であることがしばしばある。これらのファイルもtidyverseのパッケージを使うことで読み込みからデータ整形、可視化までの作業を一貫して行うことが可能である。本章では、実際に公開されているオープンデータを例にtidyverseによる作業の例を紹介しよう。
+
+```{r}
+# 必要なパッケージを準備する
+library(tidyverse)
+library(lubridate)
+```
+
+## 政府統計の総合窓口 e-Stat
+
+政府統計の総合窓口 (e-Stat) \url{https://www.e-stat.go.jp/}は日本国内の政府統計のポータルサイトである。各府省等が公表する各種の統計情報を閲覧、ダウンロード可能であり、Rなどのプログラムを介したデータ参照を行うためのAPIも整備されている。
+
+Rからはe-StatのAPIを操作する**estatapi**パッケージを使うことで、提供されるデータの一覧や、データの読み込み、ファイルダウンロードが可能となる。APIの利用にはe-Statでのメールアドレス等の登録が必要となるが、ここではあらかじめ用意したアプリケーションIDを用いる例を紹介する。なお本書の付録として、e-Statからダウンロードしたデータを掲載しているので、アプリケーションIDの取得を行わないでも実行可能である。
+
+```{r}
+library(estatapi)
+```
+
+### 学校保健統計調査
+
+「学校保健統計調査」は、学校における幼児、児童及び生徒の発育及び健康の状態を明らかにすることを目的に行われている。調査の対象は、文部科学大臣があらかじめ指定する学校に在籍する満5歳から17歳（4月1日現在）までの幼児、児童及び生徒となっている。調査は毎年実施され、学校保健安全法により義務づけられている健康診断の結果に基づき、発育及び健康状態に関する事項（身長、体重及び被患率等）に関する調査結果が記録されている\footnote{文部科学省の調査の概要ページ \url{http://www.mext.go.jp/b_menu/toukei/chousa05/hoken/gaiyou/chousa/1268648.htm}}。
+
+このデータがe-StatのAPIで取得可能かどうか、まずは**estatapi**パッケージの`estat_getStatsList()`で調べてみよう。`estat_getStatsList()`には引数*appId*があり、ここに取得したアプリケーションIDを指定する。
+
+```{r, include = FALSE, purl = FALSE}
+df_list <- 
+  read_rds(here::here("data-raw", "age_height_list.rds"))
+df_age_height <-
+  read_rds(here::here("data", "age_height.rds"))
+```
+
+```{r, eval = FALSE, echo = TRUE}
+df_list <- 
+  estat_getStatsList(appId      = "<APIで取得したアプリケーションID>", 
+                     searchWord = "学校保健統計調査")
+```
+
+**df_list**を見ると、学校保健統計調査に関する様々なデータがあることが確認できる。その中から、今回は「学校保健統計調査による身体発育値」の名目で記録されたデータを抽出してみよう。
+
+```{r}
+df_list %>% 
+  filter(str_detect(TITLE, regex("学校保健統計調査による身体発育値")))
+```
+
+「学校保健統計調査による身体発育値」の項目には5件のデータが該当している。STATISTICS_NAME列を見ると、データは平成22年度以降、平成26年度、平成27年度の3期間に渡り、平成26年と27年ではLMS法を採用した項目が別にあることが確認できる。
+
+**estatapi**パッケージを使ったe-Statのデータ取得には、対象データの第一列に記録された"\@id"の値が必要となる。そのため、取得対象のデータを決めたらこの値を控えておくと良い。次の処理では、データフレーム中の"\@id"列の値を参照するが、LMS法の項目を区別するために正規表現による抽出を試みている。
+
+```{r}
+# 「学校保健統計調査による身体発育値」のデータを取得するためのIDを控えておく
+ids <- 
+  df_list %>% 
+  # regex()内で正規表現のパターンマッチを行い、「身体発育値」で終わる項目を抽出する
+  filter(str_detect(TITLE, regex("学校保健統計調査による身体発育値$"))) %>% 
+  .$`@id`
+
+ids
+```
+
+抽出されたデータの件数は3件である。次はこの"\@id"から、R上にデータを読み込んでみよう。データ取得は`estat_getStatsData()`で対象の統計データIDおよびアプリケーションIDを指定して行う。
+
+```{r, eval = FALSE, echo = TRUE}
+estat_getStatsData(
+      appId = config::get("estat_token"),
+      statsDataId = ids[1])
+```
+
+学校保健統計調査は年に一度であるが、今回取得可能なデータの件数は3期間分ある。これを一つのデータフレームとして処理するには、次のように`purrr::map_dfr()`を使い、`estat_getStatsData()`の*statsDataId*引数にidsの要素を一つずつ渡して実行し、行方向への結合を行うと良い。
+
+```{r, eval = FALSE, echo = TRUE, results = "hide"}
+df_age_height <- 
+  ids %>% 
+  map_dfr(
+    ~ estat_getStatsData(
+      appId = "<API token>",
+      statsDataId = .x
+    )
+  )
+```
+
+それでは`tibble::glimpse()`を使い取得したデータを確認しよう。
+
+```{r}
+glimpse(df_age_height)
+```
+
+次に、ここから**dplyr**のデータ操作関数を使いながらデータを加工していこう。まずは今後使う列だけを選択する。また、この際に日本語の列名から適当な列名に変更を行う。各列の値はそれぞれ以下の項目を示している。
+
+type:
+  計測項目。身長、体重、座高の3種がある。
+
+gender:
+  性別。「男」と「女」の二値が記録されている。
+
+percent:
+  データのパーセンタイル値。
+  
+age:
+  対象者の学年および年齢。
+  
+fiscal_year:
+  調査の実施年度。
+
+value:
+  計測項目 typeごとの計測値。
+
+```{r}
+df_age_height <- 
+  df_age_height %>% 
+  select(type = `表章項目`,
+         gender = `性別`,
+         percent = `パーセンタイル`,
+         age = `学校種別-年齢別（5～17歳）`,
+         fiscal_year = `時間軸(年次)`,
+         value)
+
+glimpse(df_age_height)
+```
+
+type、ageの列には、括弧の中に計測値の単位、対象者の年齢が記録されている。これを**tidyr**の`extract()`で新たな列として独立させよう。
+
+```{r}
+df_age_height <- 
+  df_age_height %>% 
+  extract(type, into = c("type", "unit"),
+           regex = "(.+)(\\([[:alnum:]]{1,}+\\))") %>% 
+  extract(age, into = c("school", "age"),
+          regex = "(^.+)(（.+$)")
+
+glimpse(df_age_height)
+```
+
+次に、単位のついたageとfiscal\_yearの列を対象として、数値を抽出する処理を実行する。ここでは対象列の指定に`mutate_at()`、数値の抽出に`parse_number()`を適用する。また、`mutate_at()`の適用後も、変数は元の文字列のデータ型を保持しているため、これを`type_convert()`を使い数値変数として扱えるようにしておこう。
+
+```{r}
+df_age_height <- 
+  df_age_height %>% 
+  mutate_at(vars(c("age", "fiscal_year")), parse_number) %>% 
+  type_convert()
+```
+
+```{r}
+df_age_height
+```
+
+こうして加工した学校保健統計調査のデータを、最後に**ggplot2**を使って可視化してみよう。まずは3種の計測項目("type")のデータのばらつきを`geom_density()`で表示させる。複数の項目からなるデータを、項目別に描画するには次のように`facet_wrap()`を使うと良い。
+
+```{r}
+df_age_height %>% 
+  ggplot(aes(value, color = gender)) + 
+  geom_density() +
+  # typeごとに図を分ける。
+  facet_wrap(~ type, 
+             # x軸はtypeごとに独立した軸をもつことを指定する
+             scales = "free_x",
+             # 分割して描画する図の列数
+             ncol = 3)
+```
+
+次の図は、2013年に記録された男女の身長データについてプロットしたものである。まず`filter()`を使い対象のデータを抽出する。x軸には年齢を指定するが、ここで元の"age"が数値であるために`forcats::as_factor()`を使い因子へと変換させた。
+
+```{r}
+df_age_height %>%
+  filter(str_detect(type, "身長"), 
+         fiscal_year == 2013) %>% 
+  ggplot(aes(forcats::as_factor(as.character(age)), value, 
+             group = percent, color = percent)) +
+  geom_point() +
+  geom_line() +
+  xlab("年齢") +
+  ylab("身長 (cm)")
+  facet_wrap(~ gender, ncol = 1)
+```
+
+## 気象庁の過去データ
+
+気象庁のウェブサイト (\url{http://www.jma.go.jp/jma/index.html})では、過去の起床データをダウンロードできるサービスが提供されている。ここでは、観測地点「つくば（館野）」での2017年における気象データを用意した。このデータを使い、気象庁のデータ整形と簡単な可視化を行おう。このデータを使わなくても気象庁の「過去の気象データ・ダウンロード」ページでダウンロードしたファイルには同様の処理が有効だろう。
+
+まずダウンロードしたファイルの読み込みを実施する。元のデータはcsv形式で提供されるが、エンコーディングがWindows向けとなっているため、文字化けを防ぐために`readr::locale()`でエンコードの指定する。また先頭行はファイルをダウンロードした時刻と対象の観測所名が記録されているので、これらの読み込みを引数*skip*で除外しよう。
+
+```{r}
+df_weather <- 
+  read_csv("data-raw/jma_tsukubka_2017data.csv", 
+           locale = locale(encoding = "cp932"), 
+           skip = 3)
+```
+
+データを確認すると、平均気温、最高気温などの各項目にその値と品質情報、均質番号が記録された列があることがわかる。欲しいのは項目の値であるので品質情報および均質番号の列はデータから削除しよう。これには、品質情報および均質番号の列が最初の行だけ値があり、あとは欠損値であることを利用して、対象の変数をベクトルとして得る次の処理を実行すると良いだろう。
+
+```{r}
+glimpse(df_weather)
+
+select_vars <-
+  df_weather %>%
+  slice(2L) %>%
+  select_if(.predicate = is.na(.)) %>%
+  names()
+
+df_weather <- 
+  df_weather %>% 
+  slice(-c(1:2L)) %>% 
+  select(select_vars)
+```
+
+```{r}
+df_weather <- 
+  df_weather %>% 
+  type_convert() %>% 
+  rename(date = `年月日`) %>% 
+  mutate(date = ymd(date))
+
+df_weather %>% 
+  # extract(`平均気温(℃)`, into = "temp_mean", convert = TRUE) %>% 
+  # extract(`最低気温(℃)`, into = "temp_min", convert = TRUE) %>% 
+  # extract(`最高気温(℃)`, into = "temp_max", convert = TRUE) %>% 
+  gather(type, value, -date, convert = TRUE) %>% 
+  type_convert()
+
+df_weather_temp <- 
+  df_weather %>% 
+  select(1, contains("気温"))
+```
+
+
+```{r, eval = FALSE}
+df_weather_temp %>% 
+  gather(class, value, -date) %>% 
+  ggplot(aes(date, value, color = class)) +
+  geom_line()
+```
+
+## 「青果物卸売市場調査（平成29年年間計及び月別結果）」（農林水産省）
+
+
+```{r, eval = FALSE}
+library(readxl)
+
+xx <- c("卸売数量", "卸売価額", "卸売価格")
+
+df_1 <- 
+  read_excel("data-raw/seika_oroshi17.xls", sheet = 7, skip = 5, 
+             col_names = c(NA, 
+                           "国産_輸入", "品目", "種別",
+                           NA,
+                           str_c("主要都市の市場計", "_", xx),
+                           str_c("対　　前　　年　　比", "_", xx),
+                           str_c("１月", "_", xx),
+                           str_c("２月", "_", xx),
+                           str_c("３月", "_", xx),
+                           NA)) %>% 
+  mutate_at(vars(contains("月")), .funs = funs(recode(., `-` = NA_character_))) %>% 
+  slice(-c(1:4)) %>% 
+  select(-num_range("X__", 1:3)) %>% 
+  fill(`国産_輸入`, `品目`, .direction = "down") %>% 
+  drop_na(`国産_輸入`)
+
+df_2 <- 
+  read_excel("data-raw/seika_oroshi17.xls", sheet = 8, skip = 5,
+             col_names = c(NA, 
+                           "国産_輸入", "品目", "種別",
+                           NA,
+                           str_c("４月", "_", xx),
+                           str_c("５月", "_", xx),
+                           str_c("６月", "_", xx),
+                           str_c("７月", "_", xx),
+                           str_c("８月", "_", xx),
+                           str_c("９月", "_", xx),
+                           NA)) %>% 
+  mutate_at(vars(contains("月")), .funs = funs(recode(., `-` = NA_character_))) %>% 
+  slice(-c(1:4)) %>% 
+  select(-num_range("X__", 1:3)) %>% 
+  fill(`国産_輸入`, `品目`, .direction = "down") %>% 
+  drop_na(`国産_輸入`)
+
+df_3 <- 
+  read_excel("data-raw/seika_oroshi17.xls", sheet = 9, skip = 5,
+           col_names = c(NA, "国産_輸入", "品目", "種別",
+                         NA,
+                         str_c("10月", "_", xx),
+                         str_c("11月", "_", xx),
+                         str_c("12月", "_", xx))) %>% 
+  mutate_at(vars(contains("月")), .funs = funs(recode(., `-` = NA_character_))) %>% 
+  slice(-c(1:4)) %>% 
+  select(-num_range("X__", 1:2)) %>% 
+  fill(`国産_輸入`, `品目`, .direction = "down") %>% 
+  drop_na(`国産_輸入`)
+```
+
+```{r, eval=FALSE}
+df_seika <- 
+  left_join(df_1, df_2, by = c("国産_輸入", "品目", "種別")) %>% 
+  left_join(df_3, by = c("国産_輸入", "品目", "種別")) %>% 
+  filter_at(vars(`品目`, `種別`), any_vars(!is.na(.))) %>% 
+  group_by_at(vars(-contains("主要都市の市場計"), -contains("対　　前　　年　　比"))) %>% 
+  nest() %>%
+  gather(key, value, -`国産_輸入`, -`品目`, -`種別`, -data) %>% 
+  separate(key, c("month", "key"), sep = "_") %>% 
+  type_convert()
+```
+
+```{r, eval = FALSE}
+df_seika %>% 
+  filter(key == "卸売数量", month == "１月") %>% 
+  group_by(`品目`) %>% 
+  summarise(value = sum(value)) %>% 
+  mutate(`品目` = forcats::fct_reorder(`品目`, value)) %>% 
+  drop_na() %>% 
+  ggplot(aes(`品目`, value)) +
+  geom_bar(stat = "identity")
+
+df_seika %>% 
+  filter(key == "卸売数量", `品目` == "りんご計", !is.na(種別)) %>% 
+  ggplot(aes(month, value, color = `種別`, group = `種別`)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~ `国産_輸入`)
+```
+

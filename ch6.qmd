@@ -1,0 +1,351 @@
+# tidyverseの組み合わせ {#tidyverse}
+
+前章までに扱ってきたtidyverseに含まれる個々のパッケージは、組み合わせて使うことでより多様な場面で活用することが期待される。例えばデータの読み込みを**readr**で行い、パイプ処理で**dplyr**による処理を適用できる。また、データフレームに含まれる文字列変数の操作に**stringr**を導入することも可能である。また、tidyrverseに含まれないパッケージであっても**dplyr**のデータ操作関数に適用しても良い。この章では、そのようなtidyverseのパッケージの組み合わせた活用方法を見ていくことにする。新たに用いる関数については都度解説を加えていくが、個別の関数の説明は該当するパッケージを扱っている章を参照してほしい。
+
+## SNSデータの処理
+
+それでは**tidyverse**パッケージを読み込もう。`library(tidyverse)`を実行すると1章で述べたように、tidyverseに含まれる複数のパッケージが一度に利用可能な状態となる。
+
+```{r}
+library(tidyverse)
+```
+
+また、追加で次のパッケージを読み込んでおく。これらは4章で扱った、文字列および日付・時間の処理を効率的に行うための関数を提供する。
+
+```{r}
+# tidyverseパッケージに含まれないパッケージを追加で利用可能にしておく
+library(stringi)
+library(lubridate)
+```
+
+対象データとして、架空SNSのデータを利用する。こちらも**readr**の関数を用いて作業スペースに保存しておこう。**readr**パッケージはtidyverseに含まれるパッケージであるため、すでにデータ読み込み関数`read_csv()`を呼び出せるようになっている。
+
+```{r}
+# library(readr) を実行する必要はない
+df_sns <- 
+  read_csv("data/sns.csv")
+```
+
+```{r, purl = FALSE}
+# データの先頭行および各変数のデータ型を確認
+df_sns
+```
+
+### 期間を指定したデータの抽出
+
+**df_sns**の変数post\_timeは日付・時間を示すPOSIXctクラスである。例えばこのような変数をもつデータに対して、特定の期間だけを抽出するというような処理を実行してみよう。これを行うには2つの方法が考えられ、一つは**lubridate**パッケージの演算子`%within%`と`interval()`を用いる方法、もう一つは`dplyr::between()`の上限と下限を設定する方法である。
+
+```{r, results = "hide", eval = FALSE}
+# POSIXctの変数から2つの時期を指定して抽出する
+# %within% 演算子は lubridateパッケージに含まれる
+df_filter_date1 <-
+  df_sns %>% 
+  filter(
+    post_time %within% interval(ymd_hms("2016-06-01 00:00:00"), ymd_hms("2016-06-05 23:59:59"))
+  )
+
+df_filter_date2 <- 
+  df_sns %>% 
+  filter(between(
+    post_time,
+    ymd_hms("2016-06-01 00:00:00"),
+    ymd_hms("2016-06-05 23:59:59")
+))
+
+# 2つの処理の結果は等しい
+all.equal(df_filter_date1, df_filter_date2)
+```
+
+なおこの例では対象の期間を指定するために`lubridate::ymd_hms()`を用いたが、Rの標準関数である`Sys.time()`や`as.POSIXct()`を使って作成したPOSIXctクラスのオブジェクトであっても問題はない。
+
+```{r, eval = FALSE, echo = TRUE, purl = FALSE}
+# ymd_hms()の代わりにas.POSIXct()を用いる方法
+df_sns %>% 
+  filter(between(
+    post_time,
+    as.POSIXct(1464739200, origin = "1970-01-01"),
+    as.POSIXct(1465171199, origin = "1970-01-01")
+))
+```
+
+### 日付による集計
+
+SNSデータには、投稿時間とともにユーザを識別するuser\_id列がある。これを利用することで、興味のある月ごとにどれだけの投稿があったのか、どれだけのユーザが活動していたのかということや、ユーザの利用状況について集計することができる。こうした処理について、**dplyr**による実行例を見てみよう。
+
+#### 利用期間の算出
+
+最初の例は、データ中でのユーザの利用期間について、ユーザ毎の最初と最後の投稿時間を得て、そこから算出するものである。この処理はいくつかの段階に分かれて行われる。順を追って説明しておこう。
+
+まず`lubridate::as_date()`で日付・時間の変数を日付へと変換する。次にユーザごとの処理を適用するために`group_by()`を実行し、ユーザごとのデータの集計値として`summarise()`で投稿の回数を`n()`で、最初と最後の投稿時間を`first()`および`last()`を使って求めている。
+
+```{r}
+df_sns_user_session <- 
+  df_sns %>% 
+  # 日付・時間の変数を日付データに変換した列を追加
+  mutate(date = as_date(post_time)) %>% 
+  group_by(user_id) %>% 
+  # 投稿の回数, 投稿日時から最初と最後のデータを取得する
+  summarise(n          = n(),
+            first_post = first(date),
+            last_post  = last(date))
+
+df_sns_user_session
+```
+
+この出力は、ユーザID user\_id、投稿回数 n、投稿を行った最初と最後の日付 first\_postおよびlast\_postである。続いて、各ユーザの最初の投稿日と最後の投稿日から`lubridate::interval()`を使ってデータ中の利用期間を求める。ここで投稿が一度しかないユーザは、利用期間が0となる。また、`interval()`によって算出されるIntervalオブジェクトの結果を理解しやすくするため、期間を日数に変換した列を作成する。
+
+```{r}
+df_sns_user_session_period <- 
+  df_sns_user_session %>% 
+  transmute(user_id,
+            n,
+            usage_period      = interval(first_post, last_post),
+            usage_period_days = as.numeric(usage_period, "days"))
+
+df_sns_user_session_period
+```
+
+#### 期間中のカウント
+
+次は、任意の期間を設定し、期間中の投稿件数と活動のあったユーザの数を調べてみよう。ここでは月単位でのデータを扱うことにする。**df\_sns**には月を示す変数がないため、まずは既存の変数を元に、投稿の年月を示すpost\_ym列を用意する。
+
+```{r}
+df_sns_yr <- 
+  df_sns %>%
+  transmute(
+    user_id,
+    # 日付・時間の変数 post_timeの値から年、月を抽出
+    post_ym = str_c(year(post_time), 
+                    # 月の桁数を2桁に揃えるためにstringr::str_pad()を利用
+                    str_pad(month(post_time), width = 2, pad = "0")))
+```
+
+ここでは、ユーザを識別するための user_id列以外の列は不要となるため、`transmutate()`を利用した。年および月の値の抽出には**lubridate**の関数を使っている。また月の値が1,12と桁数が異なるため、`stringr::str_pad()`による桁揃えを実行した。これにより作成された**df_sns_yr**は次のようになっている。
+
+```{r}
+df_sns_yr
+```
+
+では月ごとに全ユーザでどれだけの投稿があったかを求めよう。対象の行数を指定してカウントを行う`count()`を実行するだけで計算が行われる。
+
+```{r}
+# 月ごとの投稿件数 n を求める
+df_sns_users <- 
+  df_sns_yr %>% 
+  count(post_ym)
+
+df_sns_users
+```
+
+今度は、月ごとに投稿のあったユーザの数、いわゆるユニークユーザ数を調べてみよう。ユニークユーザを求めるには、1月の中で複数のデータがあるユーザに対して1つのデータとして処理する必要がある。これは次のように`distinct()`を使うことで対応できる。後の処理は上記の月ごとの投稿件数と同じであるが、最後に`rename()`による列名の変換を行う。
+
+```{r}
+df_sns_unique_users <- 
+  df_sns_yr %>% 
+  # ユニークなデータとする組み合わせを指定
+  distinct(user_id, post_ym) %>% 
+  count(post_ym) %>% 
+  rename(unique_user = n)
+```
+
+では、月ごとのユニークユーザ数および投稿件数をまとめて見てみよう。共通のキーとなる変数をもった2つのデータを結合する`left_join()`を利用する。引数*by*で指定するキー変数はここでは投稿月 post_ymである。先ほどユニークユーザ数の算出でカウントした変数名の変更を行ったのは、キー変数に追加しない含めないためである。
+
+```{r}
+# 2つのデータフレームを結合
+df_sns_user_count <- 
+  left_join(
+  df_sns_unique_users,
+  df_sns_users,
+  by = "post_ym"
+)
+
+df_sns_user_count
+```
+
+最後に、この結果を可視化するためのコードを以下に示す。ユニークユーザ数も投稿件数も、同一の月ごとに計算されたカウントの値であるため、`tidyr::gather()`を使い、一つの列に記録することとした。また可視化の際のラベルに日本語を用いるために`recode()`による値の置換を追加している。
+
+```{r}
+df_sns_user_count_plot <- 
+  df_sns_user_count %>% 
+  gather("type", "count", -post_ym) %>% 
+  mutate(type = recode(type,
+                       n = "投稿件数", 
+                       unique_user = "ユニークユーザ数"))
+
+df_sns_user_count_plot
+```
+
+```{r}
+ggplot(df_sns_user_count_plot,
+       aes(post_ym, count, group = type)) +
+  geom_point() + 
+  geom_line(aes(lty = type))
+```
+
+続いて、国籍・曜日別の投稿件数を調べるという処理を示す。曜日の情報は次のように`lubridate::wday()`を使うことで、日付の要素を含んだデータから簡単に求めることができる。
+
+```{r, warning = FALSE}
+df_sns_wod <- 
+  df_sns %>% 
+  # 国籍の情報がない行を除外
+  filter(!is.na(nationality)) %>% 
+  transmute(nationality,
+            # 投稿時間から曜日を取得。日本語での表記を採用するため
+            # locale引数を調整する
+            wod = wday(post_time, label = TRUE, abbr = TRUE, locale = "ja_JP.UTF-8"))
+
+df_sns_wod
+```
+
+次に`wday(locale = "ja_JP.UTF-8")`の指定により曜日の表記が日本語になったことに対応させて、国籍名も日本語に修正し、国籍・曜日別のデータの可視化を行おう。
+
+```{r}
+df_sns_wod <- 
+  df_sns_wod %>% 
+  mutate(nationality = recode(nationality,
+                              AU = "オーストラリア",
+                              CN = "中国",
+                              ES = "スペイン",
+                              FR = "フランス",
+                              GB = "イギリス",
+                              HK = "香港",
+                              ID = "インドネシア",
+                              IN = "インド",
+                              KR = "韓国",
+                              MY = "マレーシア",
+                              PH = "フィリピン",
+                              SG = "シンガポール",
+                              TH = "タイ",
+                              TW = "台湾",
+                              US = "アメリカ"))
+```
+
+```{r}
+df_sns_wod %>% 
+  count(wod, nationality) %>% 
+  ggplot(aes(wod, n)) + 
+  geom_bar(stat = "identity") +
+  xlab(NULL) +
+  ylab("投稿件数") +
+  facet_wrap(~ nationality)
+```
+
+同様に、国籍を大陸ごとにまとめてプロットを行う例を以下に示す。
+
+```{r}
+df_sns_wod %>% 
+  mutate(continent = fct_collapse(nationality,
+             アジア    = c("中国", "香港", "インドネシア", "インド", "韓国", 
+                         "マレーシア", "フィリピン", "シンガポール", "タイ", "台湾"),
+             アメリカ = c("アメリカ"),
+             ヨーロッパ  = c("スペイン", "フランス", "イギリス"),
+             オセアニア = c("オーストラリア"))) %>% 
+  count(wod, continent) %>% 
+  ggplot(aes(wod, n)) + 
+  geom_bar(stat = "identity") +
+  facet_wrap(~ continent) +
+  theme_bw(base_size = 14) 
+```
+
+
+### 地名の分割
+
+**df_sns**に記録されているaddress列は、都道府県名、市区町村名、町字の3要素に分解可能な住所文字列である。これを**dplyr**を使い、データフレームを対象とした操作で個々の要素に分割した列を作成する処理を考えてみよう。
+
+```{r}
+# addressには住所が記録されている
+df_sns$address[1:5]
+```
+
+ここでは**stringr**パッケージの関数を用いる例を説明する。都道府県と市区町村の抽出にはそれぞれ、文字列置換の関数`str_replace()`と文字列分割の関数`str_split()`を使う。データフレームに対して処理を適用する前にまずはベクトルを操作対象として結果を確認しておこう。
+
+都道府県名を取得するために、「都」、「道」、「府」、「県」を境界とし、前半を都道府県名にするパターンが考えられる。一方でこのパターンでは「京都府」の分割に失敗してしまう。そこで「都」の代わりに「東京都」を指定した次のパターンを実行することにする。
+
+```{r}
+# 抽出に失敗するパターン
+str_replace(
+  c("東京都渋谷区桜ヶ丘", 
+    "岡山県岡山市北区清心町", 
+    "茨城県つくば市小野川",
+    "京都府舞鶴市字浜"), 
+  pattern     = "(都|道|府|県).+", 
+  replacement = "\\1")
+
+# 都道府県名の抽出
+# 一致したパターンを再利用するために後方参照を行う
+str_replace(df_sns$address[5:10], 
+            pattern     = "(東京都|道|府|県).+", 
+            replacement = "\\1")
+```
+
+次に市区町村名であるが、これは先ほどの都道府県以降の文字列を得るために分割を行い、その後改めて後方参照による文字列置換を行うという方法をとる。
+
+```{r}
+# 市区町村名の抽出
+str_split(df_sns$address[15:20], 
+          pattern = "(東京都|道|府|県)", 
+          n       = 2) %>% 
+  purrr::map_chr(2) %>% 
+  str_replace(string      = ., 
+              pattern     = "(区|市|.+市 .+区|町|村).+", 
+              replacement =  "\\1")
+```
+
+ベクトルでの結果を確認したら、次はその処理を**dplyr**を使いデータフレームへ適用しよう。変数の参照にデータフレームのオブジェクト名とドル記号を省略し、変数名を直接指定したものを、`transmute()`あるいは`mutate()`へとコピーペーストするだけで良い。
+
+```{r}
+# transmute内の変数への処理は上記のコードをコピーペーストしたもの
+df_sns %>% 
+  transmute(address,
+            geo_prefecture = str_replace(address, "(東京都|道|府|県).+", "\\1"),
+            geo_city       = str_split(address, "(東京都|道|府|県)", n = 2) %>% 
+              map_chr(2) %>% 
+              str_replace(string      = ., 
+                          pattern     = "(区|市|.+市 .+区|町|村).+", 
+                          replacement =  "\\1"))
+```
+
+### 入れ子データへのグループ処理 {#grouping-data}
+
+グループ化したデータに含まれる値を操作するには、データを入れ子にしておくと便利である。ここでは**tidyr**と**purrr**による入れ子データへのグループ処理の例を見ていこう。
+
+まず処理を別々に適用したい入れ子データの作成であるが、これは`tidyr::nest()`を直接使う方法と`dplyr::group_by()`を間にはさむ実行方法がある。次の例は**df_sns**データの国籍 nationality列ごとにデータをグループ化し、入れ子データとして格納するものであるが、いずれも結果は等しい。
+
+```{r}
+df_sns_nest_nations <- 
+  df_sns %>% 
+  group_by(nationality) %>% 
+  nest()
+
+# 上記のコードと同じ処理を実行
+df_sns_nest_nations <- 
+  df_sns %>% 
+  nest(-nationality)
+```
+
+では国籍ごとに投稿件数が多いユーザ上位3名のuser_idおよび投稿件数を抽出する処理を実行しよう。ここで入れ子データへの関数の適用は**purrr**の`map*()`を使う。
+
+```{r}
+df_sns_nest_nations %>% 
+  transmute(
+    nationality,
+    max_n = map(data, ~
+      .x %>% 
+        count(user_id) %>% 
+        top_n(3, wt = n))
+  ) %>% 
+  unnest()
+```
+
+もう一つ、今度は国籍別の投稿件数とユニークユーザ数を求める処理を示す。
+
+```{r}
+df_sns_nest_nations %>% 
+  transmute(
+    nationality,
+    n = map_int(data, ~ nrow(..1)),
+    uu = map_int(data, ~ ..1 %>% distinct(user_id) %>% 
+                   nrow())
+  )
+```
+

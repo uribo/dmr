@@ -1,0 +1,34 @@
+project:
+  type: book
+  output-dir: docs
+  preview:
+    browser: true
+
+book:
+  title: "Rによるデータ解析のための前処理"
+  author: "Shinya Uryu"
+  date: "2022/5/2"
+  chapters:
+    - index.qmd
+    - ch1.qmd
+    - ch2.qmd
+    - ch3.qmd
+    - ch4.qmd
+    - ch5.qmd
+    - ch6.qmd
+    - ch7.qmd
+    - references.qmd
+  site-url: https://uribo.github.com/dmr
+  repo-url: https://github.com/uribo/dmr
+  repo-branch: main
+  repo-actions: [edit]
+  sharing: [twitter, facebook, linkedin]
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    code-link: true
+    use_issues_button: true
+    use_repository_button: true
