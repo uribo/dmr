@@ -1,0 +1,82 @@
+### コラム: ロケール
+
+Rのロケール設定について概要を述べる。
+
+```{r}
+library(magrittr)
+```
+
+
+```{r}
+# 出力される文字の確認。
+# ロケールによって入力と出力で文字が異なることがある
+"Àéülè¿ÏÛŒ"
+```
+
+Rでは`Sys.getlocale()`を引数なしで実行することで現在の環境でのロケールを確認することができる。引数の値として、ロケールのカテゴリーを与えた場合には、特定のカテゴリーのロケールが返される。
+
+```{r}
+# システムの現在のロケールを返す
+#   LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME の順に並ぶ
+Sys.getlocale()
+# ロケールの特定のカテゴリーを返す
+Sys.getlocale("LC_TIME")
+
+Sys.timezone(location = TRUE)
+```
+
+`Sys.getlocale()`などで出力される値は実行環境によって異なる可能性がある。上記の出力は著者の環境設定のものとなっている。`Sys.getlocale()`で出力された値をみるとロケールはen_US.UTF-8となっている。これはロケールの設定に英語 enを指定し、その中でアメリカ合衆国での表記を採用し、文字コードとしてUTF-8を利用することがわかる。ロケールはこのように、利用する言語と国コードによって表現されている\footnote{中国語 zhのロケールでは簡体字 zh\_Hans と繁体字 zh\_Hantが利用されているので必要に応じてロケールを分けられる}。
+
+なお、ロケールを指定する際の`Sys.setlocale()`での*locale*引数に与える書式は、使用するコンピュータのオペレーションシステムによって異なるため注意が必要である。
+
+<!-- 【あとで】Windowsでの検証 -->
+
+現在のロケールを変更するには`Sys.setlocale()`を利用する。ここではロケールに日本語の設定を指定して時間の表記で日本語を利用するように変更してみたい。ロケールを設定するには`Sys.setlocale()`関数の引数*category*と*locale*に対象のロケールカテゴリーとロケール名を指定する。`Sys.setlocale()`の引数*category*にはLC_COLLATE、LC_CTYPE、LC_MONETARY、LC_NUMERIC、LC_TIMEといったロケールを規定するカテゴリーを選択するが、通常はLC_ALLだけを指定することによって、これらのすべてのロケールを次の*locale*引数の値に統一しておくのが良いだろう。現在設定されているロケールを確認する`Sys.getlocale()`については前節で触れた通りであるが、現在のシステムでの時間帯は`Sys.timezone()`によって確認できる。
+
+```{r}
+# 特定のカテゴリーについてのロケールを設定する
+Sys.setlocale(category = "LC_TIME", locale = "de_DE.UTF-8")
+
+# ロケールを設定し直す
+Sys.setlocale(locale = "ja_JP.UTF-8")
+Sys.time() %>% format("%a %b %d %X %Y %Z")
+# 現在のロケールを再度確認する
+Sys.getlocale()
+```
+
+設定したロケールをデフォルトに戻すには、下記のように`Sys.setlocale()`の引数*locale*に何も指定せずに実行することでこれまで行った変更が放棄される。
+
+```{r}
+# システムのロケールを初期設定に戻す
+Sys.setlocale(locale = "")
+```
+
+引数`category`によってロケールのカテゴリーとして用意されている項目を個々に設定することも可能であるが、異なるロケールの混在はトラブルを引き起こしかねないため、`locale`引数による一括指定が便利である。
+
+```{r}
+Sys.time() %>% format("%a %b %d %X %Y %Z")
+Sys.setlocale(category = "LC_TIME", locale = "ja_JP")
+Sys.time() %>% format("%a %b %d %X %Y %Z")
+```
+
+```{r, eval = TRUE, echo = FALSE, purl = FALSE}
+# ロケールを戻しておく
+Sys.setlocale(locale = "")
+```
+
+```{r, eval = FALSE, purl = FALSE}
+# 日本語に関係するエンコード形式
+encode.jp <- c("EUC-JP", "ISO-2022-JP", "SJIS", "SHIFT_JIS", "CP932", "UTF8")
+is.element(encode.jp, iconvlist())
+```
+
+## 日本語の取り扱い
+
+手元のデータが文字化けを起こしている場合、`iconv()`や**`{stringr}`**の`str_conv()`関数を使って改めてエンコードを実行するという方法で対処可能である。
+
+```{r}
+x <- "\x82\xa0\x82\xa2\x82\xa4\x82\xa6\x82\xa8"
+iconv(x, from = "CP932", to = "UTF-8")
+# str_conv()では元のエンコードを指定するだけで自動的に現在のエンコード形式に変更する
+stringr::str_conv(x, encoding = "cp932")
+```

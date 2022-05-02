@@ -18,6 +18,12 @@ book:
     - ch6.qmd
     - ch7.qmd
     - references.qmd
+  appendices:
+    - magrittr.qmd
+    - character-encoding.qmd
+    - regular-expression.qmd
+    - datetime-format.qmd
+    - locale.qmd
   site-url: https://uribo.github.io/dmr/
   repo-url: https://github.com/uribo/dmr
   repo-branch: main
