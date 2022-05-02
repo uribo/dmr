@@ -18,7 +18,7 @@ book:
     - ch6.qmd
     - ch7.qmd
     - references.qmd
-  site-url: https://uribo.github.com/dmr
+  site-url: https://uribo.github.io/dmr/
   repo-url: https://github.com/uribo/dmr
   repo-branch: main
   repo-actions: [edit]

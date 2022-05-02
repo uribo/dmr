@@ -1,1 +1,1 @@
-Sitemap: https://uribo.github.com/dmr/sitemap.xml
+Sitemap: https://uribo.github.io/dmr/sitemap.xml

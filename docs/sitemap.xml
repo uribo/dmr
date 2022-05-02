@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uribo.github.com/dmr/index.html</loc>
-    <lastmod>2022-05-02T08:58:58.246Z</lastmod>
+    <lastmod>2022-05-02T09:03:33.710Z</lastmod>
   </url>
   <url>
     <loc>https://uribo.github.com/dmr/ch1.html</loc>
@@ -35,5 +35,9 @@
   <url>
     <loc>https://uribo.github.com/dmr/references.html</loc>
     <lastmod>2022-05-02T08:40:25.244Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uribo.github.io/dmr/index.html</loc>
+    <lastmod>2022-05-02T09:03:43.626Z</lastmod>
   </url>
 </urlset>
