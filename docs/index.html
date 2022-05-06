@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
-<meta name="generator" content="quarto-0.9.282">
+<meta name="generator" content="quarto-0.9.364">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
 <meta name="author" content="Shinya Uryu">
+
 <title>Rによるデータ解析のための前処理</title>
 <style>
 code{white-space: pre-wrap;}
@@ -14,11 +17,23 @@ div.column{display: inline-block; vertical-align: top; width: 50%;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 </style>
-<script src="site_libs/quarto-nav/quarto-nav.js"></script><script src="site_libs/quarto-nav/headroom.min.js"></script><script src="site_libs/clipboard/clipboard.min.js"></script><meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script><script src="site_libs/quarto-search/fuse.min.js"></script><script src="site_libs/quarto-search/quarto-search.js"></script><link href="./ch1.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js"></script><script src="site_libs/quarto-html/popper.min.js"></script><script src="site_libs/quarto-html/tippy.umd.min.js"></script><script src="site_libs/quarto-html/anchor.min.js"></script><link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./ch1.html" rel="next">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script><link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
@@ -28,50 +43,59 @@ ul.task-list{list-style: none;}
   "type": "textbox",
   "limit": 20,
   "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-no-results-text": "一致なし",
+    "search-matching-documents-text": "一致した文書",
+    "search-copy-link-title": "検索へのリンクをコピー",
+    "search-hide-matches-text": "追加の検索結果を非表示",
+    "search-more-match-text": "追加の検索結果",
+    "search-more-matches-text": "追加の検索結果",
+    "search-clear-button-title": "消去",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "検索"
   }
 }</script>
+
+
 </head>
-<body class="floating">
+
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
       <h1 class="quarto-secondary-nav-title">Rによるデータ解析のための前処理</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
     </div>
-  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Rによるデータ解析のための前処理</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
     <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
     <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
-<li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
             <i class="bi bi-bi-twitter pe-1"></i>
           Twitter
           </a>
         </li>
         <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
             <i class="bi bi-bi-facebook pe-1"></i>
           Facebook
           </a>
         </li>
         <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
             <i class="bi bi-bi-linkedin pe-1"></i>
           LinkedIn
           </a>
@@ -87,7 +111,7 @@ ul.task-list{list-style: none;}
       </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
-<li class="sidebar-item">
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link active">まえがき</a>
   </div>
@@ -134,13 +158,13 @@ ul.task-list{list-style: none;}
 </li>
         <li class="sidebar-item sidebar-item-section">
     <div class="sidebar-item-container"> 
-        <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Appendices</a>
+        <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">付録</a>
       <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
         <i class="bi bi-chevron-right ms-2"></i>
       </a>
     </div>
-    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
-<li class="sidebar-item">
+    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./magrittr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">コラム: magrittr</span></a>
   </div>
@@ -166,30 +190,33 @@ ul.task-list{list-style: none;}
   </div>
 </li>
     </ul>
-</li>
+  </li>
     </ul>
-</div>
-</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc"><h2 id="toc-title">Table of contents</h2>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">目次</h2>
    
   <ul>
-<li>
-<a href="#%E3%81%BE%E3%81%88%E3%81%8C%E3%81%8D" id="toc-まえがき" class="nav-link active" data-scroll-target="#%E3%81%BE%E3%81%88%E3%81%8C%E3%81%8D">まえがき</a>
+  <li><a href="#まえがき" id="toc-まえがき" class="nav-link active" data-scroll-target="#まえがき">まえがき</a>
   <ul class="collapse">
-<li><a href="#%E5%89%8D%E5%87%A6%E7%90%86%E3%81%A8r" id="toc-前処理とr" class="nav-link" data-scroll-target="#%E5%89%8D%E5%87%A6%E7%90%86%E3%81%A8r">前処理とR</a></li>
-  <li>
-<a href="#%E6%9C%AC%E6%9B%B8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" id="toc-本書について" class="nav-link" data-scroll-target="#%E6%9C%AC%E6%9B%B8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">本書について</a>
+  <li><a href="#前処理とr" id="toc-前処理とr" class="nav-link" data-scroll-target="#前処理とr">前処理とR</a></li>
+  <li><a href="#本書について" id="toc-本書について" class="nav-link" data-scroll-target="#本書について">本書について</a>
   <ul class="collapse">
-<li><a href="#%E6%9C%AC%E6%9B%B8%E3%81%AE%E6%A7%8B%E6%88%90" id="toc-本書の構成" class="nav-link" data-scroll-target="#%E6%9C%AC%E6%9B%B8%E3%81%AE%E6%A7%8B%E6%88%90">本書の構成</a></li>
-  <li><a href="#%E6%9C%AC%E6%9B%B8%E3%81%AE%E8%A1%A8%E8%A8%98%E6%B3%95" id="toc-本書の表記法" class="nav-link" data-scroll-target="#%E6%9C%AC%E6%9B%B8%E3%81%AE%E8%A1%A8%E8%A8%98%E6%B3%95">本書の表記法</a></li>
+  <li><a href="#本書の構成" id="toc-本書の構成" class="nav-link" data-scroll-target="#本書の構成">本書の構成</a></li>
+  <li><a href="#本書の表記法" id="toc-本書の表記法" class="nav-link" data-scroll-target="#本書の表記法">本書の表記法</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
-</li>
-  </ul>
-</li>
-  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/index.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/index.qmd" class="toc-action">編集</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
 <h1 class="title d-none d-lg-block">Rによるデータ解析のための前処理</h1>
 </div>
 
@@ -200,60 +227,69 @@ ul.task-list{list-style: none;}
 <div class="quarto-title-meta">
 
     <div>
-    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">作者</div>
     <div class="quarto-title-meta-contents">
              <p>Shinya Uryu </p>
           </div>
   </div>
     
     <div>
-    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-heading">公開</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">2022/5/2</p>
+      <p class="date">2022年5月2日</p>
     </div>
   </div>
     
   </div>
   
 
-</header><div class="callout-warning callout callout-style-default callout-captioned">
+</header>
+
+<div class="callout-warning callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-caption-container flex-fill">
-Warning
+警告
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>本リポジトリで扱っているRコードは全般的に古い状態にあります。 具体的には、おおよそ2017年時点で書かれたもののため、dplyrやtidyrなどの一部の関数で 現在推奨されていない関数や処理をそのまま使っている箇所があります。 これらの箇所については、順次最新の書き方に修正していきますが、その間、古いコードが混ざります。</p>
 </div>
 </div>
-<section id="まえがき" class="level1 unnumbered"><h1 class="unnumbered">まえがき</h1>
-<section id="前処理とr" class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="前処理とr">前処理とR</h2>
+<section id="まえがき" class="level1 unnumbered">
+<h1 class="unnumbered">まえがき</h1>
+<section id="前処理とr" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="前処理とr">前処理とR</h2>
 <!-- ここで述べたいことは何か? ... 前処理の重要性、多様なデータの種類-->
 <p>コンピュータサイエンスの分野に「Garbage in, garbage out(ガラクタを入れればガラクタが出てくる)」という格言がある。これは入力に用いるデータの質が悪い場合に、得られる結果の価値も低くなることを述べている。この言葉は、コンピュータサイエンスだけでなくデータ分析でも言える事柄である。例えばデータの中には入力の誤りや重複が含まれることがある。これらは非意図的に記録された値であり、存在に気づかずに分析を行ってしまうのは危険である。また、記録から漏れた欠損値や他の値と著しく異なる外れ値が含まれる場合、分析結果はこれらの値の影響を受ける。こうしたデータは「ガラクタ」であり、価値の低い結果を生み出す原因となる。こうしたデータは、分析目的やデータ全体を見ながら適切に片付ける必要がある。</p>
 <p>データに含まれる「ガラクタ」を処理するとともに、データそのものを綺麗に整える必要がある場合もある。コンピュータの処理は予測される入力値が与えられることにより処理が実行される（簡単な算術演算を行う時に、文字と数値が混在していては出力がエラーになる。予測された入力を元に正しい出力を行う）ため、データは目的の処理を行うために適した形でなければならない。これはデータ分析を行う上で最低限クリアしていなければならない課題である。このような一連の作業は「<strong>前処理</strong>」や「<strong>データクレンジング</strong>」と呼ばれ、データ分析を行う際には、大きな役割を担っている。</p>
 <p>高価な家具が良質な木材と丁寧な処理によって出来上がるように、データ分析では前処理を通して可能な限り素材となるデータの質を高める必要がある。一方、前処理では不適切なデータが生み出された原因の追求や、データに対して繰り返しの修正を加えるため、本来の目的である解析作業より手間と時間がかかりやすい。したがって、前処理の手順を確立することは作業の効率化につながり、良い分析成果を得ることに繋がるだろう。</p>
-<p>データ解析環境であるRは、かつては主に解析やデータのグラフ化に利用され、前処理の作業はAwkなどのコマンドラインツールやその他のプログラミング言語に委ねられることが多かった。またRでデータに対する処理を行なうとしても、<code><a href="https://rdrr.io/r/base/apply.html">apply()</a></code>や<code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code>といったapply族の関数が使い回されていたが、apply族の関数の利用方法にはやや癖があり、初心者には決して易しくなかった。</p>
-<p>これに対し、Rでも2012年以降 <strong><a href="http://had.co.nz/plyr">plyr</a></strong>、<strong><a href="https://github.com/hadley/reshape">reshape2</a></strong>、<strong><a href="https://tidyr.tidyverse.org">tidyr</a></strong> といった直感的に使いやすく、データ処理に必要な関数を備えたパッケージが台頭してきた。2014年には<strong><a href="http://had.co.nz/plyr">plyr</a></strong>の後継である<strong><a href="https://dplyr.tidyverse.org">dplyr</a></strong>パッケージが開発された。<strong><a href="https://dplyr.tidyverse.org">dplyr</a></strong>パッケージでは、統一的なコードで記述できるようになっており、より柔軟なデータ操作が可能になった。また<strong><a href="https://dplyr.tidyverse.org">dplyr</a></strong>では、リレーショナルデータベースを扱う関数が用意されており、データの取得から操作までを通して実行する環境が整備されている。このため現在では<strong><a href="https://dplyr.tidyverse.org">dplyr</a></strong>の関数を前処理や分析結果の整理に用いる方法が広まっている。そして2016年、Hadley Wichkamにより、データ取得およびデータ操作、可視化や統計モデリングの処理を調和的に利用可能にする<strong>tidyverse</strong>の概念が提唱された。ここにきてRによる前処理から分析結果の実行までの流れは成熟の兆しをみせている。</p>
+<p>データ解析環境であるRは、かつては主に解析やデータのグラフ化に利用され、前処理の作業はAwkなどのコマンドラインツールやその他のプログラミング言語に委ねられることが多かった。またRでデータに対する処理を行なうとしても、<code>apply()</code>や<code>tapply()</code>といったapply族の関数が使い回されていたが、apply族の関数の利用方法にはやや癖があり、初心者には決して易しくなかった。</p>
+<p>これに対し、Rでも2012年以降 <strong><code>{plyr}</code></strong>、<strong><code>{reshape2}</code></strong>、<strong><code>{tidyr}</code></strong> といった直感的に使いやすく、データ処理に必要な関数を備えたパッケージが台頭してきた。2014年には<strong><code>{plyr}</code></strong>の後継である<strong><code>{dplyr}</code></strong>パッケージが開発された。<strong><code>{dplyr}</code></strong>パッケージでは、統一的なコードで記述できるようになっており、より柔軟なデータ操作が可能になった。また<strong><code>{dplyr}</code></strong>では、リレーショナルデータベースを扱う関数が用意されており、データの取得から操作までを通して実行する環境が整備されている。このため現在では<strong><code>{dplyr}</code></strong>の関数を前処理や分析結果の整理に用いる方法が広まっている。そして2016年、Hadley Wichkamにより、データ取得およびデータ操作、可視化や統計モデリングの処理を調和的に利用可能にする<strong>tidyverse</strong>の概念が提唱された。ここにきてRによる前処理から分析結果の実行までの流れは成熟の兆しをみせている。</p>
 <div class="cell">
 
 </div>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="images/fig-r-functional-history.png" class="img-fluid figure-img"></p>
+<figure class="figure">
+<p><img src="images/fig-r-functional-history.png" class="img-fluid figure-img"></p>
 <p></p><figcaption aria-hidden="true" class="figure-caption">Rにおける前処理で利用されるパッケージや概念の変遷</figcaption><p></p>
 </figure>
 </div>
 <p>一方、利用するデータを正確にRで扱えるようにするというのも前処理に欠かせない作業である。これまでデータ分析者はCSVやExcelといったファイルやリレーショナルデータベースのデータ、すなわち表形式のデータを主に扱ってきた。しかし今ではXMLやJSONといった階層構造をもつデータ形式や、NoSQLと呼ばれるデータベースの普及により、これらのデータソースからも柔軟にデータを取得することが求められている。加えて、インターネットを利用して提供されるウェブサイトの情報やウェブAPIを使ってデータを収集する機会も増えている。オープンソースであるRでは、こうしたデータソースの変化にも対応したパッケージの開発が盛んに行われている。Rは高機能なデータ開発環境としてますます多くのユーザーを惹き付けている。</p>
 <!-- 「データの収集と前処理」... tidyrによるデータ整形を強調するために変更-->
 <p>本書では「前処理のためのデータの収集と前処理」をモダンなRの手法で実現する方法を解説する。データの収集と前処理に共通してRを用いることには2つの利点があると筆者は考える。まず分析基盤の統合とRに対する熟練度の向上である。データ解析はRで、前処理は別のツールで行う場合、異なるツールを利用するためにどうしても思考プロセスを切り替える必要が生じてくる。データの収集と前処理がRで実行可能になれば、こうした思考の分断を防ぎ、作業に集中できるだろう。つまり、データの収集と前処理、そして解析をシームレスに実行できるということである。本書を通じて、データ分析に伴なう前処理の負担が少しでも軽減されれば筆者の幸いとするところである。</p>
-</section><section id="本書について" class="level2 unnumbered"><h2 class="unnumbered anchored" data-anchor-id="本書について">本書について</h2>
-<section id="本書の構成" class="level3 unnumbered"><h3 class="unnumbered anchored" data-anchor-id="本書の構成">本書の構成</h3>
+</section>
+<section id="本書について" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="本書について">本書について</h2>
+<section id="本書の構成" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="本書の構成">本書の構成</h3>
 <p><del>本書は、基礎編と実践編に分かれ、9の章から構成される。基礎編では、データ分析を行う上で留意すべき事項の確認から、Rへのデータの読み込み、基本となるデータ操作方法を学ぶ。<a href="./ch1.html">1章</a>は、Rにおけるデータの扱いの基礎や本書やRでのデータ分析には欠かせないデータフレームについて説明している。<a href="./ch2.html">2章</a>は、Rへデータを取り込む方法として、テキストファイル、Excelファイル、データベース、ウェブといった主要なデータ取得先を題材として紹介する。続く<a href="./ch3.html">3章</a>ではtidyverseの思想に沿ったモダンなデータ操作の導入を行う。この章は実践編の各章で重要な事項となる。</del></p>
 <p><del>実践編では基礎編の内容を踏まえた上で、前処理に必要な処理をデータ型ごとに章を分けて議論する。具体的には文字列と因子について<a href="./ch4.html">4章</a>および<a href="./ch5.html">5章</a>で取り上げる。また日付・時間データについて<a href="./ch6.html">6章</a>で、外れ値や欠損値の処理方法を<a href="./ch7.html">7章</a>で述べる。<a href="ch8.qmd">8章</a>では、分析を行うのに不適切なデータを整然とした形に修正する方法とデータを自由自在に変形させる方法を学ぶ。続く<a href="ch9.qmd">9章</a>は、これまで扱ってきた内容を振り返りながら、いくつかの例題を提示していく。これらを踏まえ、<a href="ch10.qmd">最終章</a>では実行したデータ操作の再現性確保に必要なデータ管理について議論する。各章は、データ分析で必要となる前処理の時系列を例に沿って構成されており、その意味で、章の順番通りに読み進めることで、データ分析の手順について理解を深めることができるであろう。ただし、各章の内容的にはそれぞれ完結しており、必要な章だけを重点的に読むことも可能なように書かれている。</del></p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure"><p><img src="images/fig-ch1-overview.png" class="img-fluid figure-img"></p>
+<figure class="figure">
+<p><img src="images/fig-ch1-overview.png" class="img-fluid figure-img"></p>
 <p></p><figcaption aria-hidden="true" class="figure-caption">本書の構成</figcaption><p></p>
 </figure>
 </div>
@@ -262,14 +298,23 @@ Warning
 <!-- あとで: 最終確認日 2017-07-10 -->
 <!-- あとで: Windowsでの動作確認表記もする。 -->
 <ul>
-<li>R version 4.1.2 (2021-11-01)</li>
-<li>macOS Monterey 12.3.1</li>
+<li>R version 4.1.3 (2022-03-10)</li>
+<li>macOS Monterey 12.3</li>
 </ul>
-<!-- * X11 --><!-- あとで: RStudio のバージョンを固定... 不要 --></section><section id="本書の表記法" class="level3 unnumbered"><h3 class="unnumbered anchored" data-anchor-id="本書の表記法">本書の表記法</h3>
+<!-- * X11 -->
+<!-- あとで: RStudio のバージョンを固定... 不要 -->
+</section>
+<section id="本書の表記法" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="本書の表記法">本書の表記法</h3>
 <p>本書では、Rのパッケージや関数について、次のように表記している。パッケージは<strong>package</strong>、関数は<code>function()</code>としたが、パッケージ間の関数名の衝突を避ける必要がある場合は <code>package::function()</code> と表記することもある。引数は <em>argument</em> のように斜体としている。またRの関数では引数名を省略して実引数を渡すことが可能であるが、複数の引数を取る関数については読者の理解を助けるために引数名を明示した。論理値については <em>TRUE</em> / <em>FALSE</em> とし、省略形の <em>T</em> や <em>F</em> は使っていない。同様に空白値 <em>NULL</em>や欠損値 <em>NA</em>も斜体で表記する。データフレームやベクトルなどのオブジェクトについては、<strong>x</strong> のように太字で記し、またデータの <em>変数</em> は斜体としている。</p>
 
 
-</section></section></section></main><!-- /main --><script type="application/javascript">
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const icon = "";
   const anchorJS = new window.AnchorJS();
@@ -291,7 +336,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
+    button.setAttribute("title", "完了");
     setTimeout(function() {
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
@@ -347,7 +392,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     });
   }
 });
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
       <a href="./ch1.html" class="pagination-link">
@@ -356,6 +403,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </div>
 </nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">Copyright 2022, Uryu Shinya</div>   
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/uribo">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/u_ribo">
+      <i class="bi bi-twitter" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
 
 
 

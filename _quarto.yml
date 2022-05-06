@@ -4,10 +4,20 @@ project:
   preview:
     browser: true
 
+lang: "ja"
+
 book:
   title: "Rによるデータ解析のための前処理"
   author: "Shinya Uryu"
   date: "2022/5/2"
+  page-footer:
+    background: light
+    left: "Copyright 2022, Uryu Shinya"
+    right:
+      - icon: github
+        href: https://github.com/uribo
+      - icon: twitter
+        href: https://twitter.com/u_ribo
   chapters:
     - index.qmd
     - ch1.qmd

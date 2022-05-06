@@ -38,15 +38,15 @@
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/index.html</loc>
-    <lastmod>2022-05-02T09:26:54.088Z</lastmod>
+    <lastmod>2022-05-06T07:38:45.295Z</lastmod>
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/locale.html</loc>
-    <lastmod>2022-05-02T09:26:34.726Z</lastmod>
+    <lastmod>2022-05-06T06:50:51.007Z</lastmod>
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/magrittr.html</loc>
-    <lastmod>2022-05-02T09:27:18.639Z</lastmod>
+    <lastmod>2022-05-06T06:50:51.005Z</lastmod>
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/character-encoding.html</loc>
@@ -54,10 +54,18 @@
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/regular-expression.html</loc>
-    <lastmod>2022-05-02T09:27:29.081Z</lastmod>
+    <lastmod>2022-05-06T06:50:51.006Z</lastmod>
   </url>
   <url>
     <loc>https://uribo.github.io/dmr/datetime-format.html</loc>
     <lastmod>2022-05-02T09:27:35.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uribo.github.io/dmr/references.html</loc>
+    <lastmod>2022-05-06T07:39:29.786Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uribo.github.io/dmr/ch1.html</loc>
+    <lastmod>2022-05-06T07:07:33.609Z</lastmod>
   </url>
 </urlset>

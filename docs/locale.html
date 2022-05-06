@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta charset="utf-8">
-<meta name="generator" content="quarto-0.9.282">
+<meta name="generator" content="quarto-0.9.298">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>Rによるデータ解析のための前処理 - Appendix E — コラム: ロケール</title>
 <style>
 code{white-space: pre-wrap;}
@@ -76,11 +79,23 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
-<script src="site_libs/quarto-nav/quarto-nav.js"></script><script src="site_libs/quarto-nav/headroom.min.js"></script><script src="site_libs/clipboard/clipboard.min.js"></script><meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script><script src="site_libs/quarto-search/fuse.min.js"></script><script src="site_libs/quarto-search/quarto-search.js"></script><link href="./datetime-format.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js"></script><script src="site_libs/quarto-html/popper.min.js"></script><script src="site_libs/quarto-html/tippy.umd.min.js"></script><script src="site_libs/quarto-html/anchor.min.js"></script><link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<link href="./datetime-format.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link id="quarto-text-highlighting-styles" href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script><link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
@@ -101,39 +116,48 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-submit-button-title": "Submit"
   }
 }</script>
+
+
 </head>
+
 <body class="floating">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
       <h1 class="quarto-secondary-nav-title">Appendix E — コラム: ロケール</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
     </div>
-  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Rによるデータ解析のための前処理</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/uribo/dmr" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
     <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
     <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
-<li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
             <i class="bi bi-bi-twitter pe-1"></i>
           Twitter
           </a>
         </li>
         <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
             <i class="bi bi-bi-facebook pe-1"></i>
           Facebook
           </a>
         </li>
         <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
             <i class="bi bi-bi-linkedin pe-1"></i>
           LinkedIn
           </a>
@@ -149,7 +173,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
-<li class="sidebar-item">
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">まえがき</a>
   </div>
@@ -201,8 +225,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <i class="bi bi-chevron-right ms-2"></i>
       </a>
     </div>
-    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
-<li class="sidebar-item">
+    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./magrittr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">コラム: magrittr</span></a>
   </div>
@@ -228,18 +252,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </div>
 </li>
     </ul>
-</li>
+  </li>
     </ul>
-</div>
-</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc"><h2 id="toc-title">Table of contents</h2>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-<li><a href="#%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%81%AE%E5%8F%96%E3%82%8A%E6%89%B1%E3%81%84" id="toc-日本語の取り扱い" class="nav-link active" data-scroll-target="#%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%81%AE%E5%8F%96%E3%82%8A%E6%89%B1%E3%81%84"> <span class="header-section-number">E.1</span> 日本語の取り扱い</a></li>
-  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/locale.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+  <li><a href="#日本語の取り扱い" id="toc-日本語の取り扱い" class="nav-link active" data-scroll-target="#日本語の取り扱い"> <span class="header-section-number">E.1</span> 日本語の取り扱い</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/uribo/dmr/edit/main/locale.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
 <h1 class="title d-none d-lg-block">Appendix E — コラム: ロケール</h1>
 </div>
 
@@ -254,82 +285,84 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </div>
   
 
-</header><p>Rのロケール設定について概要を述べる。</p>
+</header>
+
+<p>Rのロケール設定について概要を述べる。</p>
 <div class="cell">
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org">magrittr</a></span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># 出力される文字の確認。</span>
-<span class="co"># ロケールによって入力と出力で文字が異なることがある</span>
-<span class="st">"Àéülè¿ÏÛŒ"</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 出力される文字の確認。</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ロケールによって入力と出力で文字が異なることがある</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">"Àéülè¿ÏÛŒ"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Àéülè¿ÏÛŒ"</code></pre>
 </div>
 </div>
-<p>Rでは<code><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale()</a></code>を引数なしで実行することで現在の環境でのロケールを確認することができる。引数の値として、ロケールのカテゴリーを与えた場合には、特定のカテゴリーのロケールが返される。</p>
+<p>Rでは<code>Sys.getlocale()</code>を引数なしで実行することで現在の環境でのロケールを確認することができる。引数の値として、ロケールのカテゴリーを与えた場合には、特定のカテゴリーのロケールが返される。</p>
 <div class="cell">
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># システムの現在のロケールを返す</span>
-<span class="co">#   LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME の順に並ぶ</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale</a></span><span class="op">(</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># システムの現在のロケールを返す</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME の順に並ぶ</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.getlocale</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"</code></pre>
 </div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># ロケールの特定のカテゴリーを返す</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale</a></span><span class="op">(</span><span class="st">"LC_TIME"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ロケールの特定のカテゴリーを返す</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.getlocale</span>(<span class="st">"LC_TIME"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "en_US.UTF-8"</code></pre>
 </div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/timezones.html">Sys.timezone</a></span><span class="op">(</span>location <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.timezone</span>(<span class="at">location =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Asia/Tokyo"</code></pre>
 </div>
 </div>
-<p><code><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale()</a></code>などで出力される値は実行環境によって異なる可能性がある。上記の出力は著者の環境設定のものとなっている。<code><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale()</a></code>で出力された値をみるとロケールはen_US.UTF-8となっている。これはロケールの設定に英語 enを指定し、その中でアメリカ合衆国での表記を採用し、文字コードとしてUTF-8を利用することがわかる。ロケールはこのように、利用する言語と国コードによって表現されている。</p>
-<p>なお、ロケールを指定する際の<code><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale()</a></code>での<em>locale</em>引数に与える書式は、使用するコンピュータのオペレーションシステムによって異なるため注意が必要である。</p>
+<p><code>Sys.getlocale()</code>などで出力される値は実行環境によって異なる可能性がある。上記の出力は著者の環境設定のものとなっている。<code>Sys.getlocale()</code>で出力された値をみるとロケールはen_US.UTF-8となっている。これはロケールの設定に英語 enを指定し、その中でアメリカ合衆国での表記を採用し、文字コードとしてUTF-8を利用することがわかる。ロケールはこのように、利用する言語と国コードによって表現されている。</p>
+<p>なお、ロケールを指定する際の<code>Sys.setlocale()</code>での<em>locale</em>引数に与える書式は、使用するコンピュータのオペレーションシステムによって異なるため注意が必要である。</p>
 <!-- 【あとで】Windowsでの検証 -->
-<p>現在のロケールを変更するには<code><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale()</a></code>を利用する。ここではロケールに日本語の設定を指定して時間の表記で日本語を利用するように変更してみたい。ロケールを設定するには<code><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale()</a></code>関数の引数<em>category</em>と<em>locale</em>に対象のロケールカテゴリーとロケール名を指定する。<code><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale()</a></code>の引数<em>category</em>にはLC_COLLATE、LC_CTYPE、LC_MONETARY、LC_NUMERIC、LC_TIMEといったロケールを規定するカテゴリーを選択するが、通常はLC_ALLだけを指定することによって、これらのすべてのロケールを次の<em>locale</em>引数の値に統一しておくのが良いだろう。現在設定されているロケールを確認する<code><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale()</a></code>については前節で触れた通りであるが、現在のシステムでの時間帯は<code><a href="https://rdrr.io/r/base/timezones.html">Sys.timezone()</a></code>によって確認できる。</p>
+<p>現在のロケールを変更するには<code>Sys.setlocale()</code>を利用する。ここではロケールに日本語の設定を指定して時間の表記で日本語を利用するように変更してみたい。ロケールを設定するには<code>Sys.setlocale()</code>関数の引数<em>category</em>と<em>locale</em>に対象のロケールカテゴリーとロケール名を指定する。<code>Sys.setlocale()</code>の引数<em>category</em>にはLC_COLLATE、LC_CTYPE、LC_MONETARY、LC_NUMERIC、LC_TIMEといったロケールを規定するカテゴリーを選択するが、通常はLC_ALLだけを指定することによって、これらのすべてのロケールを次の<em>locale</em>引数の値に統一しておくのが良いだろう。現在設定されているロケールを確認する<code>Sys.getlocale()</code>については前節で触れた通りであるが、現在のシステムでの時間帯は<code>Sys.timezone()</code>によって確認できる。</p>
 <div class="cell">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># 特定のカテゴリーについてのロケールを設定する</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale</a></span><span class="op">(</span>category <span class="op">=</span> <span class="st">"LC_TIME"</span>, locale <span class="op">=</span> <span class="st">"de_DE.UTF-8"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 特定のカテゴリーについてのロケールを設定する</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setlocale</span>(<span class="at">category =</span> <span class="st">"LC_TIME"</span>, <span class="at">locale =</span> <span class="st">"de_DE.UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "de_DE.UTF-8"</code></pre>
 </div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># ロケールを設定し直す</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale</a></span><span class="op">(</span>locale <span class="op">=</span> <span class="st">"ja_JP.UTF-8"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ロケールを設定し直す</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setlocale</span>(<span class="at">locale =</span> <span class="st">"ja_JP.UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "ja_JP.UTF-8/ja_JP.UTF-8/ja_JP.UTF-8/C/ja_JP.UTF-8/en_US.UTF-8"</code></pre>
 </div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html">Sys.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="st">"%a %b %d %X %Y %Z"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.time</span>() <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">"%a %b %d %X %Y %Z"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "月  5 02 18時26分30秒 2022 JST"</code></pre>
+<pre><code>[1] "金  5 06 15時50分49秒 2022 JST"</code></pre>
 </div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># 現在のロケールを再度確認する</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.getlocale</a></span><span class="op">(</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 現在のロケールを再度確認する</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.getlocale</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "ja_JP.UTF-8/ja_JP.UTF-8/ja_JP.UTF-8/C/ja_JP.UTF-8/en_US.UTF-8"</code></pre>
 </div>
 </div>
-<p>設定したロケールをデフォルトに戻すには、下記のように<code><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale()</a></code>の引数<em>locale</em>に何も指定せずに実行することでこれまで行った変更が放棄される。</p>
+<p>設定したロケールをデフォルトに戻すには、下記のように<code>Sys.setlocale()</code>の引数<em>locale</em>に何も指定せずに実行することでこれまで行った変更が放棄される。</p>
 <div class="cell">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># システムのロケールを初期設定に戻す</span>
-<span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale</a></span><span class="op">(</span>locale <span class="op">=</span> <span class="st">""</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># システムのロケールを初期設定に戻す</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setlocale</span>(<span class="at">locale =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8"</code></pre>
 </div>
 </div>
 <p>引数<code>category</code>によってロケールのカテゴリーとして用意されている項目を個々に設定することも可能であるが、異なるロケールの混在はトラブルを引き起こしかねないため、<code>locale</code>引数による一括指定が便利である。</p>
 <div class="cell">
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html">Sys.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="st">"%a %b %d %X %Y %Z"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.time</span>() <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">"%a %b %d %X %Y %Z"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Mon May 02 18:26:30 2022 JST"</code></pre>
+<pre><code>[1] "Fri May 06 15:50:49 2022 JST"</code></pre>
 </div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/locales.html">Sys.setlocale</a></span><span class="op">(</span>category <span class="op">=</span> <span class="st">"LC_TIME"</span>, locale <span class="op">=</span> <span class="st">"ja_JP"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setlocale</span>(<span class="at">category =</span> <span class="st">"LC_TIME"</span>, <span class="at">locale =</span> <span class="st">"ja_JP"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "ja_JP"</code></pre>
 </div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html">Sys.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="st">"%a %b %d %X %Y %Z"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.time</span>() <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">"%a %b %d %X %Y %Z"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "月  5 02 18時26分30秒 2022 JST"</code></pre>
+<pre><code>[1] "金  5 06 15時50分49秒 2022 JST"</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -338,28 +371,31 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># 日本語に関係するエンコード形式</span>
-<span class="va">encode.jp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"EUC-JP"</span>, <span class="st">"ISO-2022-JP"</span>, <span class="st">"SJIS"</span>, <span class="st">"SHIFT_JIS"</span>, <span class="st">"CP932"</span>, <span class="st">"UTF8"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sets.html">is.element</a></span><span class="op">(</span><span class="va">encode.jp</span>, <span class="fu"><a href="https://rdrr.io/r/base/iconv.html">iconvlist</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 日本語に関係するエンコード形式</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>encode.jp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"EUC-JP"</span>, <span class="st">"ISO-2022-JP"</span>, <span class="st">"SJIS"</span>, <span class="st">"SHIFT_JIS"</span>, <span class="st">"CP932"</span>, <span class="st">"UTF8"</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">is.element</span>(encode.jp, <span class="fu">iconvlist</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="日本語の取り扱い" class="level2" data-number="E.1"><h2 data-number="E.1" class="anchored" data-anchor-id="日本語の取り扱い">
-<span class="header-section-number">E.1</span> 日本語の取り扱い</h2>
-<p>手元のデータが文字化けを起こしている場合、<code><a href="https://rdrr.io/r/base/iconv.html">iconv()</a></code>や<strong><a href="http://stringr.tidyverse.org">stringr</a></strong>の<code>str_conv()</code>関数を使って改めてエンコードを実行するという方法で対処可能である。</p>
+<section id="日本語の取り扱い" class="level2" data-number="E.1">
+<h2 data-number="E.1" class="anchored" data-anchor-id="日本語の取り扱い"><span class="header-section-number">E.1</span> 日本語の取り扱い</h2>
+<p>手元のデータが文字化けを起こしている場合、<code>iconv()</code>や<strong><code>{stringr}</code></strong>の<code>str_conv()</code>関数を使って改めてエンコードを実行するという方法で対処可能である。</p>
 <div class="cell">
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="va">x</span> <span class="op">&lt;-</span> <span class="st">"\x82\xa0\x82\xa2\x82\xa4\x82\xa6\x82\xa8"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/iconv.html">iconv</a></span><span class="op">(</span><span class="va">x</span>, from <span class="op">=</span> <span class="st">"CP932"</span>, to <span class="op">=</span> <span class="st">"UTF-8"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="st">"</span><span class="sc">\x82\xa0\x82\xa2\x82\xa4\x82\xa6\x82\xa8</span><span class="st">"</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">iconv</span>(x, <span class="at">from =</span> <span class="st">"CP932"</span>, <span class="at">to =</span> <span class="st">"UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "あいうえお"</code></pre>
 </div>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span class="co"># str_conv()では元のエンコードを指定するだけで自動的に現在のエンコード形式に変更する</span>
-<span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_conv.html">str_conv</a></span><span class="op">(</span><span class="va">x</span>, encoding <span class="op">=</span> <span class="st">"cp932"</span><span class="op">)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># str_conv()では元のエンコードを指定するだけで自動的に現在のエンコード形式に変更する</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>stringr<span class="sc">::</span><span class="fu">str_conv</span>(x, <span class="at">encoding =</span> <span class="st">"cp932"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "あいうえお"</code></pre>
 </div>
 </div>
 
 
-</section></main><!-- /main --><script type="application/javascript">
+</section>
+
+</main> <!-- /main -->
+<script type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const icon = "";
   const anchorJS = new window.AnchorJS();
@@ -437,7 +473,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     });
   }
 });
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
       <a href="./datetime-format.html" class="pagination-link">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">コラム: 日付・時間の書式</span></span>
       </a>          
